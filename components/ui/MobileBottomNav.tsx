@@ -11,6 +11,10 @@ export function MobileBottomNav() {
   const t = useTranslations("mobileNav");
   const pathname = usePathname();
 
+  // Hide on product detail pages — they render their own sticky message bar
+  // and the bottom nav would overlap it. /products is the catalog (kept).
+  if (/^\/products\/[^/]+$/.test(pathname)) return null;
+
   const tabs: { href: "/products" | "/stylist" | "/favorites" | "/dashboard"; label: string; icon: ReactNode; matches: (p: string) => boolean }[] = [
     {
       href: "/products",
