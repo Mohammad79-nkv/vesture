@@ -31,3 +31,23 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
+/* Horizontally-scrollable rails (mobile chip rows, etc.) without a visible bar. */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Reserve space for the fixed mobile bottom nav. Pages opt in by adding
+   `pb-safe-mobile-nav` so content doesn't hide behind the tab bar. */
+.pb-safe-mobile-nav {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) {
+  .pb-safe-mobile-nav {
+    padding-bottom: 0;
+  }
+}

@@ -36,7 +36,7 @@ export function CatalogChips() {
   const activeKey = computeActive(params);
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="-mx-6 flex gap-2 overflow-x-auto px-6 scrollbar-hide md:mx-0 md:flex-wrap md:px-0">
       {CHIPS.map((chip) => {
         const isActive = activeKey === chip.key;
         const isInert = chip.query === null;
@@ -48,7 +48,7 @@ export function CatalogChips() {
             aria-disabled={isInert}
             tabIndex={isInert ? -1 : undefined}
             className={[
-              "rounded-full border px-4 py-2 text-sm transition-colors",
+              "shrink-0 rounded-full border px-4 py-2 text-sm transition-colors",
               isActive
                 ? "border-ink bg-ink text-paper"
                 : "border-ink/15 bg-paper text-ink hover:border-ink/40",

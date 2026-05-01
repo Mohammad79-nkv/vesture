@@ -64,7 +64,17 @@
     "title": "Your AI stylist",
     "status": "Stylist · Online",
     "comingSoon": "Coming soon",
-    "comingSoonBody": "Chat with our stylist to find pieces from the makers you follow. Available in the next release."
+    "comingSoonBody": "Chat with our stylist to find pieces from the makers you follow. Available in the next release.",
+    "promoTitle": "Tell me what you're after.",
+    "promoSubtitle": "Talk to your AI stylist · {count} sellers"
+  },
+  "mobileNav": {
+    "discover": "Discover",
+    "stylist": "Stylist",
+    "saved": "Saved",
+    "me": "Me",
+    "search": "Search",
+    "favorites": "Favorites"
   },
   "product": {
     "addToFavorites": "Add to favorites",

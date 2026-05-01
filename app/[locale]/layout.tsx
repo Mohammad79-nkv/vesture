@@ -9,6 +9,7 @@ import "../globals.css";
 import { localeDirection, locales, type Locale } from "@/lib/i18n/config";
 import { Nav } from "@/components/ui/Nav";
 import { Footer } from "@/components/ui/Footer";
+import { MobileBottomNav } from "@/components/ui/MobileBottomNav";
 
 const latin = Manrope({
   variable: "--font-latin",
@@ -74,6 +75,7 @@ export default async function LocaleLayout({
             <Nav />
             {children}
             <Footer />
+            <MobileBottomNav />
           </NextIntlClientProvider>
         </body>
       </html>
