@@ -28,7 +28,7 @@ export function PinCard({
 
   return (
     <article className="group">
-      <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-mist`}>
+      <div className={`relative w-full ${aspectClass} overflow-hidden rounded-2xl bg-mist`}>
         <Link href={`/products/${product.slug}`} className="block h-full w-full">
           {cover && (
             <Image
