@@ -1,15 +1,23 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { auth } from "@clerk/nextjs/server";
-import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
-import { getPublishedProductBySlug } from "@/lib/services/product";
+import {
+  getPublishedProductBySlug,
+  listOtherSellerProducts,
+} from "@/lib/services/product";
 import { getOrCreateDbUser } from "@/lib/auth";
 import { isFavorited } from "@/lib/services/favorite";
+import { prisma } from "@/lib/adapters/prisma";
 import { formatPrice } from "@/lib/domain/money";
 import { pickLocalized } from "@/lib/domain/i18n";
-import { FavoriteButton } from "@/components/product/FavoriteButton";
+import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
+import { ProductGallery } from "@/components/product/ProductGallery";
+import { ProductMeta } from "@/components/product/ProductMeta";
+import { SizeAndContact } from "@/components/product/SizeAndContact";
+import { SellerCard } from "@/components/product/SellerCard";
+import { MoreFromSeller } from "@/components/product/MoreFromSeller";
+import { StylistCallout } from "@/components/marketing/StylistCallout";
 
 export default async function ProductDetailPage({
   params,
@@ -29,93 +37,154 @@ export default async function ProductDetailPage({
     { en: product.descriptionEn, ar: product.descriptionAr },
     locale,
   );
-  const storeName = pickLocalized(
-    { en: product.seller.storeNameEn, ar: product.seller.storeNameAr },
-    locale,
-  );
 
   const { userId: clerkId } = await auth();
+  const authenticated = Boolean(clerkId);
   let initiallyFavorited = false;
   if (clerkId) {
     const me = await getOrCreateDbUser();
     if (me) initiallyFavorited = await isFavorited({ userId: me.id, productId: product.id });
   }
 
-  const contactMessage = encodeURIComponent(
-    `Hi ${storeName}, I'm interested in "${title}" — ${process.env.NEXT_PUBLIC_APP_URL ?? ""}/${locale}/products/${product.slug}`,
-  );
-  const whatsappUrl = product.seller.whatsappE164
-    ? `https://wa.me/${product.seller.whatsappE164.replace(/^\+/, "")}?text=${contactMessage}`
-    : null;
+  // "More from this seller" + favorited set scoped to those products.
+  const others = await listOtherSellerProducts({
+    sellerId: product.seller.id,
+    excludeProductId: product.id,
+    limit: 6,
+  });
+
+  let othersFavoritedIds = new Set<string>();
+  if (clerkId && others.items.length > 0) {
+    const me = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { id: true },
+    });
+    if (me) {
+      const favs = await prisma.favorite.findMany({
+        where: { userId: me.id, productId: { in: others.items.map((p) => p.id) } },
+        select: { productId: true },
+      });
+      othersFavoritedIds = new Set(favs.map((f) => f.productId));
+    }
+  }
+
+  const productUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/${locale}/products/${product.slug}`;
+
+  // Hashtag chips: aiTags (Phase 3) plus deterministic ones from taxonomy so
+  // we always have something to show.
+  const hashtags = [
+    ...(product.aiTags ?? []),
+    product.category.toLowerCase(),
+    product.style?.toLowerCase(),
+    product.occasion?.toLowerCase(),
+  ].filter((s): s is string => Boolean(s));
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-10 lg:grid-cols-2">
-      <div className="space-y-3">
-        {product.images.map((img) => (
-          <div key={img.id} className="relative aspect-[3/4] bg-mist">
-            <Image
-              src={img.url}
-              alt={img.alt ?? title}
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
-              priority={img.position === 0}
-            />
+    <main className="flex flex-1 flex-col bg-mist">
+      <div className="mx-auto w-full max-w-[1400px] px-6 py-8">
+        <ProductBreadcrumb
+          trail={[
+            { label: t("breadcrumbDiscover"), href: "/products" },
+            { label: product.category },
+            { label: title },
+          ]}
+        />
+
+        <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_360px]">
+          {/* Gallery + info */}
+          <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
+            <ProductGallery images={product.images} title={title} />
+
+            <div className="flex flex-col">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-ink/55">
+                {t("eyebrowNewIn")} · {product.category}
+              </p>
+              <ProductTitle title={title} />
+
+              <p className="mt-6 max-w-prose whitespace-pre-line text-base leading-relaxed text-ink/75">
+                {description}
+              </p>
+
+              <div className="my-8 h-px bg-ink/10" />
+
+              <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+                <p className="text-3xl font-extrabold tracking-tight">
+                  {formatPrice(product.priceMinor, product.currency, locale)}
+                </p>
+                <span className="rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
+                  {t("available")}
+                </span>
+              </div>
+
+              <SizeAndContact
+                productId={product.id}
+                productTitle={title}
+                productUrl={productUrl}
+                sizes={product.sizes}
+                sellerHandle={product.seller.slug}
+                whatsappE164={product.seller.whatsappE164}
+                instagramUrl={product.seller.instagramUrl}
+                initiallyFavorited={initiallyFavorited}
+                authenticated={authenticated}
+                locale={locale}
+              />
+
+              <div className="mt-8">
+                <ProductMeta />
+              </div>
+
+              {hashtags.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {hashtags.slice(0, 6).map((tag) => (
+                    <span key={tag} className="text-xs text-primary">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="lg:sticky lg:top-24 lg:self-start">
-        <p className="mb-2 text-xs uppercase tracking-[0.2em] text-ink/60">
-          <Link
-            href={`/sellers/${product.seller.slug}`}
-            className="underline-offset-4 hover:underline"
-          >
-            {storeName}
-          </Link>
-        </p>
-        <h1 className="mb-4 text-3xl font-light">{title}</h1>
-        <p className="mb-6 text-xl">
-          {formatPrice(product.priceMinor, product.currency, locale)}
-        </p>
-
-        <p className="mb-6 whitespace-pre-line text-sm text-ink/80">{description}</p>
-
-        {product.sizes.length > 0 && (
-          <Row label={t("sizes")}>{product.sizes.join(" · ")}</Row>
-        )}
-        {product.colors.length > 0 && (
-          <Row label={t("colors")}>{product.colors.join(" · ")}</Row>
-        )}
-
-        <div className="mt-6 flex flex-col gap-3">
-          {whatsappUrl && (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-ink py-3 text-center text-sm uppercase tracking-wider text-paper hover:bg-ink/85"
-            >
-              {t("contactSeller")}
-            </a>
-          )}
-          <FavoriteButton
-            productId={product.id}
-            initial={initiallyFavorited}
-            authenticated={Boolean(clerkId)}
-            locale={locale}
-          />
+          {/* Seller side card */}
+          <SellerCard seller={product.seller} locale={locale}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink/55">
+              {t("recentBuyers")}
+            </p>
+            <p className="mt-2 text-sm text-ink/55">{t("noReviews")}</p>
+          </SellerCard>
         </div>
+
+        <StylistCallout />
+
+        <MoreFromSeller
+          locale={locale}
+          authenticated={authenticated}
+          favoritedIds={othersFavoritedIds}
+          seller={{
+            slug: product.seller.slug,
+            storeNameEn: product.seller.storeNameEn,
+            storeNameAr: product.seller.storeNameAr,
+          }}
+          products={others.items}
+          totalPublished={others.totalPublished}
+        />
       </div>
     </main>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+// Splits the title's last word and renders it in primary, matching the design's
+// "Cropped boucle [jacket]" treatment. Falls back to plain title for one word.
+function ProductTitle({ title }: { title: string }) {
+  const words = title.trim().split(/\s+/);
+  if (words.length < 2) {
+    return <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">{title}</h1>;
+  }
+  const last = words[words.length - 1];
+  const head = words.slice(0, -1).join(" ");
   return (
-    <p className="mb-1 text-sm">
-      <span className="text-xs uppercase tracking-wider text-ink/60">{label}: </span>
-      {children}
-    </p>
+    <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
+      {head} <span className="text-primary">{last}</span>
+    </h1>
   );
 }

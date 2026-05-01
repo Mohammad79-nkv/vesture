@@ -136,6 +136,33 @@ export function getProductForEdit(args: {
   });
 }
 
+// "More from this seller" — used at the bottom of the product detail page.
+export async function listOtherSellerProducts(args: {
+  sellerId: string;
+  excludeProductId: string;
+  limit?: number;
+}) {
+  const [items, totalPublished] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        sellerId: args.sellerId,
+        status: "PUBLISHED",
+        NOT: { id: args.excludeProductId },
+      },
+      orderBy: { publishedAt: "desc" },
+      take: args.limit ?? 6,
+      include: {
+        images: { orderBy: { position: "asc" }, take: 1 },
+        seller: { select: { slug: true, storeNameEn: true, storeNameAr: true } },
+      },
+    }),
+    prisma.product.count({
+      where: { sellerId: args.sellerId, status: "PUBLISHED" },
+    }),
+  ]);
+  return { items, totalPublished };
+}
+
 export function getPublishedProductBySlug(slug: string) {
   return prisma.product.findUnique({
     where: { slug, status: "PUBLISHED" },
@@ -147,6 +174,7 @@ export function getPublishedProductBySlug(slug: string) {
           slug: true,
           storeNameEn: true,
           storeNameAr: true,
+          countryCode: true,
           whatsappE164: true,
           instagramUrl: true,
         },
