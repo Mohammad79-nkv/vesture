@@ -66,7 +66,7 @@ export default async function ProductsPage({
   const [colA, colB] = distributeMasonry(withAspects, (item) => item.aspect.weight);
 
   return (
-    <main className="flex flex-1 flex-col bg-mist pb-safe-mobile-nav">
+    <main className="flex flex-1 flex-col overflow-x-hidden bg-mist pb-safe-mobile-nav">
       <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-5 py-6 sm:px-6 lg:grid-cols-[1fr_360px] lg:py-10">
         <section>
           <header className="mb-6 flex flex-col lg:mb-8">
@@ -113,10 +113,12 @@ export default async function ProductsPage({
             <p className="py-16 text-center text-ink/60">{t("empty")}</p>
           ) : (
             <>
-              {/* Mobile masonry — 2 server-balanced columns with varying aspects. */}
+              {/* Mobile masonry — 2 server-balanced columns with varying aspects.
+                  min-w-0 stops flex items from growing past their flex-basis when
+                  inner content (images) has intrinsic size. */}
               <div className="flex gap-2.5 lg:hidden">
                 {[colA, colB].map((col, ci) => (
-                  <div key={ci} className="flex flex-1 flex-col gap-2.5">
+                  <div key={ci} className="flex min-w-0 flex-1 flex-col gap-2.5">
                     {col.map(({ p, aspect }) => (
                       <PinCard
                         key={p.id}
