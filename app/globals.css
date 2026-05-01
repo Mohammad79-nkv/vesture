@@ -12,6 +12,7 @@
   --font-sans: var(--font-latin), system-ui, sans-serif;
   --font-arabic: var(--font-arabic), system-ui, sans-serif;
   --font-persian: var(--font-persian), system-ui, sans-serif;
+  --font-display: var(--font-display), Georgia, serif;
 }
 
 :root {

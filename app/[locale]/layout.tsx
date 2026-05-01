@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Manrope, IBM_Plex_Sans_Arabic, Vazirmatn } from "next/font/google";
+import { Manrope, IBM_Plex_Sans_Arabic, Vazirmatn, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { localeDirection, locales, type Locale } from "@/lib/i18n/config";
 import { Nav } from "@/components/ui/Nav";
+import { Footer } from "@/components/ui/Footer";
 
 const latin = Manrope({
   variable: "--font-latin",
@@ -27,6 +28,15 @@ const persian = Vazirmatn({
   variable: "--font-persian",
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Display serif for the "shop" / "verified" accent words. Italic only.
+const display = Playfair_Display({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["italic"],
   display: "swap",
 });
 
@@ -57,12 +67,13 @@ export default async function LocaleLayout({
       <html
         lang={locale}
         dir={dir}
-        className={`${latin.variable} ${arabic.variable} ${persian.variable} h-full antialiased`}
+        className={`${latin.variable} ${arabic.variable} ${persian.variable} ${display.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col bg-paper text-ink">
           <NextIntlClientProvider>
             <Nav />
             {children}
+            <Footer />
           </NextIntlClientProvider>
         </body>
       </html>

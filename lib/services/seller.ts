@@ -116,6 +116,27 @@ export function listSellersByStatus(status: SellerStatus) {
   });
 }
 
+// Approved sellers for the marketing landing's "Featured sellers" section.
+// Returns the slice + the total approved count for the "Browse all N" link.
+export async function listFeaturedSellers(limit = 6) {
+  const [items, totalApproved] = await Promise.all([
+    prisma.sellerProfile.findMany({
+      where: { status: "APPROVED" },
+      orderBy: { approvedAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        slug: true,
+        storeNameEn: true,
+        storeNameAr: true,
+        countryCode: true,
+      },
+    }),
+    prisma.sellerProfile.count({ where: { status: "APPROVED" } }),
+  ]);
+  return { items, totalApproved };
+}
+
 export function getSellerBySlug(slug: string) {
   return prisma.sellerProfile.findUnique({
     where: { slug, status: "APPROVED" },

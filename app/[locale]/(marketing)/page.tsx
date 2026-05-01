@@ -3,6 +3,8 @@ import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { notFound } from "next/navigation";
 import { StylistChatPreview } from "@/components/marketing/StylistChatPreview";
+import { HowItWorks } from "@/components/marketing/HowItWorks";
+import { FeaturedSellers } from "@/components/marketing/FeaturedSellers";
 
 export default async function HomePage({
   params,
@@ -64,6 +66,9 @@ export default async function HomePage({
           <StylistChatPreview />
         </div>
       </section>
+
+      <HowItWorks />
+      <FeaturedSellers locale={locale} />
     </main>
   );
 }

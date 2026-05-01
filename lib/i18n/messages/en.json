@@ -110,6 +110,45 @@
     "cta": "Build the look",
     "comingSoon": "Coming soon"
   },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "display": "shop",
+    "step1Title": "Buyers describe",
+    "step1Body": "Talk to the stylist like a friend. Feeling, fabric, occasion — even a screenshot from somewhere else.",
+    "step2Title": "AI matches",
+    "step2Body": "We search every connected seller in real time, ranking by your profile, taste history, and brief.",
+    "step3Title": "Sellers connect",
+    "step3Body": "Tap to message via Instagram or Vesture chat. Shipping and payments stay native to the seller.",
+    "step4Title": "Hashtag to import",
+    "step4Body": "Sellers tag #vesture under any post and our bot drafts the product. Photos, copy, suggested price."
+  },
+  "featuredSellers": {
+    "eyebrow": "Featured sellers",
+    "headlineLead": "Independent ateliers,",
+    "headlineAccent": "verified",
+    "browseAll": "Browse all {n}",
+    "follow": "Follow"
+  },
+  "footer": {
+    "tagline": "A discovery layer for independent fashion. Built in Tehran, shipping worldwide.",
+    "buyers": "Buyers",
+    "sellers": "Sellers",
+    "company": "Company",
+    "links": {
+      "discover": "Discover",
+      "stylist": "Stylist",
+      "savedBoards": "Saved boards",
+      "styleProfile": "Style profile",
+      "openShop": "Open a shop",
+      "instagramBot": "Instagram bot",
+      "pricing": "Pricing",
+      "api": "API",
+      "about": "About",
+      "editorial": "Editorial",
+      "press": "Press",
+      "contact": "Contact"
+    }
+  },
   "seller": {
     "becomeSeller": "Become a seller",
     "onboarding": {
