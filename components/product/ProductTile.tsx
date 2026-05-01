@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import { formatPrice } from "@/lib/domain/money";
 import { pickLocalized } from "@/lib/domain/i18n";
+import { swatchFor } from "@/lib/domain/swatch";
 import type { Locale } from "@/lib/i18n/config";
 import { SellerAvatar } from "@/components/ui/SellerAvatar";
 import { TileBookmark } from "./TileBookmark";
@@ -39,7 +40,8 @@ export function ProductTile({
     <div className="group relative">
       <Link
         href={`/products/${product.slug}`}
-        className="relative block aspect-[3/4] overflow-hidden rounded-2xl bg-mist"
+        className="relative block aspect-[3/4] overflow-hidden rounded-2xl"
+        style={{ backgroundColor: swatchFor(product.slug) }}
       >
         {cover && (
           <Image
@@ -47,7 +49,7 @@ export function ProductTile({
             alt={cover.alt ?? title}
             fill
             sizes="(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            className="object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.02]"
           />
         )}
       </Link>

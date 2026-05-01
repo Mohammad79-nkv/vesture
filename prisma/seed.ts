@@ -10,12 +10,85 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({ adapter });
 
-// ─── Test Cloudinary URLs ────────────────────────────────────────────────
-// Public Cloudinary demo asset that always works for development. Replace
-// with seller-specific images when real catalogs are seeded.
-const SAMPLE_IMG =
-  "https://res.cloudinary.com/demo/image/upload/w_800,c_fill,q_auto,f_auto/sample.jpg";
-const SAMPLE_PUBLIC_ID = "demo/sample";
+// ─── Sample imagery ──────────────────────────────────────────────────────
+// We seed real fashion-product imagery from DummyJSON's public CDN so the
+// catalog ships with category-appropriate photos out of the box. Each Vesture
+// product picks (deterministically by slug) one DummyJSON product from a
+// matching category and uses up to 3 of its images.
+//
+// If the network is unavailable at seed time, we fall back to Lorem Picsum so
+// the script still completes. Replace with real seller uploads once the
+// dashboard is in active use.
+
+type DummyProduct = { images: string[] };
+
+const DUMMY_CATEGORIES_BY_VESTURE: Record<string, { men: string[]; women: string[]; unisex: string[] }> = {
+  TOPS:        { men: ["mens-shirts"], women: ["tops"], unisex: ["tops", "mens-shirts"] },
+  BOTTOMS:     { men: ["mens-shirts"], women: ["womens-dresses"], unisex: ["womens-dresses"] },
+  DRESSES:     { men: ["womens-dresses"], women: ["womens-dresses"], unisex: ["womens-dresses"] },
+  OUTERWEAR:   { men: ["mens-shirts"], women: ["tops"], unisex: ["tops", "mens-shirts"] },
+  SHOES:       { men: ["mens-shoes"], women: ["womens-shoes"], unisex: ["mens-shoes", "womens-shoes"] },
+  BAGS:        { men: ["womens-bags"], women: ["womens-bags"], unisex: ["womens-bags"] },
+  ACCESSORIES: { men: ["mens-watches", "sunglasses"], women: ["womens-watches", "sunglasses"], unisex: ["sunglasses"] },
+};
+
+const dummyCache = new Map<string, DummyProduct[]>();
+
+async function fetchCategory(slug: string): Promise<DummyProduct[]> {
+  if (dummyCache.has(slug)) return dummyCache.get(slug)!;
+  try {
+    const res = await fetch(
+      `https://dummyjson.com/products/category/${slug}?limit=30&select=images`,
+    );
+    if (!res.ok) throw new Error(`${slug} → ${res.status}`);
+    const data = (await res.json()) as { products: DummyProduct[] };
+    dummyCache.set(slug, data.products);
+    return data.products;
+  } catch (e) {
+    console.warn(`  ⚠ DummyJSON ${slug} unavailable, falling back to picsum:`, e);
+    dummyCache.set(slug, []);
+    return [];
+  }
+}
+
+function hash(input: string): number {
+  let h = 0;
+  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+async function imagesForProduct(args: {
+  slug: string;
+  category: string;
+  gender: "MEN" | "WOMEN" | "UNISEX" | "KIDS";
+}) {
+  const map = DUMMY_CATEGORIES_BY_VESTURE[args.category];
+  const genderKey = args.gender === "MEN" ? "men" : args.gender === "WOMEN" ? "women" : "unisex";
+  const candidateCategories = map?.[genderKey] ?? ["tops"];
+
+  // Pool every DummyJSON product across the candidate categories.
+  const pool: DummyProduct[] = [];
+  for (const cat of candidateCategories) {
+    pool.push(...(await fetchCategory(cat)));
+  }
+
+  if (pool.length === 0) {
+    // Fallback: deterministic picsum photos.
+    return [0, 1, 2].map((i) => ({
+      url: `https://picsum.photos/seed/${encodeURIComponent(args.slug)}-${i}/720/900`,
+      publicId: `picsum/${args.slug}-${i}`,
+      position: i,
+    }));
+  }
+
+  const picked = pool[hash(args.slug) % pool.length]!;
+  const urls = picked.images.slice(0, 3);
+  return urls.map((url, i) => ({
+    url,
+    publicId: `dummyjson/${args.slug}-${i}`,
+    position: i,
+  }));
+}
 
 // ─── Seed data ───────────────────────────────────────────────────────────
 
@@ -120,6 +193,13 @@ const productsPerSeller: SeedProduct[][] = [
 async function main() {
   console.log("⏳ Seeding Vesture…");
 
+  // Idempotency: wipe products from prior seed runs (only seed sellers — leaves
+  // any real-user uploads untouched). Image rows cascade-delete via the schema.
+  const wiped = await prisma.product.deleteMany({
+    where: { seller: { user: { clerkId: { startsWith: "seed_user_" } } } },
+  });
+  if (wiped.count > 0) console.log(`  ↺ cleared ${wiped.count} prior seed products`);
+
   for (let i = 0; i < sellers.length; i++) {
     const s = sellers[i]!;
     const products = productsPerSeller[i]!;
@@ -154,12 +234,18 @@ async function main() {
     });
 
     for (const p of products) {
+      const productSlug = `${slugify(p.titleEn)}-${slugSuffix()}`;
+      const images = await imagesForProduct({
+        slug: productSlug,
+        category: p.category as string,
+        gender: p.gender as "MEN" | "WOMEN" | "UNISEX" | "KIDS",
+      });
       await prisma.product.create({
         data: {
           sellerId: seller.id,
           titleEn: p.titleEn,
           titleAr: p.titleAr,
-          slug: `${slugify(p.titleEn)}-${slugSuffix()}`,
+          slug: productSlug,
           descriptionEn: p.descriptionEn,
           descriptionAr: p.descriptionAr,
           priceMinor: p.priceMajor * 100,
@@ -173,11 +259,7 @@ async function main() {
           colors: p.colors,
           status: "PUBLISHED",
           publishedAt: new Date(),
-          images: {
-            create: [
-              { url: SAMPLE_IMG, publicId: SAMPLE_PUBLIC_ID, position: 0 },
-            ],
-          },
+          images: { create: images },
         },
       });
     }

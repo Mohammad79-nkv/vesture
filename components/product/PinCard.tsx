@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import { formatPrice } from "@/lib/domain/money";
 import { pickLocalized } from "@/lib/domain/i18n";
+import { swatchFor } from "@/lib/domain/swatch";
 import type { Locale } from "@/lib/i18n/config";
 import { SellerAvatar } from "@/components/ui/SellerAvatar";
 import { TileBookmark } from "./TileBookmark";
@@ -28,7 +29,10 @@ export function PinCard({
 
   return (
     <article className="group">
-      <div className={`relative w-full ${aspectClass} overflow-hidden rounded-2xl bg-mist`}>
+      <div
+        className={`relative w-full ${aspectClass} overflow-hidden rounded-2xl`}
+        style={{ backgroundColor: swatchFor(product.slug) }}
+      >
         <Link href={`/products/${product.slug}`} className="block h-full w-full">
           {cover && (
             <Image
@@ -36,7 +40,7 @@ export function PinCard({
               alt={cover.alt ?? title}
               fill
               sizes="(min-width: 640px) 33vw, 50vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              className="object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.02]"
             />
           )}
         </Link>
