@@ -78,7 +78,7 @@ export default async function LocaleLayout({
         dir={dir}
         className={`${latin.variable} ${arabic.variable} ${persian.variable} ${display.variable} ${mono.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col bg-mist text-ink">
+        <body className="min-h-full flex flex-col overflow-x-clip bg-mist text-ink">
           <NextIntlClientProvider>
             <Nav />
             {children}

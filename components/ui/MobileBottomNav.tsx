@@ -70,12 +70,12 @@ export function MobileBottomNav() {
               href={tab.href}
               aria-current={active ? "page" : undefined}
               className={[
-                "flex flex-1 flex-col items-center gap-1 rounded-full px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors",
+                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-full px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors",
                 active ? "bg-paper text-ink" : "text-paper/70 hover:text-paper",
               ].join(" ")}
             >
               {tab.icon}
-              <span>{tab.label}</span>
+              <span className="truncate max-w-full">{tab.label}</span>
             </Link>
           );
         })}

@@ -34,7 +34,7 @@ export function CatalogChips() {
   const activeKey = computeActive(params);
 
   return (
-    <div className="-mx-6 flex gap-2 overflow-x-auto px-6 scrollbar-hide md:mx-0 md:flex-wrap md:px-0">
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide md:flex-wrap">
       {CHIPS.map((chip) => {
         const isActive = activeKey === chip.key;
         const isInert = chip.query === null;
