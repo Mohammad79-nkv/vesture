@@ -1,0 +1,85 @@
+{
+  "brand": {
+    "name": "Vesture",
+    "tagline": "مدِ منتخب از بوتیک‌های مستقل"
+  },
+  "nav": {
+    "discover": "کشف",
+    "sellers": "فروشندگان",
+    "editorial": "مجله",
+    "howItWorks": "نحوهٔ کار",
+    "search": "جست‌وجوی سازنده، پارچه، ایده…",
+    "sellOnVesture": "فروش در وستِر",
+    "signIn": "ورود",
+    "signUp": "ثبت‌نام",
+    "dashboard": "داشبورد",
+    "admin": "مدیریت",
+    "favorites": "علاقه‌مندی‌ها",
+    "stylist": "استایلیست هوشمند"
+  },
+  "home": {
+    "eyebrow": "مد · انتخاب‌شده توسط هوش مصنوعی",
+    "heroLine1": "بگو چطور",
+    "heroLine2": "می‌خواهی",
+    "heroAccent1": "حس کنی",
+    "heroLine3": "ما می‌یابیم",
+    "heroAccent2": "کسی",
+    "heroLine4": "که می‌سازد",
+    "heroSubtitle": "وستِر یک لایهٔ کشف برای هزاران فروشندهٔ مستقل مد در اینستاگرام است. با استایلیست هوشمند ما گفت‌وگو کن و ما تو را به سازنده وصل می‌کنیم — هر جا که باشد.",
+    "ctaStart": "شروع درخواست",
+    "ctaForSellers": "برای فروشندگان",
+    "statsSellers": "فروشنده",
+    "statsPieces": "قطعه",
+    "statsCities": "۱۲ شهر",
+    "statsCitiesSuffix": "در منطقهٔ منا"
+  },
+  "catalog": {
+    "title": "همهٔ محصولات",
+    "filtersTitle": "فیلترها",
+    "category": "دسته‌بندی",
+    "gender": "جنسیت",
+    "minPrice": "حداقل قیمت",
+    "maxPrice": "حداکثر قیمت",
+    "currency": "ارز",
+    "clearFilters": "پاک کردن",
+    "empty": "محصولی با این فیلترها یافت نشد.",
+    "loading": "در حال بارگذاری…"
+  },
+  "product": {
+    "addToFavorites": "افزودن به علاقه‌مندی‌ها",
+    "removeFromFavorites": "حذف از علاقه‌مندی‌ها",
+    "contactSeller": "تماس با فروشنده",
+    "viewStore": "مشاهدهٔ فروشگاه",
+    "outOfStock": "ناموجود",
+    "sizes": "سایزها",
+    "colors": "رنگ‌ها"
+  },
+  "seller": {
+    "becomeSeller": "فروشنده شوید",
+    "onboarding": {
+      "title": "راه‌اندازی فروشگاه",
+      "storeName": "نام فروشگاه (انگلیسی)",
+      "storeNameAr": "نام فروشگاه (عربی، اختیاری)",
+      "country": "کشور",
+      "currency": "ارز پیش‌فرض",
+      "instagram": "آدرس اینستاگرام",
+      "whatsapp": "شمارهٔ واتساپ (با کد کشور)",
+      "bio": "معرفی کوتاه",
+      "submit": "ارسال برای بررسی",
+      "pending": "درخواست شما در حال بررسی است.",
+      "rejected": "درخواست شما تأیید نشد."
+    }
+  },
+  "auth": {
+    "signInWall": "برای ادامه وارد شوید",
+    "signInWallStylist": "برای ادامهٔ گفتگو با استایلیست وارد شوید"
+  },
+  "common": {
+    "save": "ذخیره",
+    "cancel": "لغو",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "publish": "انتشار",
+    "draft": "ذخیره به‌عنوان پیش‌نویس"
+  }
+}

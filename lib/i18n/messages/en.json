@@ -1,0 +1,85 @@
+{
+  "brand": {
+    "name": "Vesture",
+    "tagline": "Curated fashion from independent boutiques"
+  },
+  "nav": {
+    "discover": "Discover",
+    "sellers": "Sellers",
+    "editorial": "Editorial",
+    "howItWorks": "How it works",
+    "search": "Search makers, fabrics, briefs…",
+    "sellOnVesture": "Sell on Vesture",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "favorites": "Favorites",
+    "stylist": "AI Stylist"
+  },
+  "home": {
+    "eyebrow": "Fashion · Curated by AI",
+    "heroLine1": "Tell us how",
+    "heroLine2": "you want to",
+    "heroAccent1": "feel",
+    "heroLine3": "We'll find",
+    "heroAccent2": "who",
+    "heroLine4": "makes it",
+    "heroSubtitle": "Vesture is a discovery layer for thousands of independent fashion sellers on Instagram. Chat with our AI stylist and we'll match you to the maker — wherever they are.",
+    "ctaStart": "Start a brief",
+    "ctaForSellers": "For sellers",
+    "statsSellers": "Sellers",
+    "statsPieces": "Pieces",
+    "statsCities": "12 cities",
+    "statsCitiesSuffix": "Across MENA"
+  },
+  "catalog": {
+    "title": "All products",
+    "filtersTitle": "Filters",
+    "category": "Category",
+    "gender": "Gender",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "currency": "Currency",
+    "clearFilters": "Clear",
+    "empty": "No products match your filters.",
+    "loading": "Loading…"
+  },
+  "product": {
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "contactSeller": "Contact seller",
+    "viewStore": "View store",
+    "outOfStock": "Out of stock",
+    "sizes": "Sizes",
+    "colors": "Colors"
+  },
+  "seller": {
+    "becomeSeller": "Become a seller",
+    "onboarding": {
+      "title": "Set up your store",
+      "storeName": "Store name (English)",
+      "storeNameAr": "Store name (Arabic, optional)",
+      "country": "Country",
+      "currency": "Default currency",
+      "instagram": "Instagram URL",
+      "whatsapp": "WhatsApp number (with country code)",
+      "bio": "Short bio",
+      "submit": "Submit for review",
+      "pending": "Your application is under review.",
+      "rejected": "Your application was not approved."
+    }
+  },
+  "auth": {
+    "signInWall": "Sign in to continue",
+    "signInWallStylist": "Sign in to keep chatting with the stylist"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "publish": "Publish",
+    "draft": "Save draft"
+  }
+}

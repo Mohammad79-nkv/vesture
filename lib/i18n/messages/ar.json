@@ -1,0 +1,85 @@
+{
+  "brand": {
+    "name": "Vesture",
+    "tagline": "أزياء مختارة من بوتيكات مستقلة"
+  },
+  "nav": {
+    "discover": "اكتشف",
+    "sellers": "البائعون",
+    "editorial": "المجلة",
+    "howItWorks": "كيف يعمل",
+    "search": "ابحث عن صانعين، أقمشة، أفكار…",
+    "sellOnVesture": "بِع على فيستور",
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "dashboard": "لوحة التحكم",
+    "admin": "الإدارة",
+    "favorites": "المفضلة",
+    "stylist": "المصمم الذكي"
+  },
+  "home": {
+    "eyebrow": "أزياء · من اختيار الذكاء الاصطناعي",
+    "heroLine1": "أخبرنا كيف",
+    "heroLine2": "تريد أن",
+    "heroAccent1": "تشعر",
+    "heroLine3": "سنجد",
+    "heroAccent2": "من",
+    "heroLine4": "يصنعها",
+    "heroSubtitle": "فيستور طبقة اكتشاف لآلاف بائعي الأزياء المستقلين على إنستغرام. تحدّث مع مصممنا الذكي وسنوصلك بالصانع — أينما كان.",
+    "ctaStart": "ابدأ الطلب",
+    "ctaForSellers": "للبائعين",
+    "statsSellers": "بائع",
+    "statsPieces": "قطعة",
+    "statsCities": "12 مدينة",
+    "statsCitiesSuffix": "في الشرق الأوسط وشمال أفريقيا"
+  },
+  "catalog": {
+    "title": "كل المنتجات",
+    "filtersTitle": "الفلاتر",
+    "category": "الفئة",
+    "gender": "النوع",
+    "minPrice": "أدنى سعر",
+    "maxPrice": "أعلى سعر",
+    "currency": "العملة",
+    "clearFilters": "مسح",
+    "empty": "لا توجد منتجات تطابق الفلاتر.",
+    "loading": "جارٍ التحميل…"
+  },
+  "product": {
+    "addToFavorites": "إضافة إلى المفضلة",
+    "removeFromFavorites": "إزالة من المفضلة",
+    "contactSeller": "تواصل مع البائع",
+    "viewStore": "عرض المتجر",
+    "outOfStock": "غير متوفر",
+    "sizes": "المقاسات",
+    "colors": "الألوان"
+  },
+  "seller": {
+    "becomeSeller": "كن بائعًا",
+    "onboarding": {
+      "title": "إعداد متجرك",
+      "storeName": "اسم المتجر (إنجليزي)",
+      "storeNameAr": "اسم المتجر (عربي، اختياري)",
+      "country": "الدولة",
+      "currency": "العملة الافتراضية",
+      "instagram": "رابط إنستغرام",
+      "whatsapp": "رقم واتساب (مع رمز الدولة)",
+      "bio": "نبذة قصيرة",
+      "submit": "إرسال للمراجعة",
+      "pending": "طلبك قيد المراجعة.",
+      "rejected": "لم تتم الموافقة على طلبك."
+    }
+  },
+  "auth": {
+    "signInWall": "سجّل الدخول للمتابعة",
+    "signInWallStylist": "سجّل الدخول لمواصلة المحادثة مع المصمم"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "publish": "نشر",
+    "draft": "حفظ كمسودة"
+  }
+}

@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
+@theme {
+  /* Vesture brand palette */
+  --color-primary: #cd0268;
+  --color-secondary: #34889e;
+  --color-ink: #212739;          /* Neutral — main text + dark surfaces */
+  --color-ink-soft: #5a607a;     /* Muted body copy */
+  --color-paper: #ffffff;
+  --color-mist: #f4f4f5;         /* Page tint background */
+
+  --font-sans: var(--font-latin), system-ui, sans-serif;
+  --font-arabic: var(--font-arabic), system-ui, sans-serif;
+  --font-persian: var(--font-persian), system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Per-locale font selection. */
+html[lang="en"] body { font-family: var(--font-sans); }
+html[lang="ar"] body { font-family: var(--font-arabic); }
+html[lang="fa"] body { font-family: var(--font-persian); }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
