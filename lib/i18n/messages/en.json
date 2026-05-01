@@ -43,7 +43,28 @@
     "currency": "Currency",
     "clearFilters": "Clear",
     "empty": "No products match your filters.",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "edition": "Edition {n} · Curated by Vesture AI",
+    "headlineLead": "The week in",
+    "headlineAccent": "quiet luxury",
+    "refine": "Refine",
+    "sort": "For you",
+    "chips": {
+      "forYou": "For you",
+      "newIn": "New in",
+      "tehran": "Tehran",
+      "knits": "Knits",
+      "tailored": "Tailored",
+      "accessories": "Accessories",
+      "underBudget": "Under 2M",
+      "editorial": "Editorial"
+    }
+  },
+  "stylist": {
+    "title": "Your AI stylist",
+    "status": "Stylist · Online",
+    "comingSoon": "Coming soon",
+    "comingSoonBody": "Chat with our stylist to find pieces from the makers you follow. Available in the next release."
   },
   "product": {
     "addToFavorites": "Add to favorites",

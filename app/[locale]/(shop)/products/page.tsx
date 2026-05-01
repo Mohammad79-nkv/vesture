@@ -1,9 +1,16 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { isLocale } from "@/lib/i18n/config";
 import { listPublishedProducts } from "@/lib/services/product";
-import { ProductCard } from "@/components/product/ProductCard";
-import { CatalogFilters } from "@/components/product/CatalogFilters";
+import { prisma } from "@/lib/adapters/prisma";
+import { ProductTile } from "@/components/product/ProductTile";
+import { CatalogChips } from "@/components/product/CatalogChips";
+import { RefineDrawer } from "@/components/product/RefineDrawer";
+import { StylistSidebar } from "@/components/marketing/StylistSidebar";
+
+// Fixed for now — could come from a CMS or weekly cron later.
+const EDITION_NUMBER = 14;
 
 export default async function ProductsPage({
   params,
@@ -27,26 +34,82 @@ export default async function ProductsPage({
     page: typeof sp.page === "string" ? sp.page : undefined,
   });
 
+  // Pull the user's favorited product IDs in one query so each tile can render
+  // its initial bookmark state without N round-trips.
+  const { userId: clerkId } = await auth();
+  let favoritedIds = new Set<string>();
+  if (clerkId) {
+    const me = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { id: true },
+    });
+    if (me) {
+      const favs = await prisma.favorite.findMany({
+        where: { userId: me.id },
+        select: { productId: true },
+      });
+      favoritedIds = new Set(favs.map((f) => f.productId));
+    }
+  }
+  const authenticated = Boolean(clerkId);
+
   return (
-    <main className="mx-auto w-full max-w-7xl px-6 py-10">
-      <h1 className="mb-8 text-2xl font-light">{t("title")}</h1>
-
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <aside>
-          <CatalogFilters />
-        </aside>
-
+    <main className="flex flex-1 flex-col bg-mist">
+      <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-6 py-10 lg:grid-cols-[1fr_360px]">
         <section>
+          <header className="mb-8">
+            <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-ink/55">
+              {t("edition", { n: EDITION_NUMBER })}
+            </p>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h1 className="text-4xl font-extrabold tracking-tight text-ink md:text-6xl">
+                {t("headlineLead")}{" "}
+                <span className="text-primary">{t("headlineAccent")}</span>.
+              </h1>
+              <div className="flex items-center gap-3">
+                <RefineDrawer />
+                <span className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper">
+                  {t("sort")}
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </header>
+
+          <div className="mb-8">
+            <CatalogChips />
+          </div>
+
           {result.items.length === 0 ? (
             <p className="py-16 text-center text-ink/60">{t("empty")}</p>
           ) : (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 xl:grid-cols-4">
               {result.items.map((p) => (
-                <ProductCard key={p.id} product={p} locale={locale} />
+                <ProductTile
+                  key={p.id}
+                  product={p}
+                  locale={locale}
+                  isFavorited={favoritedIds.has(p.id)}
+                  authenticated={authenticated}
+                />
               ))}
             </div>
           )}
         </section>
+
+        <StylistSidebar />
       </div>
     </main>
   );

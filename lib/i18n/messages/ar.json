@@ -43,7 +43,28 @@
     "currency": "العملة",
     "clearFilters": "مسح",
     "empty": "لا توجد منتجات تطابق الفلاتر.",
-    "loading": "جارٍ التحميل…"
+    "loading": "جارٍ التحميل…",
+    "edition": "العدد {n} · باختيار فيستور AI",
+    "headlineLead": "أسبوع من",
+    "headlineAccent": "الفخامة الهادئة",
+    "refine": "تنقية",
+    "sort": "لك أنتِ",
+    "chips": {
+      "forYou": "لك أنتِ",
+      "newIn": "جديد",
+      "tehran": "طهران",
+      "knits": "تريكو",
+      "tailored": "مفصّل",
+      "accessories": "إكسسوارات",
+      "underBudget": "أقل من ٢ مليون",
+      "editorial": "المجلة"
+    }
+  },
+  "stylist": {
+    "title": "مصممك الذكي",
+    "status": "المصمم · متصل",
+    "comingSoon": "قريبًا",
+    "comingSoonBody": "تحدّث مع مصممنا لاختيار قطع من الصانعين الذين تتابعهم. متوفر في الإصدار القادم."
   },
   "product": {
     "addToFavorites": "إضافة إلى المفضلة",
