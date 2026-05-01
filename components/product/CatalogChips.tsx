@@ -11,12 +11,11 @@ type ChipKey =
   | "knits"
   | "tailored"
   | "accessories"
-  | "underBudget"
-  | "editorial";
+  | "underBudget";
 
 // Each chip maps to a query string. `null` chips are visual placeholders that
 // keep the design intent visible without claiming to filter when we have no
-// underlying data (e.g. seller city, content type).
+// underlying data (e.g. seller city).
 const CHIPS: { key: ChipKey; query: URLSearchParamsInit | null }[] = [
   { key: "forYou", query: {} },
   { key: "newIn", query: { sort: "newest" } },
@@ -25,7 +24,6 @@ const CHIPS: { key: ChipKey; query: URLSearchParamsInit | null }[] = [
   { key: "tailored", query: { category: "OUTERWEAR" } },
   { key: "accessories", query: { category: "ACCESSORIES" } },
   { key: "underBudget", query: { maxPrice: "200000000" } }, // 2M in 2-decimal minor units
-  { key: "editorial", query: null },
 ];
 
 type URLSearchParamsInit = Record<string, string>;

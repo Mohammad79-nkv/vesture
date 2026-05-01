@@ -6,10 +6,12 @@ import { listPublishedProducts } from "@/lib/services/product";
 import { listFeaturedSellers } from "@/lib/services/seller";
 import { prisma } from "@/lib/adapters/prisma";
 import { ProductTile } from "@/components/product/ProductTile";
+import { PinCard } from "@/components/product/PinCard";
 import { CatalogChips } from "@/components/product/CatalogChips";
 import { RefineDrawer } from "@/components/product/RefineDrawer";
 import { StylistSidebar } from "@/components/marketing/StylistSidebar";
 import { MobileStylistBar } from "@/components/marketing/MobileStylistBar";
+import { aspectFor, distributeMasonry } from "@/lib/domain/masonry";
 
 // Fixed for now — could come from a CMS or weekly cron later.
 const EDITION_NUMBER = 14;
@@ -58,18 +60,21 @@ export default async function ProductsPage({
   }
   const authenticated = Boolean(clerkId);
 
+  // Pre-compute aspects + masonry distribution server-side so the mobile feed
+  // renders without layout shift.
+  const withAspects = result.items.map((p) => ({ p, aspect: aspectFor(p.slug) }));
+  const [colA, colB] = distributeMasonry(withAspects, (item) => item.aspect.weight);
+
   return (
     <main className="flex flex-1 flex-col bg-mist pb-safe-mobile-nav">
-      <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-6 py-6 lg:grid-cols-[1fr_360px] lg:py-10">
+      <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-5 py-6 sm:px-6 lg:grid-cols-[1fr_360px] lg:py-10">
         <section>
           <header className="mb-6 flex flex-col lg:mb-8">
-            <p className="order-2 mt-4 text-[11px] font-bold uppercase tracking-[0.22em] text-ink/55 lg:order-1 lg:mb-4 lg:mt-0">
-              {t("edition", { n: EDITION_NUMBER })}
-            </p>
             <div className="order-1 flex flex-wrap items-end justify-between gap-4 lg:order-2">
-              <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-ink md:text-6xl">
-                {t("headlineLead")}{" "}
-                <span className="text-primary">{t("headlineAccent")}</span>.
+              <h1 className="text-[44px] font-extrabold leading-[0.95] tracking-[-0.02em] text-ink md:text-6xl">
+                {t("headlineLead")}
+                <br className="md:hidden" />{" "}
+                <span className="font-light text-primary">{t("headlineAccent")}</span>.
               </h1>
               <div className="hidden items-center gap-3 md:flex">
                 <RefineDrawer />
@@ -91,30 +96,54 @@ export default async function ProductsPage({
                 </span>
               </div>
             </div>
+            <p className="order-2 mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-ink/55 lg:order-1 lg:mb-4 lg:mt-0">
+              {t("edition", { n: EDITION_NUMBER })}
+            </p>
           </header>
 
-          <div className="mb-6 lg:hidden">
+          <div className="mb-5 lg:hidden">
             <MobileStylistBar sellerCount={totalApproved} />
           </div>
 
-          <div className="mb-8">
+          <div className="mb-6">
             <CatalogChips />
           </div>
 
           {result.items.length === 0 ? (
             <p className="py-16 text-center text-ink/60">{t("empty")}</p>
           ) : (
-            <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-10 xl:grid-cols-4">
-              {result.items.map((p) => (
-                <ProductTile
-                  key={p.id}
-                  product={p}
-                  locale={locale}
-                  isFavorited={favoritedIds.has(p.id)}
-                  authenticated={authenticated}
-                />
-              ))}
-            </div>
+            <>
+              {/* Mobile masonry — 2 server-balanced columns with varying aspects. */}
+              <div className="flex gap-2.5 lg:hidden">
+                {[colA, colB].map((col, ci) => (
+                  <div key={ci} className="flex flex-1 flex-col gap-2.5">
+                    {col.map(({ p, aspect }) => (
+                      <PinCard
+                        key={p.id}
+                        product={p}
+                        locale={locale}
+                        isFavorited={favoritedIds.has(p.id)}
+                        authenticated={authenticated}
+                        aspectClass={aspect.ratio}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop grid — uniform aspect, caption-below tiles. */}
+              <div className="hidden lg:grid lg:grid-cols-3 lg:gap-x-4 lg:gap-y-10 xl:grid-cols-4">
+                {result.items.map((p) => (
+                  <ProductTile
+                    key={p.id}
+                    product={p}
+                    locale={locale}
+                    isFavorited={favoritedIds.has(p.id)}
+                    authenticated={authenticated}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </section>
 

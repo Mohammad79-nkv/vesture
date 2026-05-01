@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Manrope, IBM_Plex_Sans_Arabic, Vazirmatn, Playfair_Display } from "next/font/google";
+import { Manrope, IBM_Plex_Sans_Arabic, Vazirmatn, Playfair_Display, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -41,6 +41,14 @@ const display = Playfair_Display({
   display: "swap",
 });
 
+// Monospace for eyebrows, numbers, micro-copy per the design system.
+const mono = JetBrains_Mono({
+  variable: "--font-mono-display",
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Vesture",
   description: "Curated fashion from independent boutiques",
@@ -68,7 +76,7 @@ export default async function LocaleLayout({
       <html
         lang={locale}
         dir={dir}
-        className={`${latin.variable} ${arabic.variable} ${persian.variable} ${display.variable} h-full antialiased`}
+        className={`${latin.variable} ${arabic.variable} ${persian.variable} ${display.variable} ${mono.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col bg-paper text-ink">
           <NextIntlClientProvider>

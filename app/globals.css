@@ -13,6 +13,7 @@
   --font-arabic: var(--font-arabic), system-ui, sans-serif;
   --font-persian: var(--font-persian), system-ui, sans-serif;
   --font-display: var(--font-display), Georgia, serif;
+  --font-mono: var(--font-mono-display), ui-monospace, "JetBrains Mono", monospace;
 }
 
 :root {
