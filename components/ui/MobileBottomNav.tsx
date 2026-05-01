@@ -61,7 +61,7 @@ export function MobileBottomNav() {
       className="fixed inset-x-3 bottom-3 z-40 lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="flex items-center gap-1 rounded-full bg-ink p-1.5 text-paper shadow-[0_8px_30px_rgba(33,39,57,0.25)]">
+      <div className="flex items-center gap-1 rounded-full bg-[#EAB8E4] p-1.5 text-ink shadow-[0_8px_30px_rgba(33,39,57,0.18)]">
         {tabs.map((tab) => {
           const active = tab.matches(pathname);
           return (
@@ -71,7 +71,7 @@ export function MobileBottomNav() {
               aria-current={active ? "page" : undefined}
               className={[
                 "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-full px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors",
-                active ? "bg-paper text-ink" : "text-paper/70 hover:text-paper",
+                active ? "bg-ink text-paper" : "text-ink/70 hover:text-ink",
               ].join(" ")}
             >
               {tab.icon}
