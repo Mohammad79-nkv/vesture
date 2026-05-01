@@ -71,7 +71,7 @@ export default async function ProductsPage({
         <section>
           <header className="mb-6 flex flex-col lg:mb-8">
             <div className="order-1 flex flex-wrap items-end justify-between gap-4 lg:order-2">
-              <h1 className="text-[44px] font-extrabold leading-[0.95] tracking-[-0.02em] text-ink md:text-6xl">
+              <h1 className="text-[44px] font-bold leading-[0.95] tracking-[-0.02em] text-ink md:text-6xl md:font-extrabold">
                 {t("headlineLead")}
                 <br className="md:hidden" />{" "}
                 <span className="font-light text-primary">{t("headlineAccent")}</span>.
@@ -96,7 +96,7 @@ export default async function ProductsPage({
                 </span>
               </div>
             </div>
-            <p className="order-2 mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-ink/55 lg:order-1 lg:mb-4 lg:mt-0">
+            <p className="order-2 mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted lg:order-1 lg:mb-4 lg:mt-0">
               {t("edition", { n: EDITION_NUMBER })}
             </p>
           </header>
