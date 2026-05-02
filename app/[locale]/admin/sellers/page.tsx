@@ -1,121 +1,205 @@
-import { notFound, redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
-import { isLocale } from "@/lib/i18n/config";
-import { requireUser } from "@/lib/auth";
-import { listSellersByStatus, approveSeller, rejectSeller } from "@/lib/services/seller";
+import { notFound } from "next/navigation";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
+import { isLocale } from "@/lib/i18n/config";
+import { requireAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/adapters/prisma";
+import {
+  listSellersByStatus,
+  approveSeller,
+  rejectSeller,
+  suspendSeller,
+  unsuspendSeller,
+  reopenSeller,
+} from "@/lib/services/seller";
+import { DashboardCard } from "@/components/seller/DashboardCard";
+import { StatusTabs } from "@/components/admin/StatusTabs";
+import type { SellerStatus } from "@prisma/client";
+
+const STATUSES: SellerStatus[] = ["PENDING", "APPROVED", "REJECTED", "SUSPENDED"];
 
 export default async function AdminSellersPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
+  const sp = await searchParams;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const user = await requireUser();
-  if (user.role !== "ADMIN") redirect(`/${locale}`);
+  const t = await getTranslations("admin.sellers");
+  const tStatus = await getTranslations("admin.sellers.tabs");
 
-  const [pending, approved, rejected] = await Promise.all([
-    listSellersByStatus("PENDING"),
-    listSellersByStatus("APPROVED"),
-    listSellersByStatus("REJECTED"),
+  const requested = typeof sp.status === "string" ? sp.status.toUpperCase() : "PENDING";
+  const status = (STATUSES.includes(requested as SellerStatus)
+    ? requested
+    : "PENDING") as SellerStatus;
+
+  const [counts, rows] = await Promise.all([
+    Promise.all(
+      STATUSES.map((s) =>
+        prisma.sellerProfile
+          .count({ where: { status: s } })
+          .then((c) => [s, c] as const),
+      ),
+    ).then((entries) => Object.fromEntries(entries) as Record<SellerStatus, number>),
+    listSellersByStatus(status),
   ]);
 
   async function approve(formData: FormData) {
     "use server";
-    const me = await requireUser();
-    if (me.role !== "ADMIN") return;
-    const sellerId = String(formData.get("sellerId"));
-    await approveSeller({ adminId: me.id, sellerId });
+    const me = await requireAdmin();
+    await approveSeller({ adminId: me.id, sellerId: String(formData.get("sellerId")) });
     revalidatePath(`/${locale}/admin/sellers`);
   }
-
   async function reject(formData: FormData) {
     "use server";
-    const me = await requireUser();
-    if (me.role !== "ADMIN") return;
-    const sellerId = String(formData.get("sellerId"));
-    const reason = String(formData.get("reason") ?? "Not approved");
-    await rejectSeller({ adminId: me.id, sellerId, reason });
+    const me = await requireAdmin();
+    await rejectSeller({
+      adminId: me.id,
+      sellerId: String(formData.get("sellerId")),
+      reason: String(formData.get("reason") ?? "") || "Not approved",
+    });
+    revalidatePath(`/${locale}/admin/sellers`);
+  }
+  async function suspend(formData: FormData) {
+    "use server";
+    const me = await requireAdmin();
+    await suspendSeller({
+      adminId: me.id,
+      sellerId: String(formData.get("sellerId")),
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidatePath(`/${locale}/admin/sellers`);
+  }
+  async function unsuspend(formData: FormData) {
+    "use server";
+    const me = await requireAdmin();
+    await unsuspendSeller({ adminId: me.id, sellerId: String(formData.get("sellerId")) });
+    revalidatePath(`/${locale}/admin/sellers`);
+  }
+  async function reopen(formData: FormData) {
+    "use server";
+    const me = await requireAdmin();
+    await reopenSeller({ adminId: me.id, sellerId: String(formData.get("sellerId")) });
     revalidatePath(`/${locale}/admin/sellers`);
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-12">
-      <h1 className="mb-8 text-2xl font-light">Sellers</h1>
+    <main className="mx-auto w-full max-w-[1376px] px-6 py-8 sm:px-8 sm:py-10">
+      <div className="mb-7">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+          {t("subtitle")}
+        </p>
+        <h1 className="mt-2 text-[44px] font-bold leading-[1] tracking-[-0.03em] text-ink">
+          {t("title")}
+        </h1>
+      </div>
 
-      <Section title={`Pending (${pending.length})`}>
-        {pending.length === 0 ? (
-          <p className="text-sm text-ink/60">Nothing in the queue.</p>
+      <div className="mb-6">
+        <StatusTabs<SellerStatus>
+          basePath="/admin/sellers"
+          active={status}
+          tabs={STATUSES.map((s) => ({
+            key: s,
+            label: tStatus(s),
+            count: counts[s],
+          }))}
+        />
+      </div>
+
+      <DashboardCard>
+        {rows.length === 0 ? (
+          <p className="py-8 text-center text-sm text-ink/55">{t("noResults")}</p>
         ) : (
-          <ul className="divide-y divide-ink/10">
-            {pending.map((s) => (
-              <li key={s.id} className="py-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-medium">{s.storeNameEn}</p>
-                    <p className="text-xs text-ink/60">
-                      {s.user.email} · {s.countryCode} · {s.defaultCurrency}
+          <ul className="-mx-1 divide-y divide-ink/6">
+            {rows.map((seller) => {
+              const fmtDate = new Intl.DateTimeFormat(
+                locale === "ar" ? "ar" : locale === "fa" ? "fa" : "en",
+                { dateStyle: "medium" },
+              ).format(seller.createdAt);
+              return (
+                <li
+                  key={seller.id}
+                  className="flex flex-wrap items-start gap-4 px-1 py-4 sm:flex-nowrap"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-base font-semibold text-ink">{seller.storeNameEn}</p>
+                    <p className="mt-0.5 font-mono text-[11px] text-muted">
+                      {seller.user.email} · {seller.countryCode} · {seller.defaultCurrency} ·{" "}
+                      {t("joined")} {fmtDate}
                     </p>
-                    {s.bioEn && <p className="mt-1 text-sm text-ink/80">{s.bioEn}</p>}
+                    {seller.bioEn && (
+                      <p className="mt-2 max-w-[60ch] text-sm text-ink/75">{seller.bioEn}</p>
+                    )}
+                    {seller.rejectionReason && (
+                      <p className="mt-2 max-w-[60ch] rounded-lg bg-mist px-3 py-2 font-mono text-[11px] text-ink/65">
+                        {seller.rejectionReason}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex shrink-0 gap-2">
-                    <form action={approve}>
-                      <input type="hidden" name="sellerId" value={s.id} />
-                      <button className="bg-ink px-4 py-1.5 text-xs uppercase tracking-wider text-paper">
-                        Approve
-                      </button>
-                    </form>
-                    <form action={reject} className="flex gap-1">
-                      <input type="hidden" name="sellerId" value={s.id} />
-                      <input
-                        name="reason"
-                        placeholder="Reason"
-                        className="border border-ink/20 px-2 py-1 text-xs"
-                      />
-                      <button className="border border-ink px-4 py-1.5 text-xs uppercase tracking-wider">
-                        Reject
-                      </button>
-                    </form>
+
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {status === "PENDING" && (
+                      <>
+                        <form action={approve}>
+                          <input type="hidden" name="sellerId" value={seller.id} />
+                          <button className="rounded-full bg-ink px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper hover:bg-ink/90">
+                            {t("actions.approve")}
+                          </button>
+                        </form>
+                        <form action={reject} className="flex gap-1.5">
+                          <input type="hidden" name="sellerId" value={seller.id} />
+                          <input
+                            name="reason"
+                            placeholder={t("rejectReason")}
+                            className="rounded-full border border-ink/15 bg-paper px-3 py-1.5 text-[11px]"
+                          />
+                          <button className="rounded-full border border-ink/20 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-ink hover:border-ink">
+                            {t("actions.reject")}
+                          </button>
+                        </form>
+                      </>
+                    )}
+                    {status === "APPROVED" && (
+                      <form action={suspend} className="flex gap-1.5">
+                        <input type="hidden" name="sellerId" value={seller.id} />
+                        <input
+                          name="reason"
+                          placeholder={t("suspendReason")}
+                          className="rounded-full border border-ink/15 bg-paper px-3 py-1.5 text-[11px]"
+                        />
+                        <button className="rounded-full border border-primary px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-primary hover:bg-primary/10">
+                          {t("actions.suspend")}
+                        </button>
+                      </form>
+                    )}
+                    {status === "SUSPENDED" && (
+                      <form action={unsuspend}>
+                        <input type="hidden" name="sellerId" value={seller.id} />
+                        <button className="rounded-full bg-ink px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper hover:bg-ink/90">
+                          {t("actions.unsuspend")}
+                        </button>
+                      </form>
+                    )}
+                    {status === "REJECTED" && (
+                      <form action={reopen}>
+                        <input type="hidden" name="sellerId" value={seller.id} />
+                        <button className="rounded-full border border-ink/20 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-ink hover:border-ink">
+                          {t("actions.reopen")}
+                        </button>
+                      </form>
+                    )}
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
-      </Section>
-
-      <Section title={`Approved (${approved.length})`}>
-        <ul className="divide-y divide-ink/10">
-          {approved.map((s) => (
-            <li key={s.id} className="py-2 text-sm">
-              {s.storeNameEn} · <span className="text-ink/60">{s.user.email}</span>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section title={`Rejected (${rejected.length})`}>
-        <ul className="divide-y divide-ink/10">
-          {rejected.map((s) => (
-            <li key={s.id} className="py-2 text-sm">
-              {s.storeNameEn} ·{" "}
-              <span className="text-ink/60">{s.rejectionReason}</span>
-            </li>
-          ))}
-        </ul>
-      </Section>
+      </DashboardCard>
     </main>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="mb-10">
-      <h2 className="mb-3 text-xs uppercase tracking-wider text-ink/60">{title}</h2>
-      {children}
-    </section>
   );
 }

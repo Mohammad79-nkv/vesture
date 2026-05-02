@@ -224,6 +224,92 @@
       "rejectedBody": "Edit your application below and resubmit when you're ready."
     }
   },
+  "admin": {
+    "topBar": {
+      "adminChip": "Admin",
+      "overview": "Overview",
+      "sellers": "Sellers",
+      "products": "Products",
+      "users": "Users",
+      "audit": "Audit"
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Marketplace at a glance",
+      "kpiPendingSellers": "Pending sellers",
+      "kpiApprovedSellers": "Approved sellers",
+      "kpiLiveProducts": "Live products",
+      "kpiTotalUsers": "Total users",
+      "kpiPendingDelta": "Awaiting review",
+      "kpiNoChange": "—",
+      "recentActivity": "Recent activity",
+      "recentActivitySubtitle": "Last 10 admin actions",
+      "noActivity": "No admin actions yet."
+    },
+    "sellers": {
+      "title": "Sellers",
+      "subtitle": "Approve, reject, or suspend",
+      "tabs": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "SUSPENDED": "Suspended"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "suspend": "Suspend",
+        "unsuspend": "Restore",
+        "reopen": "Re-open"
+      },
+      "rejectReason": "Reason for rejection",
+      "suspendReason": "Reason for suspension",
+      "noResults": "No sellers in this state.",
+      "joined": "Joined",
+      "country": "Country",
+      "currency": "Currency"
+    },
+    "products": {
+      "title": "Products",
+      "subtitle": "Search and moderate listings",
+      "search": "Search by title…",
+      "archive": "Archive",
+      "archiveReason": "Reason",
+      "viewLive": "View",
+      "noResults": "No products match.",
+      "byStatus": {
+        "all": "All",
+        "PUBLISHED": "Published",
+        "DRAFT": "Draft",
+        "PENDING_REVIEW": "Pending",
+        "ARCHIVED": "Archived",
+        "REJECTED": "Rejected"
+      },
+      "of": "of"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Search users and change roles",
+      "search": "Search by email…",
+      "noResults": "No users match.",
+      "joined": "Joined",
+      "role": "Role",
+      "roleDescription": "Changing role syncs with Clerk on save",
+      "save": "Save"
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Every admin action, newest first",
+      "noResults": "No actions logged yet.",
+      "headers": {
+        "when": "When",
+        "admin": "Admin",
+        "action": "Action",
+        "target": "Target",
+        "reason": "Reason"
+      }
+    }
+  },
   "auth": {
     "signInWall": "Sign in to continue",
     "signInWallStylist": "Sign in to keep chatting with the stylist"

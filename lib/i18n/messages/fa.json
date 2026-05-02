@@ -224,6 +224,92 @@
       "rejectedBody": "درخواستت را در پایین ویرایش کن و دوباره ارسال کن."
     }
   },
+  "admin": {
+    "topBar": {
+      "adminChip": "ادمین",
+      "overview": "مرور",
+      "sellers": "فروشندگان",
+      "products": "محصولات",
+      "users": "کاربران",
+      "audit": "لاگ"
+    },
+    "overview": {
+      "title": "مرور",
+      "subtitle": "نمای کلی بازار",
+      "kpiPendingSellers": "فروشندگان منتظر",
+      "kpiApprovedSellers": "فروشندگان فعال",
+      "kpiLiveProducts": "محصولات زنده",
+      "kpiTotalUsers": "کل کاربران",
+      "kpiPendingDelta": "در انتظار بررسی",
+      "kpiNoChange": "—",
+      "recentActivity": "فعالیت اخیر",
+      "recentActivitySubtitle": "۱۰ اقدام اخیر ادمین",
+      "noActivity": "هنوز اقدامی ثبت نشده."
+    },
+    "sellers": {
+      "title": "فروشندگان",
+      "subtitle": "تأیید، رد یا تعلیق",
+      "tabs": {
+        "PENDING": "در انتظار",
+        "APPROVED": "تأیید‌شده",
+        "REJECTED": "رد‌شده",
+        "SUSPENDED": "معلّق"
+      },
+      "actions": {
+        "approve": "تأیید",
+        "reject": "رد",
+        "suspend": "تعلیق",
+        "unsuspend": "بازگردانی",
+        "reopen": "بازگشایی"
+      },
+      "rejectReason": "دلیل رد",
+      "suspendReason": "دلیل تعلیق",
+      "noResults": "فروشنده‌ای در این وضعیت نیست.",
+      "joined": "تاریخ عضویت",
+      "country": "کشور",
+      "currency": "ارز"
+    },
+    "products": {
+      "title": "محصولات",
+      "subtitle": "جست‌وجو و مدیریت آگهی‌ها",
+      "search": "جست‌وجو با عنوان…",
+      "archive": "بایگانی",
+      "archiveReason": "دلیل",
+      "viewLive": "نمایش",
+      "noResults": "نتیجه‌ای یافت نشد.",
+      "byStatus": {
+        "all": "همه",
+        "PUBLISHED": "منتشر‌شده",
+        "DRAFT": "پیش‌نویس",
+        "PENDING_REVIEW": "در انتظار",
+        "ARCHIVED": "بایگانی",
+        "REJECTED": "رد‌شده"
+      },
+      "of": "از"
+    },
+    "users": {
+      "title": "کاربران",
+      "subtitle": "جست‌وجو و تغییر نقش",
+      "search": "جست‌وجو با ایمیل…",
+      "noResults": "نتیجه‌ای یافت نشد.",
+      "joined": "عضویت",
+      "role": "نقش",
+      "roleDescription": "تغییر نقش هنگام ذخیره با Clerk هم‌گام می‌شود",
+      "save": "ذخیره"
+    },
+    "audit": {
+      "title": "لاگ ممیزی",
+      "subtitle": "هر اقدام ادمین، تازه‌ترین در ابتدا",
+      "noResults": "هنوز اقدامی ثبت نشده.",
+      "headers": {
+        "when": "زمان",
+        "admin": "ادمین",
+        "action": "اقدام",
+        "target": "هدف",
+        "reason": "دلیل"
+      }
+    }
+  },
   "auth": {
     "signInWall": "برای ادامه وارد شوید",
     "signInWallStylist": "برای ادامهٔ گفتگو با استایلیست وارد شوید"

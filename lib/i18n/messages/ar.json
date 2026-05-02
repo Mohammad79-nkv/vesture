@@ -224,6 +224,92 @@
       "rejectedBody": "عدّل طلبك في الأسفل وأعد إرساله."
     }
   },
+  "admin": {
+    "topBar": {
+      "adminChip": "إدارة",
+      "overview": "نظرة عامة",
+      "sellers": "البائعون",
+      "products": "المنتجات",
+      "users": "المستخدمون",
+      "audit": "السجل"
+    },
+    "overview": {
+      "title": "نظرة عامة",
+      "subtitle": "السوق في لمحة",
+      "kpiPendingSellers": "بائعون قيد المراجعة",
+      "kpiApprovedSellers": "بائعون مفعلون",
+      "kpiLiveProducts": "منتجات مباشرة",
+      "kpiTotalUsers": "إجمالي المستخدمين",
+      "kpiPendingDelta": "بانتظار المراجعة",
+      "kpiNoChange": "—",
+      "recentActivity": "النشاط الأخير",
+      "recentActivitySubtitle": "آخر ١٠ إجراءات",
+      "noActivity": "لا توجد إجراءات بعد."
+    },
+    "sellers": {
+      "title": "البائعون",
+      "subtitle": "تأكيد، رفض، أو تعليق",
+      "tabs": {
+        "PENDING": "قيد المراجعة",
+        "APPROVED": "مفعّل",
+        "REJECTED": "مرفوض",
+        "SUSPENDED": "موقوف"
+      },
+      "actions": {
+        "approve": "قبول",
+        "reject": "رفض",
+        "suspend": "تعليق",
+        "unsuspend": "استعادة",
+        "reopen": "إعادة فتح"
+      },
+      "rejectReason": "سبب الرفض",
+      "suspendReason": "سبب التعليق",
+      "noResults": "لا يوجد بائعون في هذه الحالة.",
+      "joined": "انضم",
+      "country": "الدولة",
+      "currency": "العملة"
+    },
+    "products": {
+      "title": "المنتجات",
+      "subtitle": "بحث وإدارة الإعلانات",
+      "search": "ابحث بالعنوان…",
+      "archive": "أرشفة",
+      "archiveReason": "السبب",
+      "viewLive": "عرض",
+      "noResults": "لا توجد نتائج.",
+      "byStatus": {
+        "all": "الكل",
+        "PUBLISHED": "منشور",
+        "DRAFT": "مسودة",
+        "PENDING_REVIEW": "قيد المراجعة",
+        "ARCHIVED": "مؤرشف",
+        "REJECTED": "مرفوض"
+      },
+      "of": "من"
+    },
+    "users": {
+      "title": "المستخدمون",
+      "subtitle": "ابحث وغيّر الأدوار",
+      "search": "ابحث بالبريد…",
+      "noResults": "لا توجد نتائج.",
+      "joined": "انضم",
+      "role": "الدور",
+      "roleDescription": "تغيير الدور يتزامن مع Clerk عند الحفظ",
+      "save": "حفظ"
+    },
+    "audit": {
+      "title": "سجل الإجراءات",
+      "subtitle": "كل إجراء إداري، الأحدث أولاً",
+      "noResults": "لا توجد إجراءات مسجلة بعد.",
+      "headers": {
+        "when": "متى",
+        "admin": "الإداري",
+        "action": "الإجراء",
+        "target": "الهدف",
+        "reason": "السبب"
+      }
+    }
+  },
   "auth": {
     "signInWall": "سجّل الدخول للمتابعة",
     "signInWallStylist": "سجّل الدخول لمواصلة المحادثة مع المصمم"

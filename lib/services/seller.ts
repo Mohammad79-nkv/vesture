@@ -102,6 +102,74 @@ export async function rejectSeller(args: {
   });
 }
 
+export async function suspendSeller(args: {
+  adminId: string;
+  sellerId: string;
+  reason: string;
+}): Promise<SellerProfile> {
+  return prisma.$transaction(async (tx) => {
+    const seller = await tx.sellerProfile.update({
+      where: { id: args.sellerId },
+      data: { status: "SUSPENDED", rejectionReason: args.reason || null },
+    });
+    await tx.adminAction.create({
+      data: {
+        adminId: args.adminId,
+        targetType: "Seller",
+        targetId: args.sellerId,
+        action: "SUSPEND",
+        reason: args.reason || null,
+      },
+    });
+    return seller;
+  });
+}
+
+// Restores a suspended seller back to APPROVED. Re-stamps approvedAt so
+// "active since" reflects the restoration, not the original approval.
+export async function unsuspendSeller(args: {
+  adminId: string;
+  sellerId: string;
+}): Promise<SellerProfile> {
+  return prisma.$transaction(async (tx) => {
+    const seller = await tx.sellerProfile.update({
+      where: { id: args.sellerId },
+      data: { status: "APPROVED", approvedAt: new Date(), rejectionReason: null },
+    });
+    await tx.adminAction.create({
+      data: {
+        adminId: args.adminId,
+        targetType: "Seller",
+        targetId: args.sellerId,
+        action: "UNSUSPEND",
+      },
+    });
+    return seller;
+  });
+}
+
+// Resets a rejected seller back to PENDING so they can resubmit.
+export async function reopenSeller(args: {
+  adminId: string;
+  sellerId: string;
+}): Promise<SellerProfile> {
+  return prisma.$transaction(async (tx) => {
+    const seller = await tx.sellerProfile.update({
+      where: { id: args.sellerId },
+      data: { status: "PENDING", rejectionReason: null },
+    });
+    await tx.adminAction.create({
+      data: {
+        adminId: args.adminId,
+        targetType: "Seller",
+        targetId: args.sellerId,
+        action: "REOPEN",
+      },
+    });
+    return seller;
+  });
+}
+
 // ─── Queries ────────────────────────────────────────────────────────────
 
 export function getSellerByUserId(userId: string) {
