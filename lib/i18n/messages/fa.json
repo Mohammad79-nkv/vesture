@@ -222,6 +222,42 @@
       "pendingBody": "بعد از تأیید مدیر برایت ایمیل می‌فرستیم. تا آن زمان می‌توانی پروفایل فروشگاه را ویرایش کنی.",
       "rejectedTitle": "درخواست تأیید نشد",
       "rejectedBody": "درخواستت را در پایین ویرایش کن و دوباره ارسال کن."
+    },
+    "catalog": {
+      "eyebrow": "کاتالوگ · {live} زنده · {review} در انتظار",
+      "titleLead": "قطعات",
+      "titleAccent": "تو",
+      "newProduct": "محصول جدید",
+      "importFromIg": "ورود از اینستاگرام",
+      "viewTable": "جدول",
+      "viewGrid": "شبکه",
+      "search": "جست‌وجو با عنوان…",
+      "tabs": {
+        "ALL": "همه",
+        "PUBLISHED": "زنده",
+        "PENDING_REVIEW": "در انتظار",
+        "DRAFT": "پیش‌نویس",
+        "ARCHIVED": "بایگانی",
+        "REJECTED": "ردشده"
+      },
+      "tableHeaders": {
+        "product": "محصول",
+        "status": "وضعیت",
+        "source": "منبع",
+        "aiMatches": "مطابقت AI",
+        "price": "قیمت"
+      },
+      "statusLabels": {
+        "PUBLISHED": "زنده",
+        "DRAFT": "پیش‌نویس",
+        "PENDING_REVIEW": "در انتظار",
+        "ARCHIVED": "بایگانی",
+        "REJECTED": "ردشده"
+      },
+      "sourceManual": "دستی",
+      "empty": "هنوز محصولی نیست — اولین قطعه را اضافه کن.",
+      "edit": "ویرایش",
+      "view": "نمایش"
     }
   },
   "admin": {

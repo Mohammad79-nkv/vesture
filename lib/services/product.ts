@@ -6,7 +6,7 @@ import {
   type ProductInput,
   type CatalogFilters,
 } from "@/lib/domain/schemas";
-import type { Product } from "@prisma/client";
+import type { Category, Product, ProductStatus } from "@prisma/client";
 
 // Pagination constant — we never want catalog pages bigger than this for
 // performance, and smaller pages encourage filter use.
@@ -124,6 +124,73 @@ export function listSellerProducts(sellerId: string) {
     orderBy: { updatedAt: "desc" },
     include: { images: { orderBy: { position: "asc" }, take: 1 } },
   });
+}
+
+// Paginated, filterable list for the seller catalog page. Status="ALL"
+// means no status filter; otherwise restricts to a specific status.
+export async function sellerCatalogList(args: {
+  sellerId: string;
+  status?: ProductStatus | "ALL";
+  category?: Category;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  const page = args.page ?? 1;
+  const pageSize = args.pageSize ?? 25;
+  const where = {
+    sellerId: args.sellerId,
+    ...(args.status && args.status !== "ALL" ? { status: args.status } : {}),
+    ...(args.category ? { category: args.category } : {}),
+    ...(args.search
+      ? {
+          OR: [
+            { titleEn: { contains: args.search, mode: "insensitive" as const } },
+            { titleAr: { contains: args.search, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+  const [items, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy: { updatedAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+    }),
+    prisma.product.count({ where }),
+  ]);
+  return {
+    items,
+    total,
+    page,
+    pageSize,
+    pageCount: Math.max(1, Math.ceil(total / pageSize)),
+  };
+}
+
+// Per-status counts for the catalog tabs strip. Includes ALL as a synthesized
+// total. Statuses with zero rows still appear in the result set.
+export async function sellerCatalogStatusCounts(sellerId: string) {
+  const groups = await prisma.product.groupBy({
+    by: ["status"],
+    where: { sellerId },
+    _count: { _all: true },
+  });
+  const counts: Record<ProductStatus | "ALL", number> = {
+    ALL: 0,
+    PUBLISHED: 0,
+    DRAFT: 0,
+    PENDING_REVIEW: 0,
+    ARCHIVED: 0,
+    REJECTED: 0,
+  };
+  for (const g of groups) {
+    counts[g.status] = g._count._all;
+    counts.ALL += g._count._all;
+  }
+  return counts;
 }
 
 // Catalog counters for the seller dashboard KPI row.

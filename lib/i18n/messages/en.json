@@ -222,6 +222,42 @@
       "pendingBody": "We'll email you once an admin approves your store. In the meantime, you can edit your shop profile.",
       "rejectedTitle": "Application not approved",
       "rejectedBody": "Edit your application below and resubmit when you're ready."
+    },
+    "catalog": {
+      "eyebrow": "Catalog · {live} live · {review} review",
+      "titleLead": "Your",
+      "titleAccent": "pieces",
+      "newProduct": "New product",
+      "importFromIg": "Import from IG",
+      "viewTable": "Table",
+      "viewGrid": "Grid",
+      "search": "Search by title…",
+      "tabs": {
+        "ALL": "All",
+        "PUBLISHED": "Live",
+        "PENDING_REVIEW": "Review",
+        "DRAFT": "Drafts",
+        "ARCHIVED": "Archived",
+        "REJECTED": "Rejected"
+      },
+      "tableHeaders": {
+        "product": "Product",
+        "status": "Status",
+        "source": "Source",
+        "aiMatches": "AI matches",
+        "price": "Price"
+      },
+      "statusLabels": {
+        "PUBLISHED": "Live",
+        "DRAFT": "Draft",
+        "PENDING_REVIEW": "Review",
+        "ARCHIVED": "Archived",
+        "REJECTED": "Rejected"
+      },
+      "sourceManual": "Manual",
+      "empty": "No products yet — add your first piece.",
+      "edit": "Edit",
+      "view": "View"
     }
   },
   "admin": {

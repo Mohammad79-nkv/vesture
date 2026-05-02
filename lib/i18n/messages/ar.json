@@ -222,6 +222,42 @@
       "pendingBody": "سنرسل لك بريدًا بمجرد موافقة الإدارة. في الأثناء يمكنك تعديل ملف متجرك.",
       "rejectedTitle": "لم تتم الموافقة على الطلب",
       "rejectedBody": "عدّل طلبك في الأسفل وأعد إرساله."
+    },
+    "catalog": {
+      "eyebrow": "الكتالوج · {live} مباشر · {review} للمراجعة",
+      "titleLead": "قطعك",
+      "titleAccent": "المعروضة",
+      "newProduct": "منتج جديد",
+      "importFromIg": "استيراد من إنستغرام",
+      "viewTable": "جدول",
+      "viewGrid": "شبكة",
+      "search": "ابحث بالعنوان…",
+      "tabs": {
+        "ALL": "الكل",
+        "PUBLISHED": "مباشر",
+        "PENDING_REVIEW": "للمراجعة",
+        "DRAFT": "مسودات",
+        "ARCHIVED": "مؤرشف",
+        "REJECTED": "مرفوض"
+      },
+      "tableHeaders": {
+        "product": "المنتج",
+        "status": "الحالة",
+        "source": "المصدر",
+        "aiMatches": "مطابقات الذكاء",
+        "price": "السعر"
+      },
+      "statusLabels": {
+        "PUBLISHED": "مباشر",
+        "DRAFT": "مسودة",
+        "PENDING_REVIEW": "للمراجعة",
+        "ARCHIVED": "مؤرشف",
+        "REJECTED": "مرفوض"
+      },
+      "sourceManual": "يدوي",
+      "empty": "لا توجد منتجات بعد — أضف قطعتك الأولى.",
+      "edit": "تعديل",
+      "view": "عرض"
     }
   },
   "admin": {
