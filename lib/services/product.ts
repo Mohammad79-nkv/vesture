@@ -126,6 +126,30 @@ export function listSellerProducts(sellerId: string) {
   });
 }
 
+// Catalog counters for the seller dashboard KPI row.
+export async function sellerCatalogCounts(sellerId: string) {
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [published, drafts, pendingReview, addedThisWeek] = await Promise.all([
+    prisma.product.count({ where: { sellerId, status: "PUBLISHED" } }),
+    prisma.product.count({ where: { sellerId, status: "DRAFT" } }),
+    prisma.product.count({ where: { sellerId, status: "PENDING_REVIEW" } }),
+    prisma.product.count({
+      where: { sellerId, createdAt: { gte: oneWeekAgo } },
+    }),
+  ]);
+  return { published, drafts, pendingReview, addedThisWeek };
+}
+
+// Most-recent published listings — used by the dashboard's recap card.
+export function listSellerRecentPublished(sellerId: string, limit = 4) {
+  return prisma.product.findMany({
+    where: { sellerId, status: "PUBLISHED" },
+    orderBy: { publishedAt: "desc" },
+    take: limit,
+    include: { images: { orderBy: { position: "asc" }, take: 1 } },
+  });
+}
+
 export function getProductForEdit(args: {
   sellerId: string;
   productId: string;

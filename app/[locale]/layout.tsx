@@ -10,6 +10,7 @@ import { localeDirection, locales, type Locale } from "@/lib/i18n/config";
 import { Nav } from "@/components/ui/Nav";
 import { Footer } from "@/components/ui/Footer";
 import { FloatingNav } from "@/components/ui/floating-nav";
+import { BuyerChrome } from "@/components/ui/BuyerChrome";
 
 const latin = Manrope({
   variable: "--font-latin",
@@ -80,10 +81,14 @@ export default async function LocaleLayout({
       >
         <body className="min-h-full flex flex-col overflow-x-clip bg-mist text-ink">
           <NextIntlClientProvider>
-            <Nav />
+            <BuyerChrome>
+              <Nav />
+            </BuyerChrome>
             {children}
-            <Footer />
-            <FloatingNav />
+            <BuyerChrome>
+              <Footer />
+              <FloatingNav />
+            </BuyerChrome>
           </NextIntlClientProvider>
         </body>
       </html>
