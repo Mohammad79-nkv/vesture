@@ -6,20 +6,41 @@ const trimmedString = (min: number, max: number) =>
   z.string().trim().min(min).max(max);
 
 // ISO 4217 — three uppercase letters. We don't validate against a list because
-// new currencies appear and we want sellers to use their local one.
+// new currencies appear and we want sellers to use their local one. The form's
+// CSS uppercase class only changes display, not the submitted value, so we
+// normalize to uppercase before the regex check.
 const currencyCode = z
   .string()
-  .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO 4217 code");
+  .trim()
+  .transform((s) => s.toUpperCase())
+  .pipe(
+    z
+      .string()
+      .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO 4217 code"),
+  );
 
-// ISO 3166-1 alpha-2.
+// ISO 3166-1 alpha-2. Same uppercase normalization as currency.
 const countryCode = z
   .string()
-  .regex(/^[A-Z]{2}$/, "Country must be a 2-letter ISO 3166-1 code");
+  .trim()
+  .transform((s) => s.toUpperCase())
+  .pipe(
+    z
+      .string()
+      .regex(/^[A-Z]{2}$/, "Country must be a 2-letter ISO 3166-1 code"),
+  );
 
-// E.164 — leading +, then 8–15 digits.
+// E.164 — leading +, then 8–15 digits. Strip whitespace + dashes seller may
+// have typed (common when copy-pasting from a phone book).
 const e164Phone = z
   .string()
-  .regex(/^\+\d{8,15}$/, "Phone must be in E.164 format (e.g. +971501234567)");
+  .trim()
+  .transform((s) => s.replace(/[\s-]/g, ""))
+  .pipe(
+    z
+      .string()
+      .regex(/^\+\d{8,15}$/, "Phone must be in E.164 format (e.g. +971501234567)"),
+  );
 
 // ─── Seller onboarding ──────────────────────────────────────────────────
 
