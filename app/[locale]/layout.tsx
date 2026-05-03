@@ -7,10 +7,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { localeDirection, locales, type Locale } from "@/lib/i18n/config";
-import { Nav } from "@/components/ui/Nav";
-import { Footer } from "@/components/ui/Footer";
-import { FloatingNav } from "@/components/ui/floating-nav";
-import { BuyerChrome } from "@/components/ui/BuyerChrome";
 
 const latin = Manrope({
   variable: "--font-latin",
@@ -80,16 +76,7 @@ export default async function LocaleLayout({
         className={`${latin.variable} ${arabic.variable} ${persian.variable} ${display.variable} ${mono.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col overflow-x-clip bg-mist text-ink">
-          <NextIntlClientProvider>
-            <BuyerChrome>
-              <Nav />
-            </BuyerChrome>
-            {children}
-            <BuyerChrome>
-              <Footer />
-              <FloatingNav />
-            </BuyerChrome>
-          </NextIntlClientProvider>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
         </body>
       </html>
     </ClerkProvider>
