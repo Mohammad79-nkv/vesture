@@ -17,6 +17,13 @@
     "favorites": "علاقه‌مندی‌ها",
     "stylist": "استایلیست هوشمند"
   },
+  "userMenu": {
+    "signedInAs": "وارد شده با",
+    "dashboard": "داشبورد",
+    "admin": "پنل مدیریت",
+    "favorites": "علاقه‌مندی‌ها",
+    "signOut": "خروج"
+  },
   "home": {
     "eyebrow": "مد · انتخاب‌شده توسط هوش مصنوعی",
     "heroLine1": "بگو چطور",

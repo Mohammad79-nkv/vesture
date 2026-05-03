@@ -1,8 +1,9 @@
 import { getTranslations } from "next-intl/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { Link } from "@/lib/i18n/navigation";
 import { prisma } from "@/lib/adapters/prisma";
 import { SellerAvatar } from "@/components/ui/SellerAvatar";
+import { UserMenu } from "@/components/ui/UserMenu";
 import { SellerNavTabs } from "./SellerNavTabs";
 import { pickLocalized } from "@/lib/domain/i18n";
 import type { Locale } from "@/lib/i18n/config";
@@ -10,27 +11,34 @@ import type { Locale } from "@/lib/i18n/config";
 // Sticky white top bar shown on every /dashboard route. Mirrors the
 // design's seller-mode chrome: VESTURE wordmark + "Seller" chip, nav,
 // bot status pill (currently inert / coming-soon), search button, and
-// the seller's avatar + handle.
+// the seller's avatar + handle (avatar opens a sign-out menu).
 export async function SellerTopBar({ locale }: { locale: Locale }) {
   const t = await getTranslations("seller.topBar");
   const tBrand = await getTranslations("brand");
 
   const { userId: clerkId } = await auth();
-  const seller = clerkId
-    ? await prisma.sellerProfile.findFirst({
-        where: { user: { clerkId } },
-        select: {
-          slug: true,
-          storeNameEn: true,
-          storeNameAr: true,
-          status: true,
-        },
-      })
-    : null;
+  const [seller, me] = await Promise.all([
+    clerkId
+      ? prisma.sellerProfile.findFirst({
+          where: { user: { clerkId } },
+          select: {
+            slug: true,
+            storeNameEn: true,
+            storeNameAr: true,
+            status: true,
+          },
+        })
+      : null,
+    clerkId ? currentUser() : null,
+  ]);
 
   const storeName = seller
     ? pickLocalized({ en: seller.storeNameEn, ar: seller.storeNameAr }, locale)
     : "—";
+  const email = me?.emailAddresses?.[0]?.emailAddress ?? "";
+  const initial = (
+    seller?.storeNameEn?.[0] ?? me?.firstName?.[0] ?? email[0] ?? "U"
+  ).toUpperCase();
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink/8 bg-paper">
@@ -65,13 +73,18 @@ export async function SellerTopBar({ locale }: { locale: Locale }) {
             </svg>
           </button>
 
-          {seller && (
+          {clerkId && (
             <div className="flex items-center gap-2.5 border-s border-ink/8 ps-3">
-              <SellerAvatar slug={seller.slug} name={seller.storeNameEn} size={32} />
-              <div className="hidden md:block">
-                <p className="text-[12px] font-semibold leading-tight text-ink">{storeName}</p>
-                <p className="font-mono text-[10px] text-muted">@{seller.slug}</p>
-              </div>
+              {seller && (
+                <>
+                  <SellerAvatar slug={seller.slug} name={seller.storeNameEn} size={32} />
+                  <div className="hidden md:block">
+                    <p className="text-[12px] font-semibold leading-tight text-ink">{storeName}</p>
+                    <p className="font-mono text-[10px] text-muted">@{seller.slug}</p>
+                  </div>
+                </>
+              )}
+              <UserMenu role="SELLER" initial={initial} email={email} />
             </div>
           )}
         </div>

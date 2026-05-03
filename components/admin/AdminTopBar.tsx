@@ -1,15 +1,18 @@
 import { getTranslations } from "next-intl/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { Link } from "@/lib/i18n/navigation";
+import { UserMenu } from "@/components/ui/UserMenu";
 import { AdminNavTabs } from "./AdminNavTabs";
 
 // Sticky white top bar for the admin workspace. Mirrors SellerTopBar but
-// with a dark "Admin" chip and admin-scoped nav.
+// with a dark "Admin" chip and admin-scoped nav. The avatar trigger opens a
+// menu containing sign-out.
 export async function AdminTopBar() {
   const t = await getTranslations("admin.topBar");
   const tBrand = await getTranslations("brand");
   const me = await currentUser();
   const email = me?.emailAddresses?.[0]?.emailAddress ?? "—";
+  const initial = (me?.firstName?.[0] ?? email[0] ?? "A").toUpperCase();
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink/8 bg-paper">
@@ -34,6 +37,7 @@ export async function AdminTopBar() {
             />
             <span className="font-mono text-[11px] text-ink/65">{email}</span>
           </div>
+          <UserMenu role="ADMIN" initial={initial} email={email} />
         </div>
       </div>
     </header>

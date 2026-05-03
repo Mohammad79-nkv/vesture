@@ -1,23 +1,36 @@
 import { getTranslations } from "next-intl/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { Link } from "@/lib/i18n/navigation";
 import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
+import { UserMenu } from "@/components/ui/UserMenu";
 import { prisma } from "@/lib/adapters/prisma";
 
-async function fetchRole(): Promise<"SELLER" | "ADMIN" | "BUYER" | null> {
+type Role = "SELLER" | "ADMIN" | "BUYER";
+
+async function fetchSession(): Promise<{
+  role: Role;
+  initial: string;
+  email: string;
+} | null> {
   const { userId } = await auth();
   if (!userId) return null;
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { role: true },
-  });
-  return dbUser?.role ?? "BUYER";
+  const [dbUser, me] = await Promise.all([
+    prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { role: true },
+    }),
+    currentUser(),
+  ]);
+  const email = me?.emailAddresses?.[0]?.emailAddress ?? "";
+  const initial =
+    (me?.firstName?.[0] ?? me?.username?.[0] ?? email[0] ?? "U").toUpperCase();
+  return { role: dbUser?.role ?? "BUYER", initial, email };
 }
 
 export async function Nav() {
   const t = await getTranslations("nav");
   const tMobile = await getTranslations("mobileNav");
-  const role = await fetchRole();
+  const session = await fetchSession();
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink/10 bg-paper/95 backdrop-blur">
@@ -72,7 +85,7 @@ export async function Nav() {
           >
             {t("sellOnVesture")}
           </Link>
-          {role === null ? (
+          {session === null ? (
             <Link
               href="/sign-in"
               className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-wider text-paper hover:bg-primary/90"
@@ -80,12 +93,11 @@ export async function Nav() {
               {t("signIn")}
             </Link>
           ) : (
-            <Link
-              href={role === "ADMIN" ? "/admin/sellers" : "/dashboard"}
-              className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-wider text-paper hover:bg-primary/90"
-            >
-              {role === "ADMIN" ? t("admin") : t("dashboard")}
-            </Link>
+            <UserMenu
+              role={session.role}
+              initial={session.initial}
+              email={session.email}
+            />
           )}
         </div>
       </div>

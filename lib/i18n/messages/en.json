@@ -17,6 +17,13 @@
     "favorites": "Favorites",
     "stylist": "AI Stylist"
   },
+  "userMenu": {
+    "signedInAs": "Signed in as",
+    "dashboard": "Dashboard",
+    "admin": "Admin panel",
+    "favorites": "Favorites",
+    "signOut": "Sign out"
+  },
   "home": {
     "eyebrow": "Fashion · Curated by AI",
     "heroLine1": "Tell us how",
