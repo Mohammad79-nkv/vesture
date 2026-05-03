@@ -29,15 +29,25 @@ export async function AdminTopBar() {
         <AdminNavTabs />
 
         <div className="ms-auto flex items-center gap-3">
-          <div className="hidden items-center gap-2 md:flex">
-            <span
-              aria-hidden="true"
-              className="h-2 w-2 rounded-full bg-secondary"
-              title="online"
-            />
-            <span className="font-mono text-[11px] text-ink/65">{email}</span>
-          </div>
-          <UserMenu role="ADMIN" initial={initial} email={email} />
+          <UserMenu
+            role="ADMIN"
+            initial={initial}
+            email={email}
+            trigger={
+              <div className="flex items-center gap-2 rounded-full bg-mist px-3 py-1.5 hover:bg-ink/5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 rounded-full bg-secondary"
+                />
+                <span className="hidden font-mono text-[11px] text-ink/65 md:inline">
+                  {email}
+                </span>
+                <span className="font-mono text-[11px] font-semibold text-ink md:hidden">
+                  {initial}
+                </span>
+              </div>
+            }
+          />
         </div>
       </div>
     </header>

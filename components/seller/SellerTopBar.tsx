@@ -73,17 +73,26 @@ export async function SellerTopBar({ locale }: { locale: Locale }) {
             </svg>
           </button>
 
-          {clerkId && (
-            <div className="flex items-center gap-2.5 border-s border-ink/8 ps-3">
-              {seller && (
-                <>
-                  <SellerAvatar slug={seller.slug} name={seller.storeNameEn} size={32} />
-                  <div className="hidden md:block">
-                    <p className="text-[12px] font-semibold leading-tight text-ink">{storeName}</p>
-                    <p className="font-mono text-[10px] text-muted">@{seller.slug}</p>
-                  </div>
-                </>
-              )}
+          {clerkId && seller && (
+            <div className="flex items-center border-s border-ink/8 ps-3">
+              <UserMenu
+                role="SELLER"
+                initial={initial}
+                email={email}
+                trigger={
+                  <>
+                    <SellerAvatar slug={seller.slug} name={seller.storeNameEn} size={32} />
+                    <div className="hidden text-start md:block">
+                      <p className="text-[12px] font-semibold leading-tight text-ink">{storeName}</p>
+                      <p className="font-mono text-[10px] text-muted">@{seller.slug}</p>
+                    </div>
+                  </>
+                }
+              />
+            </div>
+          )}
+          {clerkId && !seller && (
+            <div className="flex items-center border-s border-ink/8 ps-3">
               <UserMenu role="SELLER" initial={initial} email={email} />
             </div>
           )}

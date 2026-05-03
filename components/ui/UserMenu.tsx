@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useClerk } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { LogOut, LayoutDashboard, ShieldCheck, Heart } from "lucide-react";
@@ -11,16 +11,22 @@ type Role = "BUYER" | "SELLER" | "ADMIN";
 // Avatar trigger + dropdown panel containing role-aware destinations and a
 // sign-out button. Closes on outside click, Escape, or any item click.
 // `signOut({ redirectUrl: "/" })` lands the user back on the welcome hero.
+//
+// `trigger` lets callers supply their own trigger content (seller avatar +
+// handle, email pill, etc.) when the default circular initial doesn't fit
+// the surrounding chrome. Falls back to the initial badge when omitted.
 export function UserMenu({
   role,
   initial,
   email,
   variant = "light",
+  trigger,
 }: {
   role: Role;
   initial: string;
   email?: string | null;
   variant?: "light" | "dark";
+  trigger?: ReactNode;
 }) {
   const t = useTranslations("userMenu");
   const { signOut } = useClerk();
@@ -43,7 +49,7 @@ export function UserMenu({
     };
   }, [open]);
 
-  const triggerCls =
+  const defaultTriggerCls =
     variant === "dark"
       ? "bg-paper/10 text-paper hover:bg-paper/15 border-paper/15"
       : "bg-primary text-paper hover:bg-primary/90 border-transparent";
@@ -55,9 +61,13 @@ export function UserMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className={`grid h-9 w-9 place-items-center rounded-full border text-[13px] font-bold uppercase tracking-[0.04em] transition-colors ${triggerCls}`}
+        className={
+          trigger
+            ? "flex items-center gap-2.5 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            : `grid h-9 w-9 place-items-center rounded-full border text-[13px] font-bold uppercase tracking-[0.04em] transition-colors ${defaultTriggerCls}`
+        }
       >
-        {initial || "·"}
+        {trigger ?? (initial || "·")}
       </button>
 
       {open && (
