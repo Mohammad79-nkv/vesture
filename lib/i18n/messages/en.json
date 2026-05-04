@@ -148,6 +148,21 @@
     "search": "Search",
     "favorites": "Favorites"
   },
+  "closetEmpty": {
+    "step": "Step 01 of 03",
+    "headlineLead": "Bring your",
+    "headlineAccent": "closet",
+    "headlineTrail": "in",
+    "body": "Snap each piece you own. Our stylist will mix what's already yours with new pieces from sellers — so you only buy what fills a gap.",
+    "step1Title": "Take a photo",
+    "step1Body": "On a flat surface or hung up. Good light helps.",
+    "step2Title": "AI tags it",
+    "step2Body": "Category, color, fabric, formality — automatic.",
+    "step3Title": "Style anything",
+    "step3Body": "Chat tells you what to wear, using your closet first.",
+    "ctaStart": "Start with one piece",
+    "importHint": "Or import from camera roll · 12 photos detected"
+  },
   "product": {
     "addToFavorites": "Add to favorites",
     "removeFromFavorites": "Remove from favorites",
