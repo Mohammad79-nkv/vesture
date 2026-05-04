@@ -2,17 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Compass, Sparkles, Bookmark, User } from "lucide-react";
+import { Compass, Sparkles, LayoutGrid, Bookmark, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/lib/i18n/navigation";
 
-// Vesture-flavored adaptation of the FloatingNav pattern. Keeps the brand
-// pink container + ink active pill, swaps the demo's local toggle state for
-// real path-aware active detection via next-intl's pathname helper, and
-// replaces the demo's 7-item content with our 4 tabs.
-//
-// Hides on product detail pages — those render their own sticky message
-// footer that takes the bottom slot.
+// Vesture mobile bottom-nav. Dark navy glass pill with a sliding white active
+// pill (matches the BuyerTabBar from the design's buyer-screens.jsx). 5 tabs:
+// Discover, Stylist, Closet (new — with a magenta dot indicating new activity),
+// Saved, Me. Hides on product detail pages where a sticky message footer takes
+// over.
 export function FloatingNav() {
   const t = useTranslations("mobileNav");
   const pathname = usePathname();
@@ -27,18 +25,28 @@ export function FloatingNav() {
       label: t("discover"),
       matches: (p: string) =>
         p === "/" || p.startsWith("/products") || p.startsWith("/sellers"),
+      badge: false,
     },
     {
       href: "/stylist" as const,
       Icon: Sparkles,
       label: t("stylist"),
       matches: (p: string) => p.startsWith("/stylist"),
+      badge: false,
+    },
+    {
+      href: "/closet" as const,
+      Icon: LayoutGrid,
+      label: t("closet"),
+      matches: (p: string) => p.startsWith("/closet"),
+      badge: true,
     },
     {
       href: "/favorites" as const,
       Icon: Bookmark,
       label: t("saved"),
       matches: (p: string) => p.startsWith("/favorites"),
+      badge: false,
     },
     {
       href: "/dashboard" as const,
@@ -49,6 +57,7 @@ export function FloatingNav() {
         p.startsWith("/admin") ||
         p.startsWith("/sign-in") ||
         p.startsWith("/sign-up"),
+      badge: false,
     },
   ];
 
@@ -86,14 +95,14 @@ export function FloatingNav() {
     >
       <div
         ref={containerRef}
-        className="relative flex items-center gap-1 rounded-full bg-[#EAB8E4] p-1.5 shadow-[0_8px_30px_rgba(33,39,57,0.18)]"
+        className="relative flex items-center gap-1 rounded-full bg-ink/[0.92] p-1.5 shadow-[0_8px_28px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl backdrop-saturate-150"
       >
         {/* Animated active pill — slides + resizes to the matched tab */}
         <motion.div
           aria-hidden="true"
           animate={indicator}
           transition={{ type: "spring", stiffness: 420, damping: 32 }}
-          className="absolute top-1.5 bottom-1.5 rounded-full bg-ink"
+          className="absolute top-1.5 bottom-1.5 rounded-full bg-paper"
         />
 
         {tabs.map((tab, i) => {
@@ -109,10 +118,18 @@ export function FloatingNav() {
               aria-current={isActive ? "page" : undefined}
               className={[
                 "relative z-10 flex min-w-0 flex-1 flex-col items-center gap-1 rounded-full px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors",
-                isActive ? "text-paper" : "text-ink/70 hover:text-ink",
+                isActive ? "text-ink" : "text-paper/70 hover:text-paper",
               ].join(" ")}
             >
-              <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
+              <span className="relative">
+                <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
+                {tab.badge && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -end-1 -top-0.5 h-1.5 w-1.5 rounded-full bg-primary ring-2 ring-ink/[0.92]"
+                  />
+                )}
+              </span>
               <span className="truncate max-w-full">{tab.label}</span>
             </Link>
           );
