@@ -33,7 +33,7 @@ export async function Nav() {
   const session = await fetchSession();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ink/10 bg-paper/95 backdrop-blur">
+    <header className="sticky top-0 z-30 bg-mist lg:border-b lg:border-ink/10 lg:bg-paper/95 lg:backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-4">
         <Link
           href="/"

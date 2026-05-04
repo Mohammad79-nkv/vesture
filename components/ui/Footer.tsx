@@ -29,7 +29,7 @@ export async function Footer() {
   ];
 
   return (
-    <footer className="bg-ink text-paper/80">
+    <footer className="hidden bg-ink text-paper/80 lg:block">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <p className="text-lg font-extrabold tracking-[0.18em] text-paper">
