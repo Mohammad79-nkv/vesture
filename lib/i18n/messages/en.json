@@ -131,6 +131,16 @@
       "editorial": "Editorial"
     }
   },
+  "closetNudge": {
+    "eyebrow": "Last step · 1 min",
+    "headlineLead": "Add your closet so we can",
+    "headlineAccent": "style what you own",
+    "stepAccount": "Account",
+    "stepTaste": "taste",
+    "stepCloset": "closet",
+    "addMyCloset": "Add my closet",
+    "later": "Later"
+  },
   "stylist": {
     "title": "Your AI stylist",
     "status": "Stylist · Online",

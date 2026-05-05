@@ -131,6 +131,16 @@
       "editorial": "مجله"
     }
   },
+  "closetNudge": {
+    "eyebrow": "آخرین گام · ۱ دقیقه",
+    "headlineLead": "کلوزِتت رو اضافه کن تا بتونیم",
+    "headlineAccent": "چیزی که داری رو استایل کنیم",
+    "stepAccount": "حساب",
+    "stepTaste": "ذوق",
+    "stepCloset": "کلوزِت",
+    "addMyCloset": "افزودن کلوزِت من",
+    "later": "بعداً"
+  },
   "stylist": {
     "title": "استایلیست هوشمند تو",
     "status": "استایلیست · آنلاین",

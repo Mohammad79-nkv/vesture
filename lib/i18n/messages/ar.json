@@ -131,6 +131,16 @@
       "editorial": "المجلة"
     }
   },
+  "closetNudge": {
+    "eyebrow": "الخطوة الأخيرة · دقيقة واحدة",
+    "headlineLead": "أضف خزانتك لنتمكن من",
+    "headlineAccent": "تنسيق ما تملك",
+    "stepAccount": "الحساب",
+    "stepTaste": "الذوق",
+    "stepCloset": "الخزانة",
+    "addMyCloset": "أضف خزانتي",
+    "later": "لاحقاً"
+  },
   "stylist": {
     "title": "مصممك الذكي",
     "status": "المصمم · متصل",

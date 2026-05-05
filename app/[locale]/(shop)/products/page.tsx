@@ -11,6 +11,7 @@ import { CatalogChips } from "@/components/product/CatalogChips";
 import { RefineDrawer } from "@/components/product/RefineDrawer";
 import { StylistSidebar } from "@/components/marketing/StylistSidebar";
 import { MobileStylistBar } from "@/components/marketing/MobileStylistBar";
+import { ClosetNudgeBar } from "@/components/marketing/ClosetNudgeBar";
 import { aspectFor, distributeMasonry } from "@/lib/domain/masonry";
 
 // Fixed for now — could come from a CMS or weekly cron later.
@@ -42,23 +43,37 @@ export default async function ProductsPage({
   const { totalApproved } = await listFeaturedSellers(0);
 
   // Pull the user's favorited product IDs in one query so each tile can render
-  // its initial bookmark state without N round-trips.
+  // its initial bookmark state without N round-trips. Also fetch the closet
+  // piece count so we can decide whether to show the "Add my closet" nudge
+  // (frame 05 card) or the simpler stylist bar at the top of the mobile feed.
   const { userId: clerkId } = await auth();
   let favoritedIds = new Set<string>();
+  let closetPieceCount = 0;
   if (clerkId) {
     const me = await prisma.user.findUnique({
       where: { clerkId },
       select: { id: true },
     });
     if (me) {
-      const favs = await prisma.favorite.findMany({
-        where: { userId: me.id },
-        select: { productId: true },
-      });
+      const [favs, pieces] = await Promise.all([
+        prisma.favorite.findMany({
+          where: { userId: me.id },
+          select: { productId: true },
+        }),
+        prisma.closetPiece.count({
+          where: { userId: me.id, status: "IN_CLOSET" },
+        }),
+      ]);
       favoritedIds = new Set(favs.map((f) => f.productId));
+      closetPieceCount = pieces;
     }
   }
   const authenticated = Boolean(clerkId);
+  // Closet nudge: signed-in users who haven't added a piece yet. Anonymous
+  // visitors keep the original stylist bar — they can't act on "Add my
+  // closet" without signing in first, and the stylist message reads better
+  // as a top-of-funnel prompt.
+  const showClosetNudge = authenticated && closetPieceCount === 0;
 
   // Pre-compute aspects + masonry distribution server-side so the mobile feed
   // renders without layout shift.
@@ -81,7 +96,11 @@ export default async function ProductsPage({
         </header>
 
         <div className="px-3.5 pb-3.5">
-          <MobileStylistBar sellerCount={totalApproved} />
+          {showClosetNudge ? (
+            <ClosetNudgeBar />
+          ) : (
+            <MobileStylistBar sellerCount={totalApproved} />
+          )}
         </div>
 
         <div className="px-3.5 pb-3.5">
