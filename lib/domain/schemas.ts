@@ -127,3 +127,52 @@ export const catalogFiltersSchema = z.object({
 });
 
 export type CatalogFilters = z.infer<typeof catalogFiltersSchema>;
+
+// ─── Closet ─────────────────────────────────────────────────────────────
+
+export const formalityEnum = z.enum(["CASUAL", "SMART_CASUAL", "FORMAL"]);
+export const pieceStatusEnum = z.enum([
+  "IN_CLOSET",
+  "LENT",
+  "CLEANER",
+  "STORAGE",
+  "DONATED",
+  "ARCHIVED",
+]);
+
+const optionalText = (max: number) =>
+  trimmedString(0, max)
+    .optional()
+    .or(z.literal("").transform(() => undefined));
+
+const hexSwatch = z
+  .string()
+  .trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, "Swatch must be a 6-digit hex like #C9CDD6")
+  .optional()
+  .or(z.literal("").transform(() => undefined));
+
+// Used by the add-piece form. `imageUrl` + `publicId` come from the Cloudinary
+// signed upload step; everything else is the user's manual tagging.
+export const closetPieceInputSchema = z.object({
+  imageUrl: z.string().url(),
+  publicId: z.string().min(1),
+  name: optionalText(80),
+  category: productCategoryEnum,
+  color: optionalText(24),
+  swatchHex: hexSwatch,
+  fabric: optionalText(40),
+  formality: formalityEnum.optional(),
+  season: productSeasonEnum.optional(),
+  brand: optionalText(40),
+  notes: optionalText(280),
+});
+
+export type ClosetPieceInput = z.infer<typeof closetPieceInputSchema>;
+
+export const closetFiltersSchema = z.object({
+  category: productCategoryEnum.optional(),
+  status: pieceStatusEnum.optional(),
+});
+
+export type ClosetFilters = z.infer<typeof closetFiltersSchema>;

@@ -7,12 +7,15 @@ cloudinary.config({
   secure: true,
 });
 
-const UPLOAD_FOLDER = process.env.CLOUDINARY_UPLOAD_FOLDER ?? "vesture/products";
+const PRODUCTS_FOLDER = process.env.CLOUDINARY_UPLOAD_FOLDER ?? "vesture/products";
+const CLOSET_FOLDER = "vesture/closet";
 
 // Generate a signature the browser uses to upload directly to Cloudinary.
 // The image bytes never touch our server, so this scales without us paying
-// per-byte egress.
-export function signUpload(params: { sellerId: string }): {
+// per-byte egress. Folder structure: products/<sellerId>/, closet/<userId>/.
+export function signUpload(
+  params: { kind: "product"; sellerId: string } | { kind: "closet"; userId: string },
+): {
   signature: string;
   timestamp: number;
   apiKey: string;
@@ -20,7 +23,10 @@ export function signUpload(params: { sellerId: string }): {
   folder: string;
 } {
   const timestamp = Math.round(Date.now() / 1000);
-  const folder = `${UPLOAD_FOLDER}/${params.sellerId}`;
+  const folder =
+    params.kind === "product"
+      ? `${PRODUCTS_FOLDER}/${params.sellerId}`
+      : `${CLOSET_FOLDER}/${params.userId}`;
 
   const signature = cloudinary.utils.api_sign_request(
     { timestamp, folder },

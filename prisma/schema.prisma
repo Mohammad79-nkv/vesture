@@ -27,7 +27,8 @@ model User {
   sellerProfile SellerProfile?
   favorites     Favorite[]
   chatSessions  ChatSession[]
-  adminActions  AdminAction[] @relation("AdminActor")
+  adminActions  AdminAction[]  @relation("AdminActor")
+  closetPieces  ClosetPiece[]
 }
 
 enum Role {
@@ -51,8 +52,8 @@ model SellerProfile {
   coverUrl        String?
   instagramUrl    String?
   whatsappE164    String?
-  countryCode     String       // ISO 3166-1 alpha-2 (AE, SA, EG, ...)
-  defaultCurrency String       // ISO 4217 (AED, SAR, EGP, ...)
+  countryCode     String // ISO 3166-1 alpha-2 (AE, SA, EG, ...)
+  defaultCurrency String // ISO 4217 (AED, SAR, EGP, ...)
   status          SellerStatus @default(PENDING)
   approvedAt      DateTime?
   rejectionReason String?
@@ -74,37 +75,37 @@ enum SellerStatus {
 // ─── Products ───────────────────────────────────────────────────────────
 
 model Product {
-  id            String        @id @default(cuid())
-  sellerId      String
-  seller        SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  id       String        @id @default(cuid())
+  sellerId String
+  seller   SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 
   titleEn       String
   titleAr       String?
-  slug          String        @unique
+  slug          String  @unique
   descriptionEn String
   descriptionAr String?
-  priceMinor    Int                                       // smallest currency unit
-  currency      String                                    // ISO 4217
+  priceMinor    Int // smallest currency unit
+  currency      String // ISO 4217
 
-  category      Category
-  gender        Gender
-  season        Season?
-  occasion      Occasion?
-  style         Style?
+  category Category
+  gender   Gender
+  season   Season?
+  occasion Occasion?
+  style    Style?
 
-  sizes         String[]
-  colors        String[]                                  // normalized lowercase
+  sizes  String[]
+  colors String[] // normalized lowercase
 
   // Phase 3 fields — populated by AI tagging + embedding pipeline
-  aiTags        String[]                                  @default([])
-  aiConfidence  Float?
-  embedding     Unsupported("vector(1024)")?
-  embeddedAt    DateTime?
+  aiTags       String[]                     @default([])
+  aiConfidence Float?
+  embedding    Unsupported("vector(1024)")?
+  embeddedAt   DateTime?
 
-  status        ProductStatus @default(DRAFT)
-  publishedAt   DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  status      ProductStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   images       ProductImage[]
   favorites    Favorite[]
@@ -201,7 +202,7 @@ model ChatSession {
   id              String   @id @default(cuid())
   userId          String?
   user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  anonymousCookie String?  @unique  // signed cookie value for pre-auth attach
+  anonymousCookie String?  @unique // signed cookie value for pre-auth attach
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -211,13 +212,13 @@ model ChatSession {
 }
 
 model ChatMessage {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   sessionId String
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   role      ChatRole
   content   String
   toolCalls Json?
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
 
   products ChatMessageProduct[]
 
@@ -242,15 +243,71 @@ model ChatMessageProduct {
   @@index([productId])
 }
 
+// ─── Closet (personal wardrobe) ─────────────────────────────────────────
+// One ClosetPiece = one photographed garment owned by a buyer. Tags are
+// manual today; Phase 3 will populate them from Claude vision and surface
+// ai-suggestions in piece detail.
+
+model ClosetPiece {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  imageUrl String
+  publicId String // Cloudinary public_id
+
+  name      String? // user-given (e.g. "Camel wool overcoat")
+  category  Category
+  color     String? // free-form ("Camel", "Burgundy") + swatch hex
+  swatchHex String? // for grid tile background fidelity
+  fabric    String? // free-form ("Cotton", "Cashmere", ...)
+  formality Formality?
+  season    Season?
+  brand     String?
+  notes     String?
+
+  // Phase 3 fields — populated by AI vision tagger
+  aiTags       String[] @default([])
+  aiConfidence Float?
+
+  // Wear log denormalized for fast list rendering. A separate WearLog table
+  // can be added in Phase 2.5 when calendar / pair history land.
+  wearCount  Int       @default(0)
+  lastWornAt DateTime?
+
+  status    PieceStatus @default(IN_CLOSET)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([userId, status])
+  @@index([userId, category])
+  @@index([userId, lastWornAt])
+}
+
+enum Formality {
+  CASUAL
+  SMART_CASUAL
+  FORMAL
+}
+
+enum PieceStatus {
+  IN_CLOSET
+  LENT
+  CLEANER
+  STORAGE
+  DONATED
+  ARCHIVED
+}
+
 // ─── Admin audit log ────────────────────────────────────────────────────
 
 model AdminAction {
   id         String   @id @default(cuid())
   adminId    String
   admin      User     @relation("AdminActor", fields: [adminId], references: [id], onDelete: Cascade)
-  targetType String   // "Seller" | "Product"
+  targetType String // "Seller" | "Product"
   targetId   String
-  action     String   // "APPROVE" | "REJECT" | "SUSPEND" | "ARCHIVE"
+  action     String // "APPROVE" | "REJECT" | "SUSPEND" | "ARCHIVE"
   reason     String?
   createdAt  DateTime @default(now())
 

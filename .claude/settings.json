@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m ' *)",
+      "Bash(mkdir -p /tmp/vesture-design-v3)",
+      "Bash(tar xzf *)",
+      "Bash(lsof -i :3000 -sTCP:LISTEN)",
+      "Bash(curl -s 'http://localhost:3000/fa/products?nc=__TRACKED_VAR__')",
+      "Bash(curl -s 'http://localhost:3000/ar/products?nc=__TRACKED_VAR__')",
+      "Bash(curl -s 'http://localhost:3000/en/closet?nc=__TRACKED_VAR__')"
+    ],
+    "additionalDirectories": [
+      "/Users/mohamad/Desktop/Project/untitled folder/app/[locale]/(shop)"
+    ]
+  }
+}
