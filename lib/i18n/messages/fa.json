@@ -148,6 +148,54 @@
     "search": "جست‌وجو",
     "favorites": "علاقه‌مندی‌ها"
   },
+  "me": {
+    "header": "<accent>پروفایل</accent> تو",
+    "edit": "ویرایش",
+    "anonymous": "خوش اومدی",
+    "joined": "عضو از {date}",
+    "stats": {
+      "pieces": "قطعه‌ها",
+      "favorites": "علاقه‌مندی‌ها",
+      "wears": "بار پوشیده شده"
+    },
+    "myStuff": "حساب من",
+    "myCloset": "کلوزِت من",
+    "myClosetSub": "{n} قطعه",
+    "myFavorites": "ذخیره‌ها",
+    "myFavoritesSub": "{n} مورد",
+    "sellerDashboard": "داشبورد فروشنده",
+    "sellerDashboardSub": "مدیریت فروشگاهت",
+    "adminPanel": "پنل مدیریت",
+    "adminPanelSub": "مدیریت فروشنده‌ها و محصولات",
+    "openShop": "یه فروشگاه باز کن",
+    "openShopSub": "یه فروشندهٔ Vesture شو",
+    "settings": "تنظیمات",
+    "language": "زبان",
+    "accountManagement": "حساب و امنیت",
+    "accountManagementSub": "ایمیل، پسورد، روش‌های ورود در Clerk",
+    "signOut": "خروج",
+    "signOutConfirm": "از Vesture خارج بشی؟"
+  },
+  "meEdit": {
+    "title": "ویرایش پروفایل",
+    "subtitle": "اسم و عکست رو به‌روز کن. ایمیل و پسورد توی تنظیمات حساب هستن.",
+    "back": "بازگشت",
+    "photo": "عکس پروفایل",
+    "changePhoto": "تغییر عکس",
+    "firstName": "نام",
+    "firstNamePlaceholder": "مثلاً: مونا",
+    "lastName": "نام خانوادگی",
+    "lastNamePlaceholder": "مثلاً: کریمی",
+    "save": "ذخیرهٔ تغییرات",
+    "saving": "در حال ذخیره…",
+    "cancel": "لغو",
+    "saved": "ذخیره شد",
+    "errors": {
+      "saveFailed": "ذخیره نشد — دوباره تلاش کن",
+      "imageTooLarge": "عکس باید زیر ۵ مگابایت باشه",
+      "invalidImage": "این فایل عکس نیست"
+    }
+  },
   "closet": {
     "header": "<accent>کلوزِت</accent> تو",
     "headerStat": "{total} قطعه · {unworn} نپوشیده",

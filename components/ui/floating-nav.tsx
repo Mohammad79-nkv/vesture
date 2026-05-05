@@ -49,10 +49,11 @@ export function FloatingNav() {
       badge: false,
     },
     {
-      href: "/dashboard" as const,
+      href: "/me" as const,
       Icon: User,
       label: t("me"),
       matches: (p: string) =>
+        p.startsWith("/me") ||
         p.startsWith("/dashboard") ||
         p.startsWith("/admin") ||
         p.startsWith("/sign-in") ||

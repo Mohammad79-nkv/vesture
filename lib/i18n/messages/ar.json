@@ -148,6 +148,54 @@
     "search": "بحث",
     "favorites": "المفضلة"
   },
+  "me": {
+    "header": "<accent>ملفك الشخصي</accent>",
+    "edit": "تعديل",
+    "anonymous": "مرحباً",
+    "joined": "عضو منذ {date}",
+    "stats": {
+      "pieces": "قطع",
+      "favorites": "مفضلة",
+      "wears": "مرات الارتداء"
+    },
+    "myStuff": "حسابي",
+    "myCloset": "خزانتي",
+    "myClosetSub": "{n} قطعة",
+    "myFavorites": "المحفوظة",
+    "myFavoritesSub": "{n} مفضلة",
+    "sellerDashboard": "لوحة البائع",
+    "sellerDashboardSub": "إدارة متجرك",
+    "adminPanel": "لوحة الإدارة",
+    "adminPanelSub": "إدارة البائعين والمنتجات",
+    "openShop": "افتح متجراً",
+    "openShopSub": "كن بائعاً على Vesture",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "accountManagement": "الحساب والأمان",
+    "accountManagementSub": "البريد، كلمة المرور، طرق الدخول عبر Clerk",
+    "signOut": "تسجيل الخروج",
+    "signOutConfirm": "تسجيل الخروج من Vesture؟"
+  },
+  "meEdit": {
+    "title": "تعديل الملف",
+    "subtitle": "حدّث اسمك وصورتك. البريد وكلمة المرور في إعدادات الحساب.",
+    "back": "رجوع",
+    "photo": "صورة الملف",
+    "changePhoto": "تغيير الصورة",
+    "firstName": "الاسم الأول",
+    "firstNamePlaceholder": "مثلاً: منى",
+    "lastName": "اسم العائلة",
+    "lastNamePlaceholder": "مثلاً: كريم",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ…",
+    "cancel": "إلغاء",
+    "saved": "تم الحفظ",
+    "errors": {
+      "saveFailed": "تعذّر الحفظ — حاول مجدداً",
+      "imageTooLarge": "يجب أن تكون الصورة أقل من ٥ ميغابايت",
+      "invalidImage": "هذا الملف ليس صورة"
+    }
+  },
   "closet": {
     "header": "<accent>خزانتك</accent>",
     "headerStat": "{total} قطعة · {unworn} غير مرتدية",
