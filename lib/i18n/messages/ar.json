@@ -173,6 +173,7 @@
       "firstName": "الاسم الأول",
       "firstNamePlaceholder": "مثلاً: منى",
       "continueWithGoogle": "المتابعة بحساب جوجل",
+      "redirectingToGoogle": "جارٍ الاتصال بجوجل…",
       "or": "أو سجّل بالبريد",
       "createAccount": "إنشاء الحساب",
       "creatingAccount": "جارٍ الإنشاء…",
@@ -194,6 +195,11 @@
         "generic": "حدث خطأ ما — حاول مجدداً"
       }
     }
+  },
+  "ssoCallback": {
+    "tagline": "أزياء بالذكاء الاصطناعي · منذ ٢٠٢٦",
+    "title": "اقتربنا",
+    "subtitle": "جارٍ إكمال تسجيل دخولك…"
   },
   "onboardingTaste": {
     "skip": "تخطّي",

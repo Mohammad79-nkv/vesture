@@ -29,6 +29,12 @@ export function SignUpForm() {
   const [firstName, setFirstName] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Separate state for the Google flow: the button needs to flip to a
+  // "Connecting…" spinner the instant it's tapped, even before Clerk's API
+  // call resolves, so the user gets confirmation the click registered. The
+  // OAuth path ends in a hard redirect to Google, so this state is never
+  // reset on the success path — only on error.
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   function clerkError(err: unknown, fallback: string): string {
     if (err && typeof err === "object" && "errors" in err) {
@@ -107,16 +113,19 @@ export function SignUpForm() {
   // which Clerk's <AuthenticateWithRedirectCallback> resolves to either
   // /onboarding/taste (new account) or /products (returning user).
   async function continueWithGoogle() {
-    if (!isLoaded) return;
+    if (!isLoaded || googleLoading) return;
     setError(null);
+    setGoogleLoading(true);
     try {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/onboarding/sso-callback",
         redirectUrlComplete: "/onboarding/taste",
       });
+      // No reset on success — the call ends in a hard navigation to Google.
     } catch (err) {
       setError(clerkError(err, t("errors.generic")));
+      setGoogleLoading(false);
     }
   }
 
@@ -224,15 +233,28 @@ export function SignUpForm() {
 
       {/* Social sign-up — Google. Uses Clerk OAuth under the hood; the
          provider must be enabled in the Clerk dashboard for the redirect to
-         resolve, otherwise users hit Clerk's hosted error page. */}
+         resolve, otherwise users hit Clerk's hosted error page.
+         The button flips to a "Connecting…" spinner the moment it's tapped
+         so the user sees the click was acknowledged even though the redirect
+         to Google takes a beat. */}
       <button
         type="button"
         onClick={continueWithGoogle}
-        disabled={pending || !isLoaded}
-        className="mt-6 inline-flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-paper text-[13.5px] font-semibold tracking-[-0.01em] text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.12)] transition-colors hover:bg-mist disabled:opacity-50"
+        disabled={pending || !isLoaded || googleLoading}
+        aria-busy={googleLoading}
+        className="mt-6 inline-flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-paper text-[13.5px] font-semibold tracking-[-0.01em] text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.12)] transition-colors hover:bg-mist disabled:opacity-60"
       >
-        <GoogleIcon />
-        {t("continueWithGoogle")}
+        {googleLoading ? (
+          <>
+            <Loader2 size={16} className="animate-spin text-ink/55" aria-hidden="true" />
+            {t("redirectingToGoogle")}
+          </>
+        ) : (
+          <>
+            <GoogleIcon />
+            {t("continueWithGoogle")}
+          </>
+        )}
       </button>
 
       <div
@@ -292,7 +314,7 @@ export function SignUpForm() {
       <div className="mt-auto flex flex-col gap-3 pt-6 pb-6">
         <button
           type="submit"
-          disabled={pending || !isLoaded}
+          disabled={pending || !isLoaded || googleLoading}
           className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-ink text-[13px] font-medium uppercase tracking-[0.06em] text-paper disabled:opacity-50"
         >
           {pending ? (

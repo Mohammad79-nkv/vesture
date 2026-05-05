@@ -173,6 +173,7 @@
       "firstName": "نام",
       "firstNamePlaceholder": "مثلاً: مونا",
       "continueWithGoogle": "ادامه با گوگل",
+      "redirectingToGoogle": "در حال اتصال به گوگل…",
       "or": "یا با ایمیل ثبت‌نام کن",
       "createAccount": "ساخت حساب",
       "creatingAccount": "در حال ساخت…",
@@ -194,6 +195,11 @@
         "generic": "یه چیزی اشتباه شد — دوباره تلاش کن"
       }
     }
+  },
+  "ssoCallback": {
+    "tagline": "مد با هوش مصنوعی · از ۱۴۰۵",
+    "title": "نزدیکیم",
+    "subtitle": "در حال تکمیل ورود…"
   },
   "onboardingTaste": {
     "skip": "رد کردن",
