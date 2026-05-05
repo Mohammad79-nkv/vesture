@@ -39,6 +39,20 @@ export async function requireUser(): Promise<User> {
   return user;
 }
 
+// Auth-gated buyer surfaces (closet, me, stylist, favorites) call this
+// instead of requireUser. It enforces the mandatory onboarding flow — users
+// who finished sign-up but bailed before submitting the taste step get
+// redirected to /onboarding/taste before they can reach personal data.
+//
+// The route literal is cast through `as never` because Next 16's typed-route
+// generator currently flags newly-added routes as unknown to TS until the
+// build manifest catches up — runtime behavior is unaffected.
+export async function requireOnboarded(): Promise<User> {
+  const user = await requireUser();
+  if (!user.onboardedAt) redirect("/onboarding/taste" as never);
+  return user;
+}
+
 export async function requireRole(role: Role): Promise<User> {
   const user = await requireUser();
   if (user.role !== role && user.role !== "ADMIN") {

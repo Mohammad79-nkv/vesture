@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n/config";
-import { requireUser } from "@/lib/auth";
+import { requireOnboarded } from "@/lib/auth";
 import { AddPieceForm } from "@/components/closet/AddPieceForm";
 
-// Auth-gated capture flow. The form does the upload + tag + save in one place;
-// `requireUser` here means anonymous visitors get bounced to /sign-in before
-// they ever see the camera prompt.
+// Auth- and onboarding-gated capture flow. The form does the upload + tag +
+// save in one place; `requireOnboarded` here means anonymous visitors get
+// bounced to /sign-in and signed-in-but-not-onboarded users land on
+// /onboarding/taste before they ever see the camera prompt.
 export default async function AddPiecePage({
   params,
 }: {
@@ -16,7 +17,7 @@ export default async function AddPiecePage({
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  await requireUser();
+  await requireOnboarded();
 
   return (
     <main className="flex flex-1 flex-col bg-mist text-ink">

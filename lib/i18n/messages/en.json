@@ -148,6 +148,63 @@
     "search": "Search",
     "favorites": "Favorites"
   },
+  "onboarding": {
+    "step": "Step {n} of {total}",
+    "back": "Back",
+    "signUp": {
+      "eyebrow": "Make an account",
+      "headline": "One <accent>account</accent>.",
+      "subhead": "Every device.",
+      "body": "Your wardrobe and saved looks sync across phone and desktop. Photos stay private.",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "firstName": "First name",
+      "firstNamePlaceholder": "e.g. Mona",
+      "createAccount": "Create account",
+      "creatingAccount": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "verifyEyebrow": "Check your email",
+      "verifyHeadline": "Enter the <accent>code</accent>",
+      "verifyBody": "We sent a 6-digit code to {email}. Paste it below.",
+      "code": "Verification code",
+      "codePlaceholder": "123456",
+      "verify": "Verify & continue",
+      "verifying": "Verifying…",
+      "resend": "Resend code",
+      "termsHint": "By continuing you agree to our terms.",
+      "errors": {
+        "emailRequired": "Enter your email",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "codeRequired": "Enter the 6-digit code",
+        "generic": "Something went wrong — try again"
+      }
+    }
+  },
+  "onboardingTaste": {
+    "skip": "Skip",
+    "step": "Step 02 of 04",
+    "headline": "Pick what feels",
+    "headlineAccent": "like you",
+    "body": "Choose 2 or more. We'll refine as you use the app.",
+    "selected": "{n} selected",
+    "selectMore": "Pick at least 2",
+    "continue": "Continue",
+    "saving": "Saving…",
+    "styles": {
+      "STREETWEAR": "Streetwear",
+      "QUIET_LUXURY": "Quiet luxury",
+      "MINIMAL": "Minimal",
+      "ROMANTIC": "Romantic",
+      "TAILORED": "Tailored",
+      "EDITORIAL": "Editorial"
+    },
+    "errors": {
+      "saveFailed": "Couldn't save — try again"
+    }
+  },
   "me": {
     "header": "Your <accent>profile</accent>",
     "edit": "Edit",

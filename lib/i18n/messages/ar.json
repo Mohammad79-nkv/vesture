@@ -148,6 +148,63 @@
     "search": "بحث",
     "favorites": "المفضلة"
   },
+  "onboarding": {
+    "step": "الخطوة {n} من {total}",
+    "back": "رجوع",
+    "signUp": {
+      "eyebrow": "أنشئ حساباً",
+      "headline": "<accent>حساب</accent> واحد.",
+      "subhead": "في كل أجهزتك.",
+      "body": "خزانتك وإطلالاتك المحفوظة تتزامن بين هاتفك وحاسوبك. صورك تبقى خاصة.",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "٨ أحرف على الأقل",
+      "firstName": "الاسم الأول",
+      "firstNamePlaceholder": "مثلاً: منى",
+      "createAccount": "إنشاء الحساب",
+      "creatingAccount": "جارٍ الإنشاء…",
+      "haveAccount": "لديك حساب؟",
+      "signInLink": "تسجيل الدخول",
+      "verifyEyebrow": "افحص بريدك",
+      "verifyHeadline": "أدخل <accent>الرمز</accent>",
+      "verifyBody": "أرسلنا رمزاً مكوّناً من ٦ أرقام إلى {email}. ألصقه أدناه.",
+      "code": "رمز التحقق",
+      "codePlaceholder": "١٢٣٤٥٦",
+      "verify": "تحقّق ومتابعة",
+      "verifying": "جارٍ التحقق…",
+      "resend": "إعادة إرسال الرمز",
+      "termsHint": "بالمتابعة فأنت توافق على الشروط.",
+      "errors": {
+        "emailRequired": "أدخل بريدك",
+        "passwordTooShort": "كلمة المرور يجب أن تكون ٨ أحرف على الأقل",
+        "codeRequired": "أدخل الرمز المكوّن من ٦ أرقام",
+        "generic": "حدث خطأ ما — حاول مجدداً"
+      }
+    }
+  },
+  "onboardingTaste": {
+    "skip": "تخطّي",
+    "step": "الخطوة ٠٢ من ٠٤",
+    "headline": "اختر ما يشبهك",
+    "headlineAccent": "أنت",
+    "body": "اختر اثنين أو أكثر. سنُحسّن مع استخدامك للتطبيق.",
+    "selected": "{n} مختار",
+    "selectMore": "اختر اثنين على الأقل",
+    "continue": "متابعة",
+    "saving": "جارٍ الحفظ…",
+    "styles": {
+      "STREETWEAR": "ستريت وير",
+      "QUIET_LUXURY": "فخامة هادئة",
+      "MINIMAL": "بسيط",
+      "ROMANTIC": "رومانسي",
+      "TAILORED": "مفصّل",
+      "EDITORIAL": "تحريري"
+    },
+    "errors": {
+      "saveFailed": "تعذّر الحفظ — حاول مجدداً"
+    }
+  },
   "me": {
     "header": "<accent>ملفك الشخصي</accent>",
     "edit": "تعديل",

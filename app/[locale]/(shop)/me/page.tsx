@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
-import { requireUser } from "@/lib/auth";
+import { requireOnboarded } from "@/lib/auth";
 import { prisma } from "@/lib/adapters/prisma";
 import { SignOutRow } from "@/components/me/SignOutRow";
 
@@ -29,7 +29,7 @@ export default async function MePage({
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const dbUser = await requireUser();
+  const dbUser = await requireOnboarded();
   const clerkUser = await currentUser();
   const t = await getTranslations("me");
 

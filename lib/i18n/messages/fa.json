@@ -148,6 +148,63 @@
     "search": "جست‌وجو",
     "favorites": "علاقه‌مندی‌ها"
   },
+  "onboarding": {
+    "step": "گام {n} از {total}",
+    "back": "بازگشت",
+    "signUp": {
+      "eyebrow": "یه حساب بساز",
+      "headline": "یه <accent>حساب</accent>.",
+      "subhead": "روی همهٔ دستگاه‌ها.",
+      "body": "کلوزِت و لوک‌های ذخیره‌شده‌ت بین موبایل و دسکتاپ سینک می‌شه. عکس‌هات خصوصی می‌مونن.",
+      "email": "ایمیل",
+      "emailPlaceholder": "you@example.com",
+      "password": "پسورد",
+      "passwordPlaceholder": "حداقل ۸ کاراکتر",
+      "firstName": "نام",
+      "firstNamePlaceholder": "مثلاً: مونا",
+      "createAccount": "ساخت حساب",
+      "creatingAccount": "در حال ساخت…",
+      "haveAccount": "حساب داری؟",
+      "signInLink": "ورود",
+      "verifyEyebrow": "ایمیلت رو چک کن",
+      "verifyHeadline": "<accent>کد</accent> رو وارد کن",
+      "verifyBody": "یه کد ۶ رقمی فرستادیم به {email}. اینجا paste کن.",
+      "code": "کد تأیید",
+      "codePlaceholder": "۱۲۳۴۵۶",
+      "verify": "تأیید و ادامه",
+      "verifying": "در حال تأیید…",
+      "resend": "ارسال دوباره",
+      "termsHint": "با ادامه دادن، شرایط استفاده رو می‌پذیری.",
+      "errors": {
+        "emailRequired": "ایمیلت رو وارد کن",
+        "passwordTooShort": "پسورد باید حداقل ۸ کاراکتر باشه",
+        "codeRequired": "کد ۶ رقمی رو وارد کن",
+        "generic": "یه چیزی اشتباه شد — دوباره تلاش کن"
+      }
+    }
+  },
+  "onboardingTaste": {
+    "skip": "رد کردن",
+    "step": "گام ۰۲ از ۰۴",
+    "headline": "چی شبیه",
+    "headlineAccent": "خودته؟",
+    "body": "حداقل ۲تا انتخاب کن. با استفاده ازت بهتر می‌شیم.",
+    "selected": "{n} انتخاب شده",
+    "selectMore": "حداقل ۲تا انتخاب کن",
+    "continue": "ادامه",
+    "saving": "در حال ذخیره…",
+    "styles": {
+      "STREETWEAR": "استریت‌وِر",
+      "QUIET_LUXURY": "لاکچری آروم",
+      "MINIMAL": "مینیمال",
+      "ROMANTIC": "رمانتیک",
+      "TAILORED": "تیلورد",
+      "EDITORIAL": "ادیتوریال"
+    },
+    "errors": {
+      "saveFailed": "ذخیره نشد — دوباره تلاش کن"
+    }
+  },
   "me": {
     "header": "<accent>پروفایل</accent> تو",
     "edit": "ویرایش",

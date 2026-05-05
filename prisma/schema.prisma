@@ -24,6 +24,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Onboarding — `styleTags` stores the picks from the Quick-taste step
+  // (Streetwear / Minimal / Romantic …). The Phase-2 stylist consumes them
+  // as soft preferences; until then they're inert. `onboardedAt` is set the
+  // moment a user submits the taste step — auth-gated routes redirect to
+  // /onboarding/taste while it's null.
+  styleTags   String[]  @default([])
+  onboardedAt DateTime?
+
   sellerProfile SellerProfile?
   favorites     Favorite[]
   chatSessions  ChatSession[]

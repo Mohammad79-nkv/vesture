@@ -3,7 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
-import { requireUser } from "@/lib/auth";
+import { requireOnboarded } from "@/lib/auth";
 import { getPiece } from "@/lib/services/closet";
 import { transformedUrl } from "@/lib/adapters/cloudinary";
 import { PieceDetailActions } from "@/components/closet/PieceDetailActions";
@@ -20,7 +20,7 @@ export default async function PiecePage({
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const user = await requireUser();
+  const user = await requireOnboarded();
   const piece = await getPiece({ userId: user.id, pieceId: id });
   if (!piece) notFound();
 

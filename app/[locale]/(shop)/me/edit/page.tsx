@@ -3,7 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
-import { requireUser } from "@/lib/auth";
+import { requireOnboarded } from "@/lib/auth";
 import { EditProfileForm } from "@/components/me/EditProfileForm";
 
 // Custom in-app edit form for name + avatar. Email + password edits stay on
@@ -18,7 +18,7 @@ export default async function MeEditPage({
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  await requireUser();
+  await requireOnboarded();
   const t = await getTranslations("meEdit");
 
   return (

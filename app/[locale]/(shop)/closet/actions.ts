@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect as redirectRaw } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { requireOnboarded } from "@/lib/auth";
 
 // next/navigation's redirect is typed against the static route map, but our
 // dynamic /closet/[id] target is a template string — a known limitation of
@@ -23,7 +23,7 @@ import {
 import type { PieceStatus } from "@prisma/client";
 
 export async function createPieceAction(input: ClosetPieceInput) {
-  const user = await requireUser();
+  const user = await requireOnboarded();
   const parsed = closetPieceInputSchema.parse(input);
   const piece = await createPiece({ userId: user.id, input: parsed });
   revalidatePath("/closet", "layout");
@@ -34,7 +34,7 @@ export async function updatePieceAction(
   pieceId: string,
   input: Partial<ClosetPieceInput>,
 ) {
-  const user = await requireUser();
+  const user = await requireOnboarded();
   const parsed = closetPieceInputSchema.partial().parse(input);
   await updatePiece({ userId: user.id, pieceId, input: parsed });
   revalidatePath("/closet", "layout");
@@ -42,21 +42,21 @@ export async function updatePieceAction(
 }
 
 export async function setPieceStatusAction(pieceId: string, status: PieceStatus) {
-  const user = await requireUser();
+  const user = await requireOnboarded();
   await setPieceStatus({ userId: user.id, pieceId, status });
   revalidatePath("/closet", "layout");
   revalidatePath(`/closet/${pieceId}`);
 }
 
 export async function logWearAction(pieceId: string) {
-  const user = await requireUser();
+  const user = await requireOnboarded();
   await logWear({ userId: user.id, pieceId });
   revalidatePath("/closet", "layout");
   revalidatePath(`/closet/${pieceId}`);
 }
 
 export async function deletePieceAction(pieceId: string) {
-  const user = await requireUser();
+  const user = await requireOnboarded();
   await deletePiece({ userId: user.id, pieceId });
   revalidatePath("/closet", "layout");
   redirect("/closet");

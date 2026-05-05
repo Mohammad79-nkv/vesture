@@ -85,7 +85,7 @@ export async function WelcomeHero() {
           {/* Desktop CTAs — primary paper button + glass "I'm a seller" + meta */}
           <div className="mt-9 hidden flex-wrap items-center gap-3 lg:flex">
             <Link
-              href="/stylist"
+              href="/onboarding/sign-up"
               className="inline-flex h-14 items-center gap-2.5 rounded-[18px] bg-paper px-7 text-[13px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:bg-paper/90"
             >
               {t("ctaStart")}
@@ -122,7 +122,7 @@ export async function WelcomeHero() {
            sticky variant fights with the page scroll under the bottom nav) */}
         <div className="flex flex-col gap-1.5 pb-4 lg:hidden">
           <Link
-            href="/stylist"
+            href="/onboarding/sign-up"
             className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[18px] bg-paper text-[13px] font-bold uppercase tracking-[0.06em] text-ink"
           >
             {t("ctaStart")}

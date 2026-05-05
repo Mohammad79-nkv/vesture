@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n/config";
-import { requireUser } from "@/lib/auth";
+import { requireOnboarded } from "@/lib/auth";
 import { listFavorites } from "@/lib/services/favorite";
 import { ProductTile } from "@/components/product/ProductTile";
 
@@ -14,7 +14,7 @@ export default async function FavoritesPage({
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const user = await requireUser();
+  const user = await requireOnboarded();
   const favorites = await listFavorites(user.id);
 
   return (
