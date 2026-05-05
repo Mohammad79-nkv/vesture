@@ -6,17 +6,51 @@ import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { saveTasteAction } from "@/app/[locale]/onboarding/actions";
 import { STYLE_TAGS, type StyleTag } from "@/lib/domain/styleTags";
 
-const SWATCHES: Record<StyleTag, string> = {
-  STREETWEAR: "#212739",
-  QUIET_LUXURY: "#C9CDD6",
-  MINIMAL: "#E6E9EE",
-  ROMANTIC: "#F291BB",
-  TAILORED: "#3A4055",
-  EDITORIAL: "#34889E",
-};
+// Each card layers a real fashion photo over a brand-colored swatch. The
+// swatch stays visible while the photo is loading and as a fallback if the
+// CDN URL ever 404s — we don't want a broken-image icon on the onboarding
+// path. Photos are hand-picked from Unsplash and chosen to convey the
+// aesthetic at a glance (palette, vibe, silhouette). Swap freely.
+type StyleVisual = { swatch: string; image: string; alt: string };
 
-const stripes =
-  "repeating-linear-gradient(135deg, rgba(33,39,57,0.05) 0 1px, transparent 1px 9px)";
+const VISUALS: Record<StyleTag, StyleVisual> = {
+  STREETWEAR: {
+    swatch: "#212739",
+    image:
+      "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=480&q=80&auto=format&fit=crop",
+    alt: "Person in oversized hoodie and sneakers, urban backdrop",
+  },
+  QUIET_LUXURY: {
+    swatch: "#C9CDD6",
+    image:
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=480&q=80&auto=format&fit=crop",
+    alt: "Folded cream cashmere knitwear",
+  },
+  MINIMAL: {
+    swatch: "#E6E9EE",
+    image:
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=480&q=80&auto=format&fit=crop",
+    alt: "Plain white tee on neutral background",
+  },
+  ROMANTIC: {
+    swatch: "#F291BB",
+    image:
+      "https://images.unsplash.com/photo-1583912267550-d6c2ac3196c0?w=480&q=80&auto=format&fit=crop",
+    alt: "Soft pink dress with floral accents",
+  },
+  TAILORED: {
+    swatch: "#3A4055",
+    image:
+      "https://images.unsplash.com/photo-1593030103066-0093718efeb9?w=480&q=80&auto=format&fit=crop",
+    alt: "Sharp navy tailored suit and dress shirt",
+  },
+  EDITORIAL: {
+    swatch: "#34889E",
+    image:
+      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=480&q=80&auto=format&fit=crop",
+    alt: "Editorial fashion portrait, magazine-style pose",
+  },
+};
 
 const MIN_PICKS = 2;
 
@@ -71,6 +105,7 @@ export function TastePicker({ initial }: { initial: StyleTag[] }) {
       <div className="mt-6 grid grid-cols-2 gap-2.5">
         {STYLE_TAGS.map((tag) => {
           const on = picked.has(tag);
+          const visual = VISUALS[tag];
           return (
             <button
               key={tag}
@@ -84,14 +119,21 @@ export function TastePicker({ initial }: { initial: StyleTag[] }) {
                   : "shadow-[inset_0_0_0_1px_rgba(33,39,57,0.06)] hover:shadow-[inset_0_0_0_1px_rgba(33,39,57,0.18)]",
               ].join(" ")}
             >
+              {/* Image layered over the brand swatch — the swatch shows
+                 through while the photo loads or if it fails. */}
               <span
-                aria-hidden="true"
-                className="block h-[130px] rounded-xl"
-                style={{
-                  background: SWATCHES[tag],
-                  backgroundImage: stripes,
-                }}
-              />
+                className="relative block h-[130px] overflow-hidden rounded-xl"
+                style={{ background: visual.swatch }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={visual.image}
+                  alt={visual.alt}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+              </span>
               <span className="mt-2 flex items-center justify-between px-1 pb-1">
                 <span className="text-[13px] font-semibold tracking-[-0.01em] text-ink">
                   {t(`styles.${tag}`)}
