@@ -162,6 +162,8 @@
       "passwordPlaceholder": "At least 8 characters",
       "firstName": "First name",
       "firstNamePlaceholder": "e.g. Mona",
+      "continueWithGoogle": "Continue with Google",
+      "or": "or sign up with email",
       "createAccount": "Create account",
       "creatingAccount": "Creating account…",
       "haveAccount": "Already have an account?",

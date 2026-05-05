@@ -162,6 +162,8 @@
       "passwordPlaceholder": "٨ أحرف على الأقل",
       "firstName": "الاسم الأول",
       "firstNamePlaceholder": "مثلاً: منى",
+      "continueWithGoogle": "المتابعة بحساب جوجل",
+      "or": "أو سجّل بالبريد",
       "createAccount": "إنشاء الحساب",
       "creatingAccount": "جارٍ الإنشاء…",
       "haveAccount": "لديك حساب؟",

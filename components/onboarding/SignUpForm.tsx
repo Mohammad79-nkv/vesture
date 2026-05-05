@@ -103,6 +103,23 @@ export function SignUpForm() {
     }
   }
 
+  // Google OAuth — redirects out to Google, lands on /onboarding/sso-callback
+  // which Clerk's <AuthenticateWithRedirectCallback> resolves to either
+  // /onboarding/taste (new account) or /products (returning user).
+  async function continueWithGoogle() {
+    if (!isLoaded) return;
+    setError(null);
+    try {
+      await signUp.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/onboarding/sso-callback",
+        redirectUrlComplete: "/onboarding/taste",
+      });
+    } catch (err) {
+      setError(clerkError(err, t("errors.generic")));
+    }
+  }
+
   // ── Verification step ────────────────────────────────────────────────
   if (stage === "verify") {
     return (
@@ -205,7 +222,29 @@ export function SignUpForm() {
         {t("body")}
       </p>
 
-      <div className="mt-6 flex flex-col gap-4">
+      {/* Social sign-up — Google. Uses Clerk OAuth under the hood; the
+         provider must be enabled in the Clerk dashboard for the redirect to
+         resolve, otherwise users hit Clerk's hosted error page. */}
+      <button
+        type="button"
+        onClick={continueWithGoogle}
+        disabled={pending || !isLoaded}
+        className="mt-6 inline-flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-paper text-[13.5px] font-semibold tracking-[-0.01em] text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.12)] transition-colors hover:bg-mist disabled:opacity-50"
+      >
+        <GoogleIcon />
+        {t("continueWithGoogle")}
+      </button>
+
+      <div
+        className="my-5 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.12em] text-ink/45"
+        role="separator"
+      >
+        <span aria-hidden="true" className="h-px flex-1 bg-ink/10" />
+        {t("or")}
+        <span aria-hidden="true" className="h-px flex-1 bg-ink/10" />
+      </div>
+
+      <div className="flex flex-col gap-4">
         <Field label={t("email")}>
           <input
             type="email"
@@ -299,5 +338,36 @@ function Field({
       </span>
       {children}
     </label>
+  );
+}
+
+// Brand-colored Google "G" mark. Inlined as SVG so we don't pull a separate
+// icon library or fetch a remote asset on every page render.
+function GoogleIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <path
+        fill="#4285F4"
+        d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.44a5.5 5.5 0 0 1-2.39 3.6v3h3.86c2.26-2.08 3.58-5.15 3.58-8.84z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.95-1.08 7.93-2.92l-3.86-3a7.18 7.18 0 0 1-10.74-3.78H1.34v3.1A12 12 0 0 0 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.33 14.3a7.21 7.21 0 0 1 0-4.6V6.6H1.34a12 12 0 0 0 0 10.8l3.99-3.1z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.78c1.77 0 3.35.61 4.6 1.8l3.42-3.42A12 12 0 0 0 1.34 6.6l3.99 3.1A7.18 7.18 0 0 1 12 4.78z"
+      />
+    </svg>
   );
 }

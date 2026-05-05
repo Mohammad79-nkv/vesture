@@ -162,6 +162,8 @@
       "passwordPlaceholder": "حداقل ۸ کاراکتر",
       "firstName": "نام",
       "firstNamePlaceholder": "مثلاً: مونا",
+      "continueWithGoogle": "ادامه با گوگل",
+      "or": "یا با ایمیل ثبت‌نام کن",
       "createAccount": "ساخت حساب",
       "creatingAccount": "در حال ساخت…",
       "haveAccount": "حساب داری؟",
