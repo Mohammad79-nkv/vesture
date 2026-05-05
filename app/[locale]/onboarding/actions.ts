@@ -31,3 +31,18 @@ export async function saveTasteAction(input: { styleTags: string[] }) {
   // came from (closet/me/stylist) will be one tap away in the bottom nav.
   redirect("/products");
 }
+
+// "Skip for now" — stamps onboardedAt so requireOnboarded() releases the
+// gate without recording any style picks. Users can revisit /onboarding/taste
+// later from /me if we add an entry point there.
+export async function skipTasteAction() {
+  const user = await requireUser();
+  if (!user.onboardedAt) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { onboardedAt: new Date() },
+    });
+  }
+  revalidatePath("/me");
+  redirect("/products");
+}
