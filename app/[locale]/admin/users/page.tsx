@@ -1,13 +1,27 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { isLocale } from "@/lib/i18n/config";
 import { requireAdmin } from "@/lib/auth";
-import { listUsersAdmin, changeUserRole } from "@/lib/services/admin";
+import {
+  listUsersAdmin,
+  changeUserRole,
+  deleteUserAdmin,
+  AdminUserDeleteError,
+} from "@/lib/services/admin";
 import { DashboardCard } from "@/components/seller/DashboardCard";
+import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
 import type { Role } from "@prisma/client";
 
 const ROLES: Role[] = ["BUYER", "SELLER", "ADMIN"];
+
+const ERROR_KEY: Record<AdminUserDeleteError["code"], string> = {
+  SELF: "errorSelf",
+  IS_ADMIN: "errorIsAdmin",
+  CLERK_FAILED: "errorClerk",
+  DB_FAILED: "errorDb",
+  NOT_FOUND: "noResults",
+};
 
 export default async function AdminUsersPage({
   params,
@@ -24,17 +38,43 @@ export default async function AdminUsersPage({
   const t = await getTranslations("admin.users");
 
   const search = typeof sp.q === "string" ? sp.q : undefined;
+  const errorCode = typeof sp.error === "string" ? sp.error : undefined;
+  const me = await requireAdmin();
   const result = await listUsersAdmin({ search, page: 1, pageSize: 50 });
 
   async function setRole(formData: FormData) {
     "use server";
-    const me = await requireAdmin();
+    const actor = await requireAdmin();
     const targetUserId = String(formData.get("userId"));
     const newRole = String(formData.get("role")) as Role;
     if (!ROLES.includes(newRole)) return;
-    await changeUserRole({ adminId: me.id, targetUserId, newRole });
+    await changeUserRole({ adminId: actor.id, targetUserId, newRole });
     revalidatePath(`/${locale}/admin/users`);
   }
+
+  async function deleteUser(formData: FormData) {
+    "use server";
+    const actor = await requireAdmin();
+    const targetUserId = String(formData.get("userId"));
+    try {
+      await deleteUserAdmin({ adminId: actor.id, targetUserId });
+    } catch (err) {
+      if (err instanceof AdminUserDeleteError) {
+        // Surface the error code via the URL so the page can show a banner
+        // after the redirect — server actions can't return values to the
+        // form natively without useFormState scaffolding.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        redirect(`/${locale}/admin/users?error=${err.code}` as any);
+      }
+      throw err;
+    }
+    revalidatePath(`/${locale}/admin/users`);
+  }
+
+  const errorMessage =
+    errorCode && errorCode in ERROR_KEY
+      ? t(ERROR_KEY[errorCode as AdminUserDeleteError["code"]])
+      : null;
 
   return (
     <main className="mx-auto w-full max-w-[1376px] px-6 py-8 sm:px-8 sm:py-10">
@@ -46,6 +86,15 @@ export default async function AdminUsersPage({
           {t("title")}
         </h1>
       </div>
+
+      {errorMessage && (
+        <div
+          role="alert"
+          className="mb-5 rounded-2xl bg-red-50 px-5 py-3 text-[13px] text-red-700"
+        >
+          {errorMessage}
+        </div>
+      )}
 
       <form className="mb-6 flex flex-wrap items-center gap-3">
         <input
@@ -70,6 +119,15 @@ export default async function AdminUsersPage({
                 locale === "ar" ? "ar" : locale === "fa" ? "fa" : "en",
                 { dateStyle: "medium" },
               ).format(u.createdAt);
+              const isSelf = u.id === me.id;
+              const isAdminRow = u.role === "ADMIN";
+              const deleteFormId = `delete-user-${u.id}`;
+              const disabledReason = isSelf
+                ? t("errorSelf")
+                : isAdminRow
+                ? t("errorIsAdmin")
+                : undefined;
+
               return (
                 <li
                   key={u.id}
@@ -101,13 +159,21 @@ export default async function AdminUsersPage({
                       {t("save")}
                     </button>
                   </form>
+
+                  <form id={deleteFormId} action={deleteUser} className="shrink-0">
+                    <input type="hidden" name="userId" value={u.id} />
+                    <DeleteUserButton
+                      formId={deleteFormId}
+                      disabledReason={disabledReason}
+                    />
+                  </form>
                 </li>
               );
             })}
           </ul>
         )}
         <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
-          {t("roleDescription")}
+          {t("roleDescription")} · {t("deleteHint")}
         </p>
       </DashboardCard>
     </main>

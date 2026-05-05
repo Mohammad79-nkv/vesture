@@ -619,7 +619,14 @@
       "joined": "Joined",
       "role": "Role",
       "roleDescription": "Changing role syncs with Clerk on save",
-      "save": "Save"
+      "save": "Save",
+      "delete": "Delete",
+      "deleteConfirm": "Confirm delete",
+      "deleteHint": "Removes the Clerk account, closet, favorites, and (if seller) the store + products. Cannot be undone.",
+      "errorSelf": "You can't delete your own account",
+      "errorIsAdmin": "Demote this admin before deletion",
+      "errorClerk": "Clerk refused — try again",
+      "errorDb": "Account removed but DB cleanup failed — see logs"
     },
     "audit": {
       "title": "Audit log",

@@ -202,3 +202,88 @@ export async function changeUserRole(args: {
 
   return { ...target, role: args.newRole };
 }
+
+export class AdminUserDeleteError extends Error {
+  constructor(
+    public readonly code:
+      | "NOT_FOUND"
+      | "SELF"
+      | "IS_ADMIN"
+      | "CLERK_FAILED"
+      | "DB_FAILED",
+    message: string,
+  ) {
+    super(message);
+    this.name = "AdminUserDeleteError";
+  }
+}
+
+// Hard-deletes a user from Clerk and our DB. Cascades through Prisma onDelete
+// rules to remove the user's closet pieces, favorites, chat sessions, and
+// (if seller) their store + products.
+//
+// Order: Clerk first so the account is gone immediately even if the DB write
+// stumbles. A failed DB delete leaves an orphan row, which the Clerk webhook
+// (user.deleted event) will eventually clean up. Self-deletes are refused
+// because they'd null out the actor mid-request, and ADMIN→ADMIN deletes are
+// refused as a guardrail — demote the target to BUYER first if you really
+// mean it. Cloudinary uploads are intentionally NOT cleaned up here; we'll
+// reconcile orphan media in a separate batch job.
+export async function deleteUserAdmin(args: {
+  adminId: string;
+  targetUserId: string;
+  reason?: string;
+}) {
+  if (args.adminId === args.targetUserId) {
+    throw new AdminUserDeleteError("SELF", "You can't delete your own account");
+  }
+
+  const target = await prisma.user.findUnique({
+    where: { id: args.targetUserId },
+    select: { id: true, clerkId: true, email: true, role: true },
+  });
+  if (!target) {
+    throw new AdminUserDeleteError("NOT_FOUND", "User not found");
+  }
+  if (target.role === "ADMIN") {
+    throw new AdminUserDeleteError(
+      "IS_ADMIN",
+      "Demote this admin before deletion",
+    );
+  }
+
+  const client = await clerkClient();
+  try {
+    await client.users.deleteUser(target.clerkId);
+  } catch (err) {
+    throw new AdminUserDeleteError(
+      "CLERK_FAILED",
+      `Clerk delete failed: ${err instanceof Error ? err.message : "unknown"}`,
+    );
+  }
+
+  // DB delete + audit log in a single transaction so the action record is
+  // always paired with the actual deletion. Cascade rules on User handle
+  // closet/favorites/chat/seller cleanup.
+  try {
+    await prisma.$transaction([
+      prisma.adminAction.create({
+        data: {
+          adminId: args.adminId,
+          targetType: "User",
+          targetId: target.id,
+          action: "DELETE_USER",
+          reason: args.reason ?? `Deleted ${target.email}`,
+        },
+      }),
+      prisma.user.delete({ where: { id: target.id } }),
+    ]);
+  } catch (err) {
+    throw new AdminUserDeleteError(
+      "DB_FAILED",
+      `DB delete failed after Clerk: ${err instanceof Error ? err.message : "unknown"}`,
+    );
+  }
+
+  return { deletedUserId: target.id, email: target.email };
+}
