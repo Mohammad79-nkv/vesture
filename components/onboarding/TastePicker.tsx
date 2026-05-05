@@ -17,38 +17,38 @@ const VISUALS: Record<StyleTag, StyleVisual> = {
   STREETWEAR: {
     swatch: "#212739",
     image:
-      "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=480&q=80&auto=format&fit=crop",
-    alt: "Person in oversized hoodie and sneakers, urban backdrop",
+      "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=480&q=85&auto=format&fit=crop",
+    alt: "Streetwear lookbook — oversized layers, sneakers, urban",
   },
   QUIET_LUXURY: {
     swatch: "#C9CDD6",
     image:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=480&q=80&auto=format&fit=crop",
-    alt: "Folded cream cashmere knitwear",
+      "https://images.unsplash.com/photo-1581338834647-b0fb40704e21?w=480&q=85&auto=format&fit=crop",
+    alt: "Tonal beige outfit — cashmere, camel, refined",
   },
   MINIMAL: {
     swatch: "#E6E9EE",
     image:
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=480&q=80&auto=format&fit=crop",
-    alt: "Plain white tee on neutral background",
+      "https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=480&q=85&auto=format&fit=crop",
+    alt: "Minimalist look — white shirt, clean silhouette, neutral",
   },
   ROMANTIC: {
     swatch: "#F291BB",
     image:
-      "https://images.unsplash.com/photo-1583912267550-d6c2ac3196c0?w=480&q=80&auto=format&fit=crop",
-    alt: "Soft pink dress with floral accents",
+      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=480&q=85&auto=format&fit=crop",
+    alt: "Romantic look — soft pink, lace, dreamy lighting",
   },
   TAILORED: {
     swatch: "#3A4055",
     image:
-      "https://images.unsplash.com/photo-1593030103066-0093718efeb9?w=480&q=80&auto=format&fit=crop",
-    alt: "Sharp navy tailored suit and dress shirt",
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=480&q=85&auto=format&fit=crop",
+    alt: "Tailored look — structured blazer, sharp lines",
   },
   EDITORIAL: {
     swatch: "#34889E",
     image:
-      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=480&q=80&auto=format&fit=crop",
-    alt: "Editorial fashion portrait, magazine-style pose",
+      "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=480&q=85&auto=format&fit=crop",
+    alt: "Editorial portrait — high-fashion pose, magazine cover",
   },
 };
 
