@@ -85,8 +85,10 @@ export function FloatingNav() {
     return () => window.removeEventListener("resize", update);
   }, [activeIndex]);
 
-  // Hide on product detail pages where a sticky message footer takes over.
+  // Hide on product detail pages where a sticky message footer takes over,
+  // and on /stylist where the chat input owns the bottom slot.
   if (/^\/products\/[^/]+$/.test(pathname)) return null;
+  if (pathname.startsWith("/stylist")) return null;
 
   return (
     <nav

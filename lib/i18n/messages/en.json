@@ -147,7 +147,24 @@
     "comingSoon": "Coming soon",
     "comingSoonBody": "Chat with our stylist to find pieces from the makers you follow. Available in the next release.",
     "promoTitle": "Tell me what you're after.",
-    "promoSubtitle": "Talk to your AI stylist · {count} sellers"
+    "promoSubtitle": "Talk to your AI stylist · {count} sellers",
+    "chat": {
+      "header": "Vesture stylist",
+      "placeholder": "Tell me what you're after…",
+      "send": "Send",
+      "searching": "Searching catalog…",
+      "buildingOutfit": "Composing the outfit…",
+      "viewProduct": "View",
+      "errorGeneric": "Something went wrong — try again.",
+      "signInRequired": "Sign in to chat with the stylist",
+      "signInBody": "Your conversations sync across devices.",
+      "signInButton": "Sign in",
+      "emptyTitle": "What are you after?",
+      "emptyBody": "I'll pull pieces from across MENA's independent makers. Try one of these or write your own.",
+      "suggestion1": "A minimal summer wedding look under 1500 AED",
+      "suggestion2": "Quiet luxury for an evening out",
+      "suggestion3": "Linen pieces for a beach trip"
+    }
   },
   "mobileNav": {
     "discover": "Discover",
