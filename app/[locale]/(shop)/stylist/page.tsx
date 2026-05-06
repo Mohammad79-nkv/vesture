@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { auth } from "@clerk/nextjs/server";
 import { isLocale } from "@/lib/i18n/config";
-import { StylistChat, SignInWall } from "@/components/stylist/StylistChat";
+import { StylistChat } from "@/components/stylist/StylistChat";
 
-// Stylist chat surface. Auth-gated for now (the 3-turn anonymous wall
-// lands in milestone #7); signed-out visitors see the SignInWall while
-// signed-in users get the full chat UI driven by /api/stylist.
+// Stylist chat surface. Open to anonymous visitors for a 3-turn trial —
+// the wall is enforced server-side at /api/stylist and surfaces in the UI
+// as a modal overlay (see StylistChat). Signed-in users skip the cap.
 export default async function StylistPage({
   params,
 }: {
@@ -17,14 +17,5 @@ export default async function StylistPage({
   setRequestLocale(locale);
 
   const { userId } = await auth();
-
-  if (!userId) {
-    return (
-      <main className="flex flex-1 flex-col bg-mist">
-        <SignInWall />
-      </main>
-    );
-  }
-
-  return <StylistChat />;
+  return <StylistChat signedIn={Boolean(userId)} />;
 }

@@ -8,6 +8,12 @@ import type {
 import { openrouter, stylistModel, cached } from "@/lib/adapters/openrouter";
 import { STYLIST_TOOLS, dispatchTool } from "@/lib/ai/tools";
 import { STYLIST_SYSTEM_PROMPT } from "@/lib/ai/prompts/stylist";
+import {
+  ANON_STYLIST_TURN_LIMIT,
+  newAnonState,
+  readAnonCookie,
+  setAnonCookieHeader,
+} from "@/lib/auth-anon";
 
 // /api/stylist — streaming SSE endpoint that drives the multi-step agent
 // loop. Per turn:
@@ -64,9 +70,6 @@ type StreamEvent =
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
-  if (!userId) {
-    return jsonError(401, "Unauthorized");
-  }
 
   let body: unknown;
   try {
@@ -78,6 +81,24 @@ export async function POST(req: NextRequest) {
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
     return jsonError(400, parsed.error.message);
+  }
+
+  // Anonymous trial gate. Signed-in users skip this entirely.
+  // Anonymous users get a signed cookie with a count + sessionId; once the
+  // count hits ANON_STYLIST_TURN_LIMIT we stream a single sign_in_required
+  // event and close, without making the LLM call.
+  let anonCookieHeader: string | null = null;
+  if (!userId) {
+    const existing = readAnonCookie(req) ?? newAnonState();
+    if (existing.count >= ANON_STYLIST_TURN_LIMIT) {
+      return signInRequiredResponse();
+    }
+    // Increment optimistically so a refresh-loop attack still consumes
+    // the budget. The cookie is set on the streaming response below.
+    anonCookieHeader = setAnonCookieHeader({
+      count: existing.count + 1,
+      sessionId: existing.sessionId,
+    });
   }
 
   // The static brand prompt is wrapped in cached() so OpenRouter forwards
@@ -217,21 +238,49 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream; charset=utf-8",
-      "cache-control": "no-cache, no-transform",
-      // X-Accel-Buffering disables nginx-side buffering when deployed behind
-      // a proxy; harmless on Vercel.
-      "x-accel-buffering": "no",
-      connection: "keep-alive",
-    },
-  });
+  const responseHeaders: Record<string, string> = {
+    "content-type": "text/event-stream; charset=utf-8",
+    "cache-control": "no-cache, no-transform",
+    // X-Accel-Buffering disables nginx-side buffering when deployed behind
+    // a proxy; harmless on Vercel.
+    "x-accel-buffering": "no",
+    connection: "keep-alive",
+  };
+  if (anonCookieHeader) {
+    responseHeaders["set-cookie"] = anonCookieHeader;
+  }
+  return new Response(stream, { headers: responseHeaders });
 }
 
 function jsonError(status: number, message: string) {
   return new Response(JSON.stringify({ error: message }), {
     status,
     headers: { "content-type": "application/json" },
+  });
+}
+
+// Tiny SSE response that emits one sign_in_required event and closes —
+// the chat client listens for this and pops the modal wall. Returning a
+// 200 SSE rather than 401 JSON keeps the client's stream-parser code
+// uniform regardless of why the model didn't run.
+function signInRequiredResponse(): Response {
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      const encoder = new TextEncoder();
+      controller.enqueue(
+        encoder.encode(
+          `data: ${JSON.stringify({ type: "sign_in_required" })}\n\n`,
+        ),
+      );
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      "content-type": "text/event-stream; charset=utf-8",
+      "cache-control": "no-cache, no-transform",
+      "x-accel-buffering": "no",
+      connection: "keep-alive",
+    },
   });
 }

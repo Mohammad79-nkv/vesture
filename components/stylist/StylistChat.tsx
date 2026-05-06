@@ -43,6 +43,7 @@ type StreamEvent =
   | { type: "tool_call"; name: string }
   | { type: "tool_result"; name: string; data: unknown }
   | { type: "tool_error"; name: string; message: string }
+  | { type: "sign_in_required" }
   | { type: "done"; usage?: { promptTokens?: number; completionTokens?: number } }
   | { type: "error"; message: string };
 
@@ -68,7 +69,7 @@ function flattenProducts(toolName: string, data: unknown): ProductSearchResult[]
   return [];
 }
 
-export function StylistChat() {
+export function StylistChat({ signedIn }: { signedIn: boolean }) {
   const t = useTranslations("stylist.chat");
   const locale = useLocale();
   const [messages, setMessages] = useState<StoredMessage[]>([]);
@@ -78,6 +79,9 @@ export function StylistChat() {
   const [streamingCards, setStreamingCards] = useState<ProductCardSet[]>([]);
   const [pendingTools, setPendingTools] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // Wall raised when /api/stylist returns the sign_in_required event for
+  // an anonymous visitor who's used their 3 trial turns.
+  const [wallOpen, setWallOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -170,6 +174,12 @@ export function StylistChat() {
               case "tool_error":
                 setPendingTools((p) => p.filter((n) => n !== event.name));
                 break;
+              case "sign_in_required":
+                // Roll back the user message we optimistically appended so
+                // the prompt isn't sitting unanswered behind the wall.
+                setMessages((m) => m.filter((msg) => msg.id !== newUser.id));
+                setWallOpen(true);
+                break readLoop;
               case "error":
                 setError(event.message || t("errorGeneric"));
                 break readLoop;
@@ -312,6 +322,49 @@ export function StylistChat() {
           </button>
         </div>
       </form>
+
+      {wallOpen && !signedIn && <SignInWallModal />}
+    </div>
+  );
+}
+
+function SignInWallModal() {
+  const t = useTranslations("stylist.chat");
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sign-in-wall-title"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 px-4 pb-6 pt-20 backdrop-blur-sm sm:items-center sm:pb-0"
+    >
+      <div className="w-full max-w-[420px] rounded-3xl bg-paper p-6 shadow-[0_24px_60px_rgba(33,39,57,0.18)]">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="grid h-10 w-10 place-items-center rounded-full bg-primary text-paper"
+          >
+            <Sparkles size={16} aria-hidden="true" />
+          </span>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/55">
+            {t("header")}
+          </p>
+        </div>
+        <h2
+          id="sign-in-wall-title"
+          className="mt-4 text-[22px] font-bold leading-tight tracking-[-0.02em] text-ink"
+        >
+          {t("signInRequired")}
+        </h2>
+        <p className="mt-2 text-[13.5px] leading-[1.5] text-ink/65">
+          {t("signInBody")}
+        </p>
+        <Link
+          href="/sign-in"
+          className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ink text-[12px] font-medium uppercase tracking-[0.06em] text-paper hover:bg-ink/90"
+        >
+          {t("signInButton")}
+        </Link>
+      </div>
     </div>
   );
 }
@@ -376,31 +429,3 @@ function EmptyState({ onPick }: { onPick: (text: string) => void }) {
   );
 }
 
-// Re-exported wrapper for the signed-out gate. Sits in the same file so
-// the page can import either depending on auth state without bloating the
-// folder. The actual sign-in flow comes via Clerk on /sign-in.
-export function SignInWall() {
-  const t = useTranslations("stylist.chat");
-  return (
-    <div className="mx-auto flex w-full max-w-[440px] flex-1 flex-col items-center justify-center px-6 text-center">
-      <span
-        aria-hidden="true"
-        className="grid h-12 w-12 place-items-center rounded-full bg-primary text-paper"
-      >
-        <Sparkles size={20} aria-hidden="true" />
-      </span>
-      <h2 className="mt-4 text-[22px] font-bold tracking-[-0.02em] text-ink">
-        {t("signInRequired")}
-      </h2>
-      <p className="mt-2 text-[13.5px] leading-[1.5] text-ink/65">
-        {t("signInBody")}
-      </p>
-      <Link
-        href="/sign-in"
-        className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-ink px-6 text-[12px] font-medium uppercase tracking-[0.06em] text-paper hover:bg-ink/90"
-      >
-        {t("signInButton")}
-      </Link>
-    </div>
-  );
-}
