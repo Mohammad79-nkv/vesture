@@ -44,6 +44,7 @@ type StreamEvent =
   | { type: "tool_result"; name: string; data: unknown }
   | { type: "tool_error"; name: string; message: string }
   | { type: "sign_in_required" }
+  | { type: "budget_exceeded"; used: number; limit: number }
   | { type: "done"; usage?: { promptTokens?: number; completionTokens?: number } }
   | { type: "error"; message: string };
 
@@ -82,6 +83,10 @@ export function StylistChat({ signedIn }: { signedIn: boolean }) {
   // Wall raised when /api/stylist returns the sign_in_required event for
   // an anonymous visitor who's used their 3 trial turns.
   const [wallOpen, setWallOpen] = useState(false);
+  // Different wall for the per-user daily token budget. Same modal
+  // pattern; different copy + CTA (no point sending an authed user back
+  // to /sign-in).
+  const [budgetWallOpen, setBudgetWallOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -179,6 +184,10 @@ export function StylistChat({ signedIn }: { signedIn: boolean }) {
                 // the prompt isn't sitting unanswered behind the wall.
                 setMessages((m) => m.filter((msg) => msg.id !== newUser.id));
                 setWallOpen(true);
+                break readLoop;
+              case "budget_exceeded":
+                setMessages((m) => m.filter((msg) => msg.id !== newUser.id));
+                setBudgetWallOpen(true);
                 break readLoop;
               case "error":
                 setError(event.message || t("errorGeneric"));
@@ -324,6 +333,48 @@ export function StylistChat({ signedIn }: { signedIn: boolean }) {
       </form>
 
       {wallOpen && !signedIn && <SignInWallModal />}
+      {budgetWallOpen && <BudgetWallModal />}
+    </div>
+  );
+}
+
+function BudgetWallModal() {
+  const t = useTranslations("stylist.chat");
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="budget-wall-title"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 px-4 pb-6 pt-20 backdrop-blur-sm sm:items-center sm:pb-0"
+    >
+      <div className="w-full max-w-[420px] rounded-3xl bg-paper p-6 shadow-[0_24px_60px_rgba(33,39,57,0.18)]">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="grid h-10 w-10 place-items-center rounded-full bg-primary text-paper"
+          >
+            <Sparkles size={16} aria-hidden="true" />
+          </span>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/55">
+            {t("header")}
+          </p>
+        </div>
+        <h2
+          id="budget-wall-title"
+          className="mt-4 text-[22px] font-bold leading-tight tracking-[-0.02em] text-ink"
+        >
+          {t("budgetTitle")}
+        </h2>
+        <p className="mt-2 text-[13.5px] leading-[1.5] text-ink/65">
+          {t("budgetBody")}
+        </p>
+        <Link
+          href="/products"
+          className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ink text-[12px] font-medium uppercase tracking-[0.06em] text-paper hover:bg-ink/90"
+        >
+          {t("budgetButton")}
+        </Link>
+      </div>
     </div>
   );
 }

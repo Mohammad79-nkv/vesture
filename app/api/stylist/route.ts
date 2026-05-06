@@ -5,7 +5,12 @@ import type {
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
 } from "openai/resources/chat/completions";
-import { openrouter, stylistModel, cached } from "@/lib/adapters/openrouter";
+import {
+  openrouter,
+  stylistModel,
+  cached,
+  dailyTokenBudgetPerUser,
+} from "@/lib/adapters/openrouter";
 import { STYLIST_TOOLS, dispatchTool } from "@/lib/ai/tools";
 import { STYLIST_SYSTEM_PROMPT } from "@/lib/ai/prompts/stylist";
 import {
@@ -18,6 +23,7 @@ import {
   findOrCreateSession,
   attachAnonSession,
   appendMessage,
+  tokensUsedTodayForUser,
 } from "@/lib/services/stylist";
 import { getOrCreateDbUser } from "@/lib/auth";
 import type {
@@ -131,6 +137,18 @@ export async function POST(req: NextRequest) {
     userId: dbUser?.id ?? null,
     anonCookieSessionId: anonSessionIdForPersistence,
   });
+
+  // Daily token budget — authenticated users only. Anonymous traffic is
+  // already bounded by the 3-turn cookie wall, so layering a token cap on
+  // top would be belt + suspenders without adding much. Bucket resets at
+  // 00:00 UTC so users get a predictable refresh ("come back tomorrow").
+  if (dbUser) {
+    const used = await tokensUsedTodayForUser(dbUser.id);
+    const limit = dailyTokenBudgetPerUser();
+    if (used >= limit) {
+      return budgetExceededResponse({ used, limit });
+    }
+  }
 
   // Persist the new user message immediately — even if the stream errors
   // mid-flight we'll still have the prompt for debugging / future fine-tune.
@@ -333,6 +351,10 @@ export async function POST(req: NextRequest) {
               toolCalls:
                 aggregatedToolCalls.length > 0 ? aggregatedToolCalls : undefined,
               productIds: aggregatedProductIds,
+              // Total tokens for this turn = prompt + completion summed
+              // across every loop iteration. Used by tokensUsedTodayForUser
+              // on the next request's pre-flight budget check.
+              tokensUsed: totalPromptTokens + totalCompletionTokens,
             });
           } catch {
             // Swallow — persistence failures must not crash the stream
@@ -371,14 +393,27 @@ function jsonError(status: number, message: string) {
 // 200 SSE rather than 401 JSON keeps the client's stream-parser code
 // uniform regardless of why the model didn't run.
 function signInRequiredResponse(): Response {
+  return singleEventResponse({ type: "sign_in_required" });
+}
+
+// Same idea for the daily token budget — close out cleanly with one
+// event the UI can react to.
+function budgetExceededResponse(args: {
+  used: number;
+  limit: number;
+}): Response {
+  return singleEventResponse({
+    type: "budget_exceeded",
+    used: args.used,
+    limit: args.limit,
+  });
+}
+
+function singleEventResponse(event: object): Response {
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
       const encoder = new TextEncoder();
-      controller.enqueue(
-        encoder.encode(
-          `data: ${JSON.stringify({ type: "sign_in_required" })}\n\n`,
-        ),
-      );
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
       controller.close();
     },
   });

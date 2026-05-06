@@ -73,6 +73,9 @@ export async function appendMessage(args: {
   content: string;
   toolCalls?: Prisma.InputJsonValue;
   productIds?: string[];
+  // Prompt + completion tokens that produced this turn. Set on ASSISTANT
+  // rows; the daily-budget query sums this column. USER rows leave it 0.
+  tokensUsed?: number;
 }) {
   const dedupedProductIds = args.productIds
     ? Array.from(new Set(args.productIds))
@@ -83,6 +86,7 @@ export async function appendMessage(args: {
       sessionId: args.sessionId,
       role: args.role,
       content: args.content,
+      tokensUsed: args.tokensUsed ?? 0,
       ...(args.toolCalls !== undefined && { toolCalls: args.toolCalls }),
       ...(dedupedProductIds.length > 0 && {
         products: {
@@ -102,4 +106,27 @@ export async function appendMessage(args: {
   });
 
   return message;
+}
+
+// Sum of tokens this user has consumed since the start of the current UTC
+// day. The bucket resets at 00:00 UTC; "today" is intentionally calendar-
+// based rather than rolling-window so users get a predictable refresh
+// they can talk about ("come back tomorrow").
+//
+// Anonymous traffic is NOT counted here — the 3-turn cookie wall covers
+// it. This query only sums ASSISTANT rows that belong to a session with a
+// userId set (joined via ChatSession.userId).
+export async function tokensUsedTodayForUser(userId: string): Promise<number> {
+  const startOfUtcDay = new Date();
+  startOfUtcDay.setUTCHours(0, 0, 0, 0);
+
+  const result = await prisma.chatMessage.aggregate({
+    where: {
+      role: "ASSISTANT",
+      createdAt: { gte: startOfUtcDay },
+      session: { userId },
+    },
+    _sum: { tokensUsed: true },
+  });
+  return result._sum.tokensUsed ?? 0;
 }

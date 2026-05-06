@@ -226,6 +226,10 @@ model ChatMessage {
   role      ChatRole
   content   String
   toolCalls Json?
+  // Sum of prompt + completion tokens that produced this turn. Only set on
+  // ASSISTANT rows (USER rows leave it 0); used for the daily budget check
+  // in /api/stylist.
+  tokensUsed Int        @default(0)
   createdAt DateTime    @default(now())
 
   products ChatMessageProduct[]
