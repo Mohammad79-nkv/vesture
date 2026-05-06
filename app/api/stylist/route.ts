@@ -14,6 +14,16 @@ import {
   readAnonCookie,
   setAnonCookieHeader,
 } from "@/lib/auth-anon";
+import {
+  findOrCreateSession,
+  attachAnonSession,
+  appendMessage,
+} from "@/lib/services/stylist";
+import { getOrCreateDbUser } from "@/lib/auth";
+import type {
+  ProductSearchResult,
+  BuildOutfitResult,
+} from "@/lib/ai/tools";
 
 // /api/stylist — streaming SSE endpoint that drives the multi-step agent
 // loop. Per turn:
@@ -88,16 +98,48 @@ export async function POST(req: NextRequest) {
   // count hits ANON_STYLIST_TURN_LIMIT we stream a single sign_in_required
   // event and close, without making the LLM call.
   let anonCookieHeader: string | null = null;
+  let anonSessionIdForPersistence: string | null = null;
   if (!userId) {
     const existing = readAnonCookie(req) ?? newAnonState();
     if (existing.count >= ANON_STYLIST_TURN_LIMIT) {
       return signInRequiredResponse();
     }
+    anonSessionIdForPersistence = existing.sessionId;
     // Increment optimistically so a refresh-loop attack still consumes
     // the budget. The cookie is set on the streaming response below.
     anonCookieHeader = setAnonCookieHeader({
       count: existing.count + 1,
       sessionId: existing.sessionId,
+    });
+  }
+
+  // Resolve the DB session row before we kick off streaming. For an
+  // authenticated user with a still-valid anon cookie (e.g. they were
+  // anonymous-trying then signed in mid-conversation), attach the prior
+  // session to their account so the conversation continues.
+  const dbUser = userId ? await getOrCreateDbUser() : null;
+  if (dbUser) {
+    const lingeringAnon = readAnonCookie(req);
+    if (lingeringAnon) {
+      await attachAnonSession({
+        anonCookieSessionId: lingeringAnon.sessionId,
+        userId: dbUser.id,
+      });
+    }
+  }
+  const session = await findOrCreateSession({
+    userId: dbUser?.id ?? null,
+    anonCookieSessionId: anonSessionIdForPersistence,
+  });
+
+  // Persist the new user message immediately — even if the stream errors
+  // mid-flight we'll still have the prompt for debugging / future fine-tune.
+  const lastUserTurn = parsed.data.messages[parsed.data.messages.length - 1];
+  if (lastUserTurn?.role === "user") {
+    await appendMessage({
+      sessionId: session.id,
+      role: "USER",
+      content: lastUserTurn.content,
     });
   }
 
@@ -136,6 +178,35 @@ export async function POST(req: NextRequest) {
       const messages: ChatCompletionMessageParam[] = [...initialMessages];
       let totalPromptTokens = 0;
       let totalCompletionTokens = 0;
+
+      // Aggregators rolled into the assistant ChatMessage row in the
+      // finally block — final visible text, every tool call we issued
+      // across the loop, and every product surfaced via tool results.
+      let aggregatedAssistantText = "";
+      const aggregatedToolCalls: Array<{
+        id: string;
+        name: string;
+        arguments: string;
+      }> = [];
+      const aggregatedProductIds: string[] = [];
+
+      const collectProductIds = (toolName: string, data: unknown) => {
+        if (toolName === "search_products" && Array.isArray(data)) {
+          for (const p of data as ProductSearchResult[]) {
+            if (p?.id) aggregatedProductIds.push(p.id);
+          }
+        } else if (
+          toolName === "build_outfit" &&
+          data &&
+          typeof data === "object"
+        ) {
+          const outfit = data as BuildOutfitResult;
+          if (outfit.seed?.id) aggregatedProductIds.push(outfit.seed.id);
+          for (const slot of outfit.slots ?? []) {
+            if (slot.product?.id) aggregatedProductIds.push(slot.product.id);
+          }
+        }
+      };
 
       try {
         for (let step = 0; step < MAX_STEPS; step++) {
@@ -179,6 +250,11 @@ export async function POST(req: NextRequest) {
             }
           }
 
+          // Roll any visible text from this step into the aggregated turn —
+          // the assistant ChatMessage row stores the full visible reply
+          // even when it's spread across multiple loop iterations.
+          aggregatedAssistantText += assistantText;
+
           // Plain text reply → conversation is done.
           if (toolBuf.length === 0 || finishReason === "stop") {
             break;
@@ -196,6 +272,13 @@ export async function POST(req: NextRequest) {
             content: assistantText || null,
             tool_calls: toolCalls,
           });
+          for (const tc of toolBuf) {
+            aggregatedToolCalls.push({
+              id: tc.id,
+              name: tc.name,
+              arguments: tc.args,
+            });
+          }
 
           // Execute each tool. Errors become tool_result messages with an
           // `error` field — the model recovers gracefully ("nothing fit, want
@@ -204,6 +287,7 @@ export async function POST(req: NextRequest) {
             send({ type: "tool_call", name: tc.name });
             try {
               const result = await dispatchTool(tc.name, tc.args);
+              collectProductIds(tc.name, result);
               send({ type: "tool_result", name: tc.name, data: result });
               messages.push({
                 role: "tool",
@@ -233,6 +317,29 @@ export async function POST(req: NextRequest) {
         const message = err instanceof Error ? err.message : String(err);
         send({ type: "error", message });
       } finally {
+        // Persist the assistant turn even on partial / errored streams so
+        // we keep a record for debugging and analytics. Skips the write
+        // when there's nothing meaningful (no text and no products) to
+        // avoid empty rows after early-aborts.
+        if (
+          aggregatedAssistantText.length > 0 ||
+          aggregatedProductIds.length > 0
+        ) {
+          try {
+            await appendMessage({
+              sessionId: session.id,
+              role: "ASSISTANT",
+              content: aggregatedAssistantText,
+              toolCalls:
+                aggregatedToolCalls.length > 0 ? aggregatedToolCalls : undefined,
+              productIds: aggregatedProductIds,
+            });
+          } catch {
+            // Swallow — persistence failures must not crash the stream
+            // close. The user already got their reply; we just lose the
+            // history row, which surfaces in logs (TODO: Sentry).
+          }
+        }
         controller.close();
       }
     },
