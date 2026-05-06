@@ -85,7 +85,7 @@ export function ClosetNudgeBar() {
 
         <div className="mt-3.5 flex gap-2">
           <Link
-            href="/closet/add"
+            href="/closet"
             className="inline-flex h-[46px] flex-1 items-center justify-center gap-2 rounded-[14px] bg-paper text-[12px] font-semibold uppercase tracking-[0.06em] text-ink transition-colors hover:bg-paper/90"
           >
             <Plus size={14} strokeWidth={2} aria-hidden="true" />
