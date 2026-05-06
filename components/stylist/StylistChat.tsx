@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ArrowUp, Loader2, Sparkles } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { ProductCardCarousel } from "./ProductCardCarousel";
@@ -70,6 +70,7 @@ function flattenProducts(toolName: string, data: unknown): ProductSearchResult[]
 
 export function StylistChat() {
   const t = useTranslations("stylist.chat");
+  const locale = useLocale();
   const [messages, setMessages] = useState<StoredMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -114,6 +115,7 @@ export function StylistChat() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: next.map((m) => ({ role: m.role, content: m.content })),
+          locale,
         }),
       });
 

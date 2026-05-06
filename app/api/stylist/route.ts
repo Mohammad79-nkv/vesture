@@ -40,7 +40,19 @@ const requestSchema = z.object({
     )
     .min(1)
     .max(MAX_TURNS_IN_HISTORY),
+  // The locale the user is browsing in — ar / en / fa. Used to anchor the
+  // model's reply language for short / ambiguous first messages where the
+  // user's text alone doesn't disambiguate. Optional; defaults to "en".
+  locale: z.enum(["en", "ar", "fa"]).optional(),
 });
+
+// Maps the locale code to a natural-language name the model knows. The
+// system hint reads better as "Arabic" than "ar".
+const LOCALE_NAME: Record<"en" | "ar" | "fa", string> = {
+  en: "English",
+  ar: "Arabic",
+  fa: "Persian",
+};
 
 type StreamEvent =
   | { type: "text"; value: string }
@@ -68,15 +80,27 @@ export async function POST(req: NextRequest) {
     return jsonError(400, parsed.error.message);
   }
 
-  // System prompt is wrapped in cached() so OpenRouter forwards the
-  // cache_control marker to Anthropic. Cast: OpenAI's TS types don't model
-  // the cache_control field; the SDK passes unknown fields through to the
-  // wire untouched.
+  // The static brand prompt is wrapped in cached() so OpenRouter forwards
+  // the cache_control marker to Anthropic. Cast: OpenAI's TS types don't
+  // model the cache_control field; the SDK passes unknown fields through
+  // to the wire untouched.
+  //
+  // The locale hint is a SECOND system message, deliberately NOT cached
+  // (it varies per user) — small enough that the missed-cache cost is
+  // negligible. Two system messages concatenate naturally on Anthropic's
+  // side, so the model reads them as one set of rules.
+  const locale = parsed.data.locale ?? "en";
+  const localeHint = `User is browsing Vesture in ${LOCALE_NAME[locale]}. Default your replies to ${LOCALE_NAME[locale]} unless the user clearly switches language mid-conversation.`;
+
   const initialMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       content: cached(STYLIST_SYSTEM_PROMPT) as any,
+    },
+    {
+      role: "system",
+      content: localeHint,
     },
     ...parsed.data.messages,
   ];
