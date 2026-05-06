@@ -18,10 +18,15 @@ stylist can call out to anything.
    3. Paste into `.env`, then **restart `pnpm dev`** (env vars are
       read at boot)
 
-2. **Anthropic API key** — required for the stylist endpoint.
-   1. <https://console.anthropic.com/settings/keys> → create key
-   2. Same page: set a monthly spend cap (recommended: $20 to start)
-   3. Paste `ANTHROPIC_API_KEY` into `.env`
+2. **OpenRouter API key** — we route Claude (and any future models)
+   through OpenRouter rather than calling Anthropic directly, so a single
+   account covers cross-provider model swaps later.
+   1. <https://openrouter.ai/settings/keys> → create key
+   2. Set a credit limit on the same page (recommended: $20 to start)
+   3. Paste `OPENROUTER_API_KEY` into `.env`
+   4. Pick a model in `OPENROUTER_STYLIST_MODEL` — default
+      `anthropic/claude-sonnet-4.5`. See <https://openrouter.ai/models>
+      for the full catalog.
 
 3. **Upstash Redis** — Phase 2 rate-limits `/api/stylist` per user/IP.
    1. <https://console.upstash.com> → Create Database → Redis
@@ -29,7 +34,7 @@ stylist can call out to anything.
    3. From "REST API" tab, copy `UPSTASH_REDIS_REST_URL` and
       `UPSTASH_REDIS_REST_TOKEN` into `.env`
 
-4. **Token budget decision** — `ANTHROPIC_DAILY_TOKEN_BUDGET_PER_USER`
+4. **Token budget decision** — `STYLIST_DAILY_TOKEN_BUDGET_PER_USER`
    in `.env`. Default 50,000 tokens/user/day. With prompt caching on
    tools + brand voice, that's ~25-40 stylist turns. Tune after a week
    of telemetry.
@@ -79,7 +84,15 @@ pnpm tsx scripts/promote-admin.ts user@example.com
 
 Once the prereqs above are green:
 
-1. `lib/adapters/anthropic.ts` — Claude client + prompt-cache config
+1. `lib/adapters/openrouter.ts` — OpenAI-compatible client pointed at
+   OpenRouter (`https://openrouter.ai/api/v1`), with `cache_control`
+   markers passed through to Anthropic models for prompt caching.
+   Model id comes from `OPENROUTER_STYLIST_MODEL`. Two things to verify
+   when this lands:
+   - Cache hits showing up in OpenRouter's dashboard (or via the
+     `usage.prompt_tokens_details.cached_tokens` field on responses)
+   - Streaming + tool-call deltas arriving in the expected order on the
+     SSE stream
 2. `lib/ai/tools/{search-products,build-outfit}.ts` — tool defs
 3. `lib/ai/prompts/stylist.ts` — system prompt with brand voice
 4. `lib/services/stylist.ts` — orchestrates Claude tool calls
