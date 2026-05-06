@@ -627,6 +627,26 @@
       },
       "of": "از"
     },
+    "userDetail": {
+      "back": "بازگشت به کاربران",
+      "view": "مشاهده",
+      "joined": "عضویت",
+      "onboarded": "آن‌بوردینگ تکمیل",
+      "notOnboarded": "آن‌بوردینگ ناتمام",
+      "tasteTitle": "ذوق",
+      "tasteEmpty": "رد شده — هنوز چیزی انتخاب نشده",
+      "closetTitle": "عکس‌های کلوزِت",
+      "closetEmpty": "هیچ قطعه‌ای آپلود نشده.",
+      "stats": {
+        "pieces": "قطعه",
+        "favorites": "علاقه‌مندی",
+        "products": "محصول"
+      },
+      "store": "فروشگاه",
+      "storeStatus": "وضعیت",
+      "country": "کشور",
+      "currency": "واحد پول"
+    },
     "users": {
       "title": "کاربران",
       "subtitle": "جست‌وجو و تغییر نقش",

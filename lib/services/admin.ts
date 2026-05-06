@@ -164,6 +164,37 @@ export async function listUsersAdmin(args: {
   return { items, total, page, pageSize };
 }
 
+// Detail bundle for /admin/users/[id]: the user row, their seller profile
+// if any, every closet piece they've uploaded (so the admin can audit
+// images), their favorite count, and their published product count if
+// seller. Closet pieces include all statuses so admins can see donated /
+// archived too — the UI sorts and labels them.
+export async function getUserDetailAdmin(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      sellerProfile: true,
+      closetPieces: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
+  if (!user) return null;
+
+  const [favoritesCount, productsCount] = await Promise.all([
+    prisma.favorite.count({ where: { userId: user.id } }),
+    user.sellerProfile
+      ? prisma.product.count({ where: { sellerId: user.sellerProfile.id } })
+      : Promise.resolve(0),
+  ]);
+
+  return {
+    user,
+    favoritesCount,
+    productsCount,
+  };
+}
+
 // Updates a user's role in both Clerk (publicMetadata) and our DB. Clerk
 // runs first — if it fails we abort. The webhook will eventually re-affirm
 // the DB row, so even if the local update somehow fails the system stays

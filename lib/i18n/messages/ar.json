@@ -627,6 +627,26 @@
       },
       "of": "من"
     },
+    "userDetail": {
+      "back": "العودة للمستخدمين",
+      "view": "عرض",
+      "joined": "انضم",
+      "onboarded": "أكمل التسجيل",
+      "notOnboarded": "لم يكمل التسجيل",
+      "tasteTitle": "الذوق",
+      "tasteEmpty": "تخطّى الخطوة — لا اختيارات بعد",
+      "closetTitle": "صور الخزانة",
+      "closetEmpty": "لا قطع مرفوعة.",
+      "stats": {
+        "pieces": "قطع",
+        "favorites": "مفضلة",
+        "products": "منتجات"
+      },
+      "store": "المتجر",
+      "storeStatus": "الحالة",
+      "country": "البلد",
+      "currency": "العملة"
+    },
     "users": {
       "title": "المستخدمون",
       "subtitle": "ابحث وغيّر الأدوار",

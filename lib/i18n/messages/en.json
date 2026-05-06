@@ -627,6 +627,26 @@
       },
       "of": "of"
     },
+    "userDetail": {
+      "back": "Back to users",
+      "view": "View",
+      "joined": "Joined",
+      "onboarded": "Onboarded",
+      "notOnboarded": "Onboarding incomplete",
+      "tasteTitle": "Taste",
+      "tasteEmpty": "Skipped — no picks yet",
+      "closetTitle": "Closet photos",
+      "closetEmpty": "No pieces uploaded.",
+      "stats": {
+        "pieces": "Pieces",
+        "favorites": "Favorites",
+        "products": "Products"
+      },
+      "store": "Store",
+      "storeStatus": "Status",
+      "country": "Country",
+      "currency": "Currency"
+    },
     "users": {
       "title": "Users",
       "subtitle": "Search users and change roles",

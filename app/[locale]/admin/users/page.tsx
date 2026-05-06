@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
+import { ChevronRight } from "lucide-react";
+import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { requireAdmin } from "@/lib/auth";
 import {
@@ -36,6 +38,7 @@ export default async function AdminUsersPage({
   setRequestLocale(locale);
 
   const t = await getTranslations("admin.users");
+  const tDetail = await getTranslations("admin.userDetail");
 
   const search = typeof sp.q === "string" ? sp.q : undefined;
   const errorCode = typeof sp.error === "string" ? sp.error : undefined;
@@ -133,14 +136,26 @@ export default async function AdminUsersPage({
                   key={u.id}
                   className="flex flex-wrap items-center gap-4 px-1 py-3 sm:flex-nowrap"
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-ink">{u.email}</p>
-                    <p className="mt-0.5 font-mono text-[11px] text-muted">
-                      {t("joined")} {fmtDate}
-                      {u.sellerProfile?.storeNameEn &&
-                        ` · ${u.sellerProfile.storeNameEn} (${u.sellerProfile.status})`}
-                    </p>
-                  </div>
+                  <Link
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    href={(`/admin/users/${u.id}` as any)}
+                    className="group flex min-w-0 flex-1 items-center gap-2 rounded-xl px-1 py-1 hover:bg-ink/[0.04]"
+                    aria-label={`${tDetail("view")} ${u.email}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-ink">{u.email}</p>
+                      <p className="mt-0.5 font-mono text-[11px] text-muted">
+                        {t("joined")} {fmtDate}
+                        {u.sellerProfile?.storeNameEn &&
+                          ` · ${u.sellerProfile.storeNameEn} (${u.sellerProfile.status})`}
+                      </p>
+                    </div>
+                    <ChevronRight
+                      size={16}
+                      className="shrink-0 text-ink/30 transition-colors group-hover:text-ink/60"
+                      aria-hidden="true"
+                    />
+                  </Link>
 
                   <form action={setRole} className="flex shrink-0 items-center gap-2">
                     <input type="hidden" name="userId" value={u.id} />
