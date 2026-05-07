@@ -45,6 +45,7 @@ type StreamEvent =
   | { type: "tool_error"; name: string; message: string }
   | { type: "sign_in_required" }
   | { type: "budget_exceeded"; used: number; limit: number }
+  | { type: "rate_limited"; resetAt: number }
   | { type: "done"; usage?: { promptTokens?: number; completionTokens?: number } }
   | { type: "error"; message: string };
 
@@ -188,6 +189,14 @@ export function StylistChat({ signedIn }: { signedIn: boolean }) {
               case "budget_exceeded":
                 setMessages((m) => m.filter((msg) => msg.id !== newUser.id));
                 setBudgetWallOpen(true);
+                break readLoop;
+              case "rate_limited":
+                // Short-lived condition — surface as an inline error toast
+                // and roll back the user message so they can retry once
+                // the window resets. No modal: would feel heavier than the
+                // problem it's flagging.
+                setMessages((m) => m.filter((msg) => msg.id !== newUser.id));
+                setError(t("rateLimitedBody"));
                 break readLoop;
               case "error":
                 setError(event.message || t("errorGeneric"));

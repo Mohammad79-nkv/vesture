@@ -19,6 +19,7 @@ import {
   readAnonCookie,
   setAnonCookieHeader,
 } from "@/lib/auth-anon";
+import { checkStylistRateLimit } from "@/lib/adapters/upstash";
 import {
   findOrCreateSession,
   attachAnonSession,
@@ -97,6 +98,18 @@ export async function POST(req: NextRequest) {
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
     return jsonError(400, parsed.error.message);
+  }
+
+  // Rate limit. No-op if UPSTASH_REDIS_REST_URL/_TOKEN aren't set —
+  // graceful degradation lets the endpoint behave normally in dev / on
+  // a fresh deploy until Upstash is wired up. Keys on userId for
+  // authenticated traffic, IP for anonymous; the anon 3-turn cookie wall
+  // sits one layer below this so a sustained burst from a single IP is
+  // stopped here before consuming any of the wall budget.
+  const ip = ipFromRequest(req);
+  const rl = await checkStylistRateLimit({ userId: userId ?? null, ip });
+  if (!rl.ok) {
+    return rateLimitedResponse({ resetAt: rl.resetAt });
   }
 
   // Anonymous trial gate. Signed-in users skip this entirely.
@@ -407,6 +420,26 @@ function budgetExceededResponse(args: {
     used: args.used,
     limit: args.limit,
   });
+}
+
+function rateLimitedResponse(args: { resetAt: number }): Response {
+  return singleEventResponse({
+    type: "rate_limited",
+    resetAt: args.resetAt,
+  });
+}
+
+// Best-effort client IP. Vercel + most CDNs put the real address in
+// x-forwarded-for; the first comma-separated token is the originating
+// client. Fall back to x-real-ip, then to a constant placeholder so the
+// rate-limit key still hashes to something deterministic in tests.
+function ipFromRequest(req: NextRequest): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    const first = xff.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return req.headers.get("x-real-ip") ?? "unknown";
 }
 
 function singleEventResponse(event: object): Response {

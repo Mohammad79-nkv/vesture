@@ -162,6 +162,8 @@
       "budgetTitle": "Daily limit reached",
       "budgetBody": "You've used today's stylist budget. It resets at midnight UTC — come back tomorrow.",
       "budgetButton": "Browse the catalog",
+      "rateLimitedTitle": "Slow down",
+      "rateLimitedBody": "You're sending too many messages. Wait a moment and try again.",
       "emptyTitle": "What are you after?",
       "emptyBody": "I'll pull pieces from across MENA's independent makers. Try one of these or write your own.",
       "suggestion1": "A minimal summer wedding look under 1500 AED",
