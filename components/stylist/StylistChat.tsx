@@ -75,7 +75,15 @@ export function StylistChat({ signedIn }: { signedIn: boolean }) {
   const t = useTranslations("stylist.chat");
   const locale = useLocale();
   const [messages, setMessages] = useState<StoredMessage[]>([]);
-  const [draft, setDraft] = useState("");
+  // Lazy init reads `?prompt=…` from window.location at mount, so deep
+  // links from /closet/[id]'s "Style this piece" or /products/[slug]'s
+  // "Build the look" land with the brief already in the input. SSR-safe
+  // (returns "" on the server) and runs only once — no effect needed,
+  // which dodges the react-hooks/set-state-in-effect lint rule.
+  const [draft, setDraft] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("prompt") ?? "";
+  });
   const [streaming, setStreaming] = useState(false);
   const [streamingText, setStreamingText] = useState("");
   const [streamingCards, setStreamingCards] = useState<ProductCardSet[]>([]);

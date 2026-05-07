@@ -1,14 +1,16 @@
 import { getTranslations } from "next-intl/server";
+import { ArrowRight } from "lucide-react";
+import { Link } from "@/lib/i18n/navigation";
 
-// Placeholder until the AI stylist ships in Phase 2. Same panel chrome as the
-// final design (header with status + close affordance) so layout doesn't shift
-// when the live version replaces this one.
+// Desktop sidebar on /products that nudges visitors toward the live
+// stylist. Replaces the Phase-1 "Coming soon" placeholder now that the
+// chat at /stylist actually works.
 export async function StylistSidebar() {
   const t = await getTranslations("stylist");
   return (
     <aside className="hidden lg:block">
-      <div className="sticky top-24 rounded-2xl bg-paper p-5 shadow-[0_2px_30px_rgba(33,39,57,0.06)]">
-        <div className="mb-6 flex items-start gap-3">
+      <div className="sticky top-24 overflow-hidden rounded-2xl bg-ink p-5 text-paper shadow-[0_2px_30px_rgba(33,39,57,0.06)]">
+        <div className="mb-5 flex items-start gap-3">
           <span
             aria-hidden="true"
             className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-paper"
@@ -27,31 +29,24 @@ export async function StylistSidebar() {
             </svg>
           </span>
           <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink/55">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-paper/55">
               {t("status")}
             </p>
-            <p className="mt-0.5 text-base font-semibold text-ink">{t("title")}</p>
+            <p className="mt-0.5 text-base font-semibold text-paper">{t("title")}</p>
           </div>
-          <button
-            type="button"
-            disabled
-            aria-label="Close"
-            className="text-ink/40"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
         </div>
 
-        <div className="rounded-xl bg-mist p-6 text-center">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-            {t("comingSoon")}
-          </p>
-          <p className="text-sm leading-relaxed text-ink/70">
-            {t("comingSoonBody")}
-          </p>
-        </div>
+        <p className="text-[13.5px] leading-[1.55] text-paper/70">
+          {t("sidebarTeaser")}
+        </p>
+
+        <Link
+          href="/stylist"
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.06em] text-paper transition-colors hover:bg-primary/90"
+        >
+          {t("sidebarOpen")}
+          <ArrowRight size={14} strokeWidth={2.2} aria-hidden="true" />
+        </Link>
       </div>
     </aside>
   );

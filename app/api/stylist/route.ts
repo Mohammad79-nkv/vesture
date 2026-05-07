@@ -11,7 +11,7 @@ import {
   cached,
   dailyTokenBudgetPerUser,
 } from "@/lib/adapters/openrouter";
-import { STYLIST_TOOLS, dispatchTool } from "@/lib/ai/tools";
+import { stylistTools, dispatchTool } from "@/lib/ai/tools";
 import { STYLIST_SYSTEM_PROMPT } from "@/lib/ai/prompts/stylist";
 import {
   ANON_STYLIST_TURN_LIMIT,
@@ -239,12 +239,19 @@ export async function POST(req: NextRequest) {
         }
       };
 
+      // search_my_closet is only handed to the model when there's a
+      // signed-in user — anonymous visitors have no closet, so the tool
+      // would always return empty and Claude would burn tokens deciding
+      // whether to call it.
+      const toolCtx = { userId: dbUser?.id ?? null };
+      const tools = stylistTools(toolCtx);
+
       try {
         for (let step = 0; step < MAX_STEPS; step++) {
           const completion = await openrouter().chat.completions.create({
             model: stylistModel(),
             messages,
-            tools: STYLIST_TOOLS,
+            tools,
             stream: true,
             stream_options: { include_usage: true },
           });
@@ -317,7 +324,7 @@ export async function POST(req: NextRequest) {
           for (const tc of toolBuf) {
             send({ type: "tool_call", name: tc.name });
             try {
-              const result = await dispatchTool(tc.name, tc.args);
+              const result = await dispatchTool(tc.name, tc.args, toolCtx);
               collectProductIds(tc.name, result);
               send({ type: "tool_result", name: tc.name, data: result });
               messages.push({

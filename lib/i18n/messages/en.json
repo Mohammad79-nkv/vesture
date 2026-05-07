@@ -148,6 +148,8 @@
     "comingSoonBody": "Chat with our stylist to find pieces from the makers you follow. Available in the next release.",
     "promoTitle": "Tell me what you're after.",
     "promoSubtitle": "Talk to your AI stylist · {count} sellers",
+    "sidebarTeaser": "I pull from your closet first, then surface pieces from independent makers. Tell me a feeling, an occasion, a budget.",
+    "sidebarOpen": "Open the stylist",
     "chat": {
       "header": "Vesture stylist",
       "placeholder": "Tell me what you're after…",
@@ -384,8 +386,10 @@
       "DONATED": "Donated",
       "ARCHIVED": "Archived"
     },
-    "aiSuggestSoon": "AI suggestions coming soon",
-    "aiSuggestBody": "Once vision tagging ships, the stylist will tell you what to wear with this piece — and which seller has the missing layer."
+    "aiSuggestTitle": "Style this piece",
+    "aiSuggestBody": "Open a stylist brief anchored on this piece — I'll suggest what to pair it with from your closet and from sellers.",
+    "aiSuggestCta": "Open the stylist",
+    "aiSuggestPrompt": "Help me style my {name} for a casual outing — pull from my closet first."
   },
   "closetEmpty": {
     "step": "Step 01 of 03",
@@ -448,7 +452,7 @@
     "eyebrow": "Stylist suggestion",
     "body": "Want me to build a full look around this piece?",
     "cta": "Build the look",
-    "comingSoon": "Coming soon"
+    "promptTemplate": "Build a full look around {title} — keep it in {currency} and pull from the catalog."
   },
   "howItWorks": {
     "eyebrow": "How it works",

@@ -94,20 +94,36 @@ export default async function PiecePage({
           {piece.notes && <Row label={tAdd("notes")} value={piece.notes} multiline />}
         </ul>
 
-        {/* AI suggestions — coming soon callout (Phase 3) */}
-        <div className="mt-4 flex items-start gap-3 rounded-2xl bg-primary/10 p-3.5">
+        {/* "Style this piece" — opens /stylist with a brief prefilled in
+           the input. The model will be encouraged via system prompt to
+           call search_my_closet first, so the suggestion mixes owned + new
+           the way the welcome hero promised. */}
+        <Link
+          href={{
+            pathname: "/stylist",
+            query: {
+              prompt: t("aiSuggestPrompt", {
+                name: piece.name ?? tFilters(piece.category).toLowerCase(),
+              }),
+            },
+          }}
+          className="mt-4 flex items-start gap-3 rounded-2xl bg-primary/10 p-3.5 transition-colors hover:bg-primary/15"
+        >
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-paper">
             <Sparkles size={14} aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold tracking-[-0.01em] text-primary">
-              {t("aiSuggestSoon")}
+              {t("aiSuggestTitle")}
             </p>
             <p className="mt-0.5 text-[11.5px] leading-[1.4] text-ink/65">
               {t("aiSuggestBody")}
             </p>
+            <p className="mt-1.5 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-primary">
+              {t("aiSuggestCta")} →
+            </p>
           </div>
-        </div>
+        </Link>
 
         {/* Interactive actions (wear log, status, delete) */}
         <div className="mt-5">

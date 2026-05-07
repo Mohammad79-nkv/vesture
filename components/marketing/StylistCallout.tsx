@@ -1,10 +1,27 @@
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/lib/i18n/navigation";
 
-// Coming-soon promo strip used between the product detail and the
-// "More from seller" carousel. Replaces the AI "Build the look" CTA from
-// the design until Phase 2 ships the live stylist.
-export async function StylistCallout() {
+// "Build the look" CTA between the product detail and the "More from
+// seller" carousel. Now wired to /stylist with a prompt prefilled around
+// the product the user is looking at — Phase 2 stylist takes it from there.
+//
+// Props are optional so legacy callers (if any remain) still render with
+// generic copy; when title + currency are present we build a richer
+// prompt template that actually references the piece.
+export async function StylistCallout({
+  title,
+  currency,
+}: {
+  title?: string;
+  currency?: string;
+} = {}) {
   const t = await getTranslations("stylistCallout");
+
+  const prompt =
+    title && currency
+      ? t("promptTemplate", { title, currency })
+      : t("body");
+
   return (
     <section className="mt-12 rounded-2xl bg-ink p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-4">
@@ -31,19 +48,17 @@ export async function StylistCallout() {
             {t("eyebrow")}
           </p>
           <p className="mt-1 text-base font-semibold text-paper sm:text-lg">
-            {t("body")}{" "}
-            <span className="text-primary">— {t("comingSoon")}.</span>
+            {t("body")}
           </p>
         </div>
 
-        <button
-          type="button"
-          disabled
-          className="ms-auto inline-flex items-center gap-2 rounded-full bg-paper/10 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-paper/60"
+        <Link
+          href={{ pathname: "/stylist", query: { prompt } }}
+          className="ms-auto inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-paper transition-colors hover:bg-primary/90"
         >
           {t("cta")}
           <span aria-hidden="true">→</span>
-        </button>
+        </Link>
       </div>
     </section>
   );

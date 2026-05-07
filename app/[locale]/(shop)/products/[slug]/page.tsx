@@ -279,7 +279,7 @@ export default async function ProductDetailPage({
           </SellerCard>
         </div>
 
-        <StylistCallout />
+        <StylistCallout title={title} currency={product.currency} />
 
         <MoreFromSeller
           locale={locale}
