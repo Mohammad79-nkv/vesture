@@ -11,6 +11,7 @@ import {
   type OutfitSlot,
 } from "@/lib/domain/outfit-slots";
 import { MannequinCanvas } from "./MannequinCanvas";
+import { SlotPickerSheet } from "./SlotPickerSheet";
 import {
   createOutfitAction,
   saveAndScoreAction,
@@ -78,6 +79,11 @@ export function OutfitBuilder({
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Phase 3C: which slot the picker sheet is currently open for. null
+  // = sheet closed. The sheet renders eligible pieces for that slot,
+  // and onPick places into that slot directly (no defaultSlot lookup
+  // needed because the user explicitly chose the slot).
+  const [pickerSlot, setPickerSlot] = useState<OutfitSlot | null>(null);
 
   // The rail re-filters by category. "all" shows everything.
   const railPieces = useMemo(() => {
@@ -126,13 +132,31 @@ export function OutfitBuilder({
   }
 
   function handleTapEmpty(slot: OutfitSlot) {
-    // Phase 3A: empty-slot tap focuses the rail filter on that slot's
-    // category. Phase 3C will swap this for the bottom-sheet flow.
-    const cat = (Object.entries(SLOT_TO_CATEGORY).find(
-      ([s]) => s === slot,
-    )?.[1] ?? "all") as string;
-    setActiveFilter(cat);
+    // Phase 3C: empty-slot tap opens the slot-scoped picker sheet.
+    // The rail at the bottom is still available as the bulk-fill
+    // flow ("here are all my pieces, pick whichever") — the sheet
+    // is the targeted flow ("I want SHOES specifically").
+    setPickerSlot(slot);
   }
+
+  function handlePickerPick(piece: ClosetPiece) {
+    if (!pickerSlot) return;
+    setPieces((prev) => applyConflictsClient(prev, pickerSlot, piece));
+    setError(null);
+    setPickerSlot(null);
+  }
+
+  // Pieces eligible for the slot the picker is currently open for.
+  // SLOT_TO_CATEGORY mirrors the Prisma Category ↔ slot mapping that
+  // outfit-slots.ts owns; we keep the local copy because this file
+  // already had it for the rail-filter shortcut.
+  const pickerCategory = pickerSlot ? SLOT_TO_CATEGORY[pickerSlot] : null;
+  const pickerPieces = pickerCategory
+    ? closetPieces.filter((p) => p.category === pickerCategory)
+    : [];
+  const pickerActiveId = pickerSlot
+    ? (pieces[pickerSlot]?.id ?? null)
+    : null;
 
   // Build the payload once — both save flows want the same shape.
   function buildPayload() {
@@ -413,6 +437,18 @@ export function OutfitBuilder({
           </button>
         </div>
       </div>
+
+      {/* Phase 3C: slot-scoped piece picker. Opens when the user taps
+         an empty slot on the mannequin canvas. */}
+      <SlotPickerSheet
+        open={pickerSlot !== null}
+        slot={pickerSlot}
+        slotLabel={pickerSlot ? slotLabels[pickerSlot] : ""}
+        pieces={pickerPieces}
+        activePieceId={pickerActiveId}
+        onClose={() => setPickerSlot(null)}
+        onPick={handlePickerPick}
+      />
     </div>
   );
 }

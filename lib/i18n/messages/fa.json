@@ -438,6 +438,14 @@
     },
     "feedbackTitle": "نظر AI رو بگیر",
     "feedbackSoon": "نظر AI · فاز 3B",
+    "picker": {
+      "eyebrow": "یه قطعه انتخاب کن",
+      "title": "یه {slot} انتخاب کن",
+      "empty": "هنوز هیچ {slot}ی توی کلوزِتت نداری.",
+      "addNew": "افزودن قطعه",
+      "placed": "گذاشته‌شده",
+      "close": "بستن"
+    },
     "errors": {
       "needPieces": "حداقل یه قطعه قبل از ذخیره اضافه کن.",
       "saveFailed": "ذخیره نشد — دوباره تلاش کن."

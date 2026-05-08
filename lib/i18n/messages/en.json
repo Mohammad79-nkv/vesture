@@ -438,6 +438,14 @@
     },
     "feedbackTitle": "Get AI feedback",
     "feedbackSoon": "AI feedback · Phase 3B",
+    "picker": {
+      "eyebrow": "Pick a piece",
+      "title": "Choose a {slot}",
+      "empty": "No {slot} pieces in your closet yet.",
+      "addNew": "Add a piece",
+      "placed": "Placed",
+      "close": "Close"
+    },
     "errors": {
       "needPieces": "Add at least one piece before saving.",
       "saveFailed": "Couldn't save — try again."
