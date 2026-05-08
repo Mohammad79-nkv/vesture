@@ -86,9 +86,11 @@ export function FloatingNav() {
   }, [activeIndex]);
 
   // Hide on product detail pages where a sticky message footer takes over,
-  // and on /stylist where the chat input owns the bottom slot.
+  // and on /stylist + /closet/builder where the page's own bottom dock
+  // owns the bottom slot.
   if (/^\/products\/[^/]+$/.test(pathname)) return null;
   if (pathname.startsWith("/stylist")) return null;
+  if (pathname.startsWith("/closet/builder")) return null;
 
   return (
     <nav

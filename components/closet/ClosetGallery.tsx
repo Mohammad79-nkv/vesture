@@ -38,6 +38,7 @@ export async function ClosetGallery({
 }) {
   const t = await getTranslations("closet");
   const tFilters = await getTranslations("closet.filters");
+  const tOutfit = await getTranslations("outfit");
 
   return (
     <div className="mx-auto w-full max-w-[460px] px-5 pt-8 pb-32 sm:max-w-[520px]">
@@ -55,13 +56,22 @@ export async function ClosetGallery({
             })}
           </h1>
         </div>
-        <Link
-          href="/closet/add"
-          aria-label={t("addPiece")}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-105"
-        >
-          <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/closet/builder"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-paper px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.06em] text-ink hover:border-ink/40"
+          >
+            <Sparkles size={13} aria-hidden="true" />
+            {tOutfit("buildALook")}
+          </Link>
+          <Link
+            href="/closet/add"
+            aria-label={t("addPiece")}
+            className="grid h-10 w-10 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-105"
+          >
+            <Plus size={18} strokeWidth={2} aria-hidden="true" />
+          </Link>
+        </div>
       </div>
 
       {/* AI insight banner — links to stylist (which is itself coming-soon

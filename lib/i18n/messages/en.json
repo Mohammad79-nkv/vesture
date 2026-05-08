@@ -391,6 +391,74 @@
     "aiSuggestCta": "Open the stylist",
     "aiSuggestPrompt": "Help me style my {name} for a casual outing — pull from my closet first."
   },
+  "outfit": {
+    "buildALook": "Build a look",
+    "slots": {
+      "TOP": "Top",
+      "BOTTOM": "Bottom",
+      "DRESS": "Dress",
+      "OUTER": "Outer",
+      "SHOES": "Shoes",
+      "BAG": "Bag",
+      "ACCESSORY": "Accessory"
+    },
+    "occasions": {
+      "CASUAL": "Casual",
+      "WORK": "Work",
+      "FORMAL": "Formal",
+      "EVENING": "Evening",
+      "WEDDING": "Wedding",
+      "VACATION": "Vacation",
+      "SPORT": "Sport"
+    }
+  },
+  "closetBuilder": {
+    "title": "Build a look",
+    "subAutoSave": "Untitled · auto-saved",
+    "subEditing": "Editing",
+    "myStyles": "My styles",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "scoreSoon": "Live score · coming soon",
+    "scorePill": "—/100",
+    "tapToSwap": "Tap to remove",
+    "addPlaceholder": "Tap to add",
+    "namePlaceholder": "Name this look (e.g. Wine bar · Nov 14)",
+    "occasionLabel": "Occasion",
+    "occasionPlaceholder": "Pick an occasion",
+    "rail": {
+      "all": "All",
+      "empty": "Add some pieces to your closet first.",
+      "addFirst": "Add a piece"
+    },
+    "feedbackTitle": "Get AI feedback",
+    "feedbackSoon": "AI feedback · Phase 3B",
+    "errors": {
+      "needPieces": "Add at least one piece before saving.",
+      "saveFailed": "Couldn't save — try again."
+    }
+  },
+  "closetStyles": {
+    "title": "My <accent>styles</accent>",
+    "subtitle": "{count, plural, =0 {No looks yet} =1 {1 look} other {# looks}}",
+    "empty": "Compose your first look from pieces you own.",
+    "emptyCta": "Build a look",
+    "newCta": "New",
+    "filterAll": "All",
+    "filterMostWorn": "Most worn",
+    "filterHighestScore": "Highest score",
+    "filterNeverWorn": "Never worn",
+    "wear": "Wear",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this look?",
+    "wornNeverYet": "Never worn",
+    "wornCount": "Worn {n}× · last on {date}",
+    "untitled": "Untitled look",
+    "back": "Back to looks",
+    "scoreSoon": "AI score · soon"
+  },
   "closetEmpty": {
     "step": "Step 01 of 03",
     "headlineLead": "Bring your",

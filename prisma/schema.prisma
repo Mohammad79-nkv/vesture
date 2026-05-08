@@ -37,6 +37,7 @@ model User {
   chatSessions  ChatSession[]
   adminActions  AdminAction[]  @relation("AdminActor")
   closetPieces  ClosetPiece[]
+  savedOutfits  SavedOutfit[]
 }
 
 enum Role {
@@ -220,17 +221,17 @@ model ChatSession {
 }
 
 model ChatMessage {
-  id        String      @id @default(cuid())
-  sessionId String
-  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  role      ChatRole
-  content   String
-  toolCalls Json?
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role       ChatRole
+  content    String
+  toolCalls  Json?
   // Sum of prompt + completion tokens that produced this turn. Only set on
   // ASSISTANT rows (USER rows leave it 0); used for the daily budget check
   // in /api/stylist.
-  tokensUsed Int        @default(0)
-  createdAt DateTime    @default(now())
+  tokensUsed Int         @default(0)
+  createdAt  DateTime    @default(now())
 
   products ChatMessageProduct[]
 
@@ -291,6 +292,8 @@ model ClosetPiece {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
+  outfitSlots SavedOutfitPiece[]
+
   @@index([userId, status])
   @@index([userId, category])
   @@index([userId, lastWornAt])
@@ -309,6 +312,63 @@ enum PieceStatus {
   STORAGE
   DONATED
   ARCHIVED
+}
+
+// ─── Saved outfits (Phase 3 outfit builder) ─────────────────────────────
+// SavedOutfit = one composed look. SavedOutfitPiece = which closet piece
+// fills which mannequin slot (TOP / BOTTOM / DRESS / OUTER / SHOES / BAG /
+// ACCESSORY). DRESS conflicts with TOP+BOTTOM by service-layer rule, not
+// a schema constraint, so the slot column stays a flat string instead of
+// a constrained enum-pair.
+//
+// AI fields on SavedOutfit are nullable from day one (Phase 3A) and stay
+// null until the Phase 3B scoring endpoint writes them. Inlining now
+// avoids a second migration when 3B lands.
+
+model SavedOutfit {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String?
+  occasion        Occasion?
+  totalPriceMinor Int       @default(0) // sum of pieces' notional retail; 0 since closet pieces are owned
+  currency        String? // ISO 4217 — null if outfit has no products mixed in
+
+  wearCount  Int       @default(0)
+  lastWornAt DateTime?
+
+  // Phase 3B — AI scoring fields. Stay null until /api/closet/outfit/score runs.
+  compositeScore Int?
+  subScores      Json? // { harmony: 0-100, fit: 0-100, occasion: 0-100 }
+  verdict        Json? // { headline, body }
+  whatWorking    Json? // [{ tone, body }, ...]
+  whatToTry      Json? // [{ kind: "swap" | "shop", ... }, ...]
+  scoredAt       DateTime?
+  scoreVersion   Int       @default(1) // bump when prompt or rubric changes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pieces SavedOutfitPiece[]
+
+  @@index([userId, createdAt])
+  @@index([userId, lastWornAt])
+  @@index([userId, compositeScore])
+}
+
+model SavedOutfitPiece {
+  outfitId String
+  pieceId  String
+  // Slot string — TOP / BOTTOM / DRESS / OUTER / SHOES / BAG / ACCESSORY.
+  // Service layer enforces DRESS ↔ TOP+BOTTOM mutual exclusion.
+  slot     String
+
+  outfit SavedOutfit @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+  piece  ClosetPiece @relation(fields: [pieceId], references: [id], onDelete: Cascade)
+
+  @@id([outfitId, slot])
+  @@index([pieceId])
 }
 
 // ─── Admin audit log ────────────────────────────────────────────────────

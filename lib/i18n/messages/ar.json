@@ -391,6 +391,74 @@
     "aiSuggestCta": "افتح المصمم",
     "aiSuggestPrompt": "ساعدني في تنسيق {name} لخروج كاجوال — اعتمد على خزانتي أولاً."
   },
+  "outfit": {
+    "buildALook": "ابنِ إطلالة",
+    "slots": {
+      "TOP": "علوي",
+      "BOTTOM": "سفلي",
+      "DRESS": "فستان",
+      "OUTER": "خارجي",
+      "SHOES": "حذاء",
+      "BAG": "حقيبة",
+      "ACCESSORY": "إكسسوار"
+    },
+    "occasions": {
+      "CASUAL": "كاجوال",
+      "WORK": "عمل",
+      "FORMAL": "رسمي",
+      "EVENING": "سهرة",
+      "WEDDING": "عرس",
+      "VACATION": "إجازة",
+      "SPORT": "رياضي"
+    }
+  },
+  "closetBuilder": {
+    "title": "ابنِ إطلالة",
+    "subAutoSave": "بدون اسم · حفظ تلقائي",
+    "subEditing": "تعديل",
+    "myStyles": "إطلالاتي",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم الحفظ",
+    "scoreSoon": "النتيجة الحية · قريباً",
+    "scorePill": "—/١٠٠",
+    "tapToSwap": "اضغط للإزالة",
+    "addPlaceholder": "اضغط للإضافة",
+    "namePlaceholder": "سمِّ هذه الإطلالة (مثلاً: حانة النبيذ · ١٤ نوفمبر)",
+    "occasionLabel": "المناسبة",
+    "occasionPlaceholder": "اختر مناسبة",
+    "rail": {
+      "all": "الكل",
+      "empty": "أضف بعض القطع إلى خزانتك أولاً.",
+      "addFirst": "أضف قطعة"
+    },
+    "feedbackTitle": "احصل على تقييم الذكاء الاصطناعي",
+    "feedbackSoon": "تقييم الذكاء الاصطناعي · المرحلة 3B",
+    "errors": {
+      "needPieces": "أضف قطعة واحدة على الأقل قبل الحفظ.",
+      "saveFailed": "تعذّر الحفظ — حاول مجدداً."
+    }
+  },
+  "closetStyles": {
+    "title": "<accent>إطلالاتي</accent>",
+    "subtitle": "{count, plural, =0 {لا إطلالات بعد} =1 {إطلالة واحدة} other {# إطلالات}}",
+    "empty": "ابنِ أول إطلالة من قطع تملكها.",
+    "emptyCta": "ابنِ إطلالة",
+    "newCta": "جديدة",
+    "filterAll": "الكل",
+    "filterMostWorn": "الأكثر ارتداءً",
+    "filterHighestScore": "الأعلى تقييماً",
+    "filterNeverWorn": "لم تُرتدَ",
+    "wear": "ارتدِ",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteConfirm": "حذف هذه الإطلالة؟",
+    "wornNeverYet": "لم تُرتدَ",
+    "wornCount": "ارتُديت {n}× · آخر مرة في {date}",
+    "untitled": "إطلالة بدون اسم",
+    "back": "عودة للإطلالات",
+    "scoreSoon": "تقييم الذكاء الاصطناعي · قريباً"
+  },
   "closetEmpty": {
     "step": "الخطوة ٠١ من ٠٣",
     "headlineLead": "أحضر",

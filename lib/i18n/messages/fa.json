@@ -391,6 +391,74 @@
     "aiSuggestCta": "باز کردن استایلیست",
     "aiSuggestPrompt": "کمکم کن {name} رو برای یه بیرون رفتن کاژوال استایل کنم — اول از کلوزِت خودم استفاده کن."
   },
+  "outfit": {
+    "buildALook": "ساخت یه ست",
+    "slots": {
+      "TOP": "بالاتنه",
+      "BOTTOM": "پایین‌تنه",
+      "DRESS": "پیراهن",
+      "OUTER": "روکار",
+      "SHOES": "کفش",
+      "BAG": "کیف",
+      "ACCESSORY": "اکسسوری"
+    },
+    "occasions": {
+      "CASUAL": "کاژوال",
+      "WORK": "کار",
+      "FORMAL": "رسمی",
+      "EVENING": "شب",
+      "WEDDING": "عروسی",
+      "VACATION": "مسافرت",
+      "SPORT": "ورزش"
+    }
+  },
+  "closetBuilder": {
+    "title": "ساخت یه ست",
+    "subAutoSave": "بی‌نام · ذخیره خودکار",
+    "subEditing": "ویرایش",
+    "myStyles": "استایل‌های من",
+    "save": "ذخیره",
+    "saving": "در حال ذخیره…",
+    "saved": "ذخیره شد",
+    "scoreSoon": "امتیاز زنده · به‌زودی",
+    "scorePill": "—/۱۰۰",
+    "tapToSwap": "بزن تا حذف بشه",
+    "addPlaceholder": "بزن تا اضافه کنی",
+    "namePlaceholder": "اسم این ست (مثلاً: کافه شب · ۱۴ آبان)",
+    "occasionLabel": "مناسبت",
+    "occasionPlaceholder": "یه مناسبت انتخاب کن",
+    "rail": {
+      "all": "همه",
+      "empty": "اول چندتا قطعه به کلوزِت اضافه کن.",
+      "addFirst": "افزودن قطعه"
+    },
+    "feedbackTitle": "نظر AI رو بگیر",
+    "feedbackSoon": "نظر AI · فاز 3B",
+    "errors": {
+      "needPieces": "حداقل یه قطعه قبل از ذخیره اضافه کن.",
+      "saveFailed": "ذخیره نشد — دوباره تلاش کن."
+    }
+  },
+  "closetStyles": {
+    "title": "<accent>استایل‌های</accent> من",
+    "subtitle": "{count, plural, =0 {هنوز ستی نیست} =1 {۱ ست} other {# ست}}",
+    "empty": "اولین ستت رو از قطعه‌های خودت بساز.",
+    "emptyCta": "ساخت یه ست",
+    "newCta": "جدید",
+    "filterAll": "همه",
+    "filterMostWorn": "پُرپوشیده‌ترین",
+    "filterHighestScore": "بالاترین امتیاز",
+    "filterNeverWorn": "نپوشیده",
+    "wear": "بپوش",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "deleteConfirm": "این ست حذف بشه؟",
+    "wornNeverYet": "هنوز پوشیده نشده",
+    "wornCount": "{n}× پوشیده شده · آخر بار {date}",
+    "untitled": "ست بی‌نام",
+    "back": "بازگشت به ست‌ها",
+    "scoreSoon": "امتیاز AI · به‌زودی"
+  },
   "closetEmpty": {
     "step": "گام ۰۱ از ۰۳",
     "headlineLead": "کلوزِتت رو",
