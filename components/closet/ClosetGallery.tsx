@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Plus, Sparkles, ArrowRight } from "lucide-react";
+import { Plus, Sparkles, LayoutGrid } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import type { ClosetPiece } from "@prisma/client";
 import { transformedUrl } from "@/lib/adapters/cloudinary";
@@ -38,7 +38,6 @@ export async function ClosetGallery({
 }) {
   const t = await getTranslations("closet");
   const tFilters = await getTranslations("closet.filters");
-  const tOutfit = await getTranslations("outfit");
 
   return (
     <div className="mx-auto w-full max-w-[460px] px-5 pt-8 pb-32 sm:max-w-[520px]">
@@ -56,43 +55,58 @@ export async function ClosetGallery({
             })}
           </h1>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href="/closet/builder"
-            className="inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-paper px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.06em] text-ink hover:border-ink/40"
-          >
-            <Sparkles size={13} aria-hidden="true" />
-            {tOutfit("buildALook")}
-          </Link>
-          <Link
-            href="/closet/add"
-            aria-label={t("addPiece")}
-            className="grid h-10 w-10 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-105"
-          >
-            <Plus size={18} strokeWidth={2} aria-hidden="true" />
-          </Link>
-        </div>
+        <Link
+          href="/closet/add"
+          aria-label={t("addPiece")}
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-105"
+        >
+          <Plus size={18} strokeWidth={2} aria-hidden="true" />
+        </Link>
       </div>
 
-      {/* AI insight banner — links to stylist (which is itself coming-soon
-         right now, but the link works). */}
-      <Link
-        href="/stylist"
-        className="mt-4 flex items-center gap-3 rounded-2xl bg-[#FCE3EE] p-3.5"
-      >
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-paper">
-          <Sparkles size={16} aria-hidden="true" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-semibold leading-tight text-[#7A013D]">
-            {t("insightCta")}
-          </p>
-          <p className="mt-0.5 font-mono text-[11px] text-[#A50253]">
-            {t("insightSub")}
-          </p>
-        </div>
-        <ArrowRight size={16} className="shrink-0 text-[#7A013D]" aria-hidden="true" />
-      </Link>
+      {/* Paired action cards — frame 09's primary CTAs. Dark "Build a look"
+         routes into the slot-based composer; magenta "Ask the stylist"
+         routes into the chat. Two equal-weight paths to making outfits. */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Link
+          href="/closet/builder"
+          className="flex min-h-[110px] flex-col gap-2.5 rounded-[18px] bg-ink p-3.5 text-paper shadow-[0_6px_20px_rgba(33,39,57,0.18)] transition-colors hover:bg-ink/90"
+        >
+          <span
+            aria-hidden="true"
+            className="grid h-9 w-9 place-items-center rounded-xl bg-paper/[0.14] text-paper"
+          >
+            <LayoutGrid size={16} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-[14px] font-semibold leading-[1.2] tracking-[-0.01em] text-paper">
+              {t("actionBuildTitle")}
+            </p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.06em] text-paper/55">
+              {t("actionBuildSub")}
+            </p>
+          </div>
+        </Link>
+        <Link
+          href="/stylist"
+          className="flex min-h-[110px] flex-col gap-2.5 rounded-[18px] bg-[#FCE3EE] p-3.5 transition-colors hover:bg-[#fadce8]"
+        >
+          <span
+            aria-hidden="true"
+            className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-paper"
+          >
+            <Sparkles size={16} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-[14px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#7A013D]">
+              {t("actionAskTitle")}
+            </p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.06em] text-[#A50253]">
+              {t("actionAskSub")}
+            </p>
+          </div>
+        </Link>
+      </div>
 
       {/* Stats strip */}
       <div className="mt-3 grid grid-cols-3 gap-1.5">
