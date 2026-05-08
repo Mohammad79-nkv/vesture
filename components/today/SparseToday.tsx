@@ -34,6 +34,7 @@ export function SparseToday({
   recommendations,
   pieces,
   weather,
+  locationLabel,
   piecesCount,
 }: {
   recommendations: TodayRecommendationsPayload;
@@ -42,6 +43,7 @@ export function SparseToday({
     tempC: number;
     condition: WeatherCondition;
   } | null;
+  locationLabel: string | null;
   piecesCount: number;
 }) {
   const t = useTranslations("today");
@@ -111,6 +113,7 @@ export function SparseToday({
             <WeatherChip
               tempC={weather.tempC}
               condition={weather.condition}
+              label={locationLabel}
             />
           ) : null
         }

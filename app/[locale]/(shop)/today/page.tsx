@@ -174,6 +174,7 @@ export default async function TodayPage({
               ? { tempC: weather.tempC, condition: weather.condition }
               : null
           }
+          locationLabel={location?.label ?? null}
           piecesCount={pieces.length}
         />
       </>
@@ -208,6 +209,7 @@ export default async function TodayPage({
             ? { tempC: weather.tempC, condition: weather.condition }
             : null
         }
+        locationLabel={location?.label ?? null}
         piecesCount={pieces.length}
         serverIsEvening={serverIsEvening}
         scheduledForToday={scheduledForToday}

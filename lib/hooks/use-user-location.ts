@@ -95,10 +95,19 @@ export function useUserLocation(initial: UserLocation | null = null) {
     });
 
     if (geo) {
+      // Reverse-geocode lat/lon → city via BigDataCloud's free
+      // client-side endpoint (no API key, generous CORS, no
+      // rate limit issues for a one-shot call). If it fails or
+      // times out we keep label=null and the chip just shows
+      // the temperature without a city.
+      const label = await reverseGeocode(
+        geo.coords.latitude,
+        geo.coords.longitude,
+      );
       const next: UserLocation = {
         lat: geo.coords.latitude,
         lon: geo.coords.longitude,
-        label: null,
+        label,
         source: "geolocation",
       };
       setLocation(next);
@@ -133,4 +142,43 @@ export function useUserLocation(initial: UserLocation | null = null) {
   }, []);
 
   return { location, status, error, resolve };
+}
+
+// BigDataCloud reverse geocoding — free, no API key, generous CORS,
+// no auth needed for client-side calls. Returns the city's local
+// name (e.g. "Riyadh", "Manhattan", "Tehran"). Falls back to
+// principalSubdivision (state/region) then countryName, then null.
+// 4s timeout so a slow upstream doesn't block the location flow.
+async function reverseGeocode(
+  lat: number,
+  lon: number,
+): Promise<string | null> {
+  const url = new URL(
+    "https://api.bigdatacloud.net/data/reverse-geocode-client",
+  );
+  url.searchParams.set("latitude", String(lat));
+  url.searchParams.set("longitude", String(lon));
+  url.searchParams.set("localityLanguage", "en");
+
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      city?: string;
+      locality?: string;
+      principalSubdivision?: string;
+      countryName?: string;
+    };
+    return (
+      data.city ||
+      data.locality ||
+      data.principalSubdivision ||
+      data.countryName ||
+      null
+    );
+  } catch {
+    return null;
+  }
 }

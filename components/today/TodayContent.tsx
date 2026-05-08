@@ -49,6 +49,7 @@ export function TodayContent({
   recommendations,
   pieces,
   weather,
+  locationLabel,
   piecesCount,
   serverIsEvening,
   scheduledForToday,
@@ -60,6 +61,10 @@ export function TodayContent({
     tempC: number;
     condition: WeatherCondition;
   } | null;
+  // City name (or coarser region) from User.location.label, used
+  // as the secondary text on the weather chip. Null when the user
+  // denied geolocation OR the reverse-geocode call failed.
+  locationLabel: string | null;
   piecesCount: number;
   serverIsEvening: boolean;
   // Phase 3E.7 — schedules anchored on today (UTC) drive the
@@ -180,6 +185,7 @@ export function TodayContent({
             <WeatherChip
               tempC={weather.tempC}
               condition={weather.condition}
+              label={locationLabel}
             />
           ) : null
         }

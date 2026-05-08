@@ -21,14 +21,15 @@ const CONDITION_DOT: Record<WeatherCondition, string> = {
 export function WeatherChip({
   tempC,
   condition,
-  occasion,
+  label,
 }: {
   tempC: number;
   condition: WeatherCondition;
-  // Optional secondary label that the design pairs with the temp
-  // ("17° · Dinner"). For v1 we leave it null since occasion isn't
-  // captured yet.
-  occasion?: string | null;
+  // City name (or coarser region) from reverse geocoding —
+  // shown after the temperature so the chip reads "17° ·
+  // RIYADH". Null when label resolution failed; chip then shows
+  // just the temperature.
+  label?: string | null;
 }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 shadow-[0_1px_0_rgba(33,39,57,0.04)]">
@@ -38,7 +39,7 @@ export function WeatherChip({
         style={{ background: CONDITION_DOT[condition] }}
       />
       <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-ink">
-        {Math.round(tempC)}°{occasion ? ` · ${occasion}` : ""}
+        {Math.round(tempC)}°{label ? ` · ${label}` : ""}
       </span>
     </span>
   );
