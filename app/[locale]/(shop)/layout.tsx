@@ -2,17 +2,28 @@ import type { ReactNode } from "react";
 import { Nav } from "@/components/ui/Nav";
 import { Footer } from "@/components/ui/Footer";
 import { FloatingNav } from "@/components/ui/floating-nav";
+import { HideOnRoutes } from "@/components/ui/HideOnRoutes";
 
 // Buyer-side shell: products / sellers / favorites / stylist all share the
 // global Nav, Footer, and mobile FloatingNav. The welcome landing
 // (`(marketing)`) and dashboard / admin live outside this group and render
 // their own chrome.
+//
+// Fullscreen routes (builder) hide Nav + Footer because they own their own
+// header/dock. FloatingNav already self-hides via its own pathname check
+// at components/ui/floating-nav.tsx.
+const FULLSCREEN_ROUTES = ["/closet/builder"] as const;
+
 export default function ShopLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <Nav />
+      <HideOnRoutes patterns={FULLSCREEN_ROUTES}>
+        <Nav />
+      </HideOnRoutes>
       {children}
-      <Footer />
+      <HideOnRoutes patterns={FULLSCREEN_ROUTES}>
+        <Footer />
+      </HideOnRoutes>
       <FloatingNav />
     </>
   );

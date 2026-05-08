@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowRight, Bookmark, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Bookmark, ChevronLeft, Loader2, Sparkles } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { cloudinaryUrl } from "@/lib/domain/cloudinary-url";
 import {
@@ -223,8 +223,19 @@ export function OutfitBuilder({
 
   return (
     <div className="relative min-h-[100dvh] overflow-x-clip bg-mist text-ink">
-      {/* Header */}
-      <header className="flex items-center gap-3 px-5 pt-4 pb-3">
+      {/* Header — frame 06 layout: back chevron on the start edge,
+         eyebrow + title in the middle, "My styles" pill (with
+         bookmark icon) on the end. The (shop) layout hides the
+         global Nav on /closet/builder so this is the only header on
+         the page. */}
+      <header className="flex items-start gap-3 px-5 pt-4 pb-3">
+        <Link
+          href="/closet"
+          aria-label={t("back")}
+          className="-ms-2 grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink/70 hover:bg-ink/[0.04] hover:text-ink"
+        >
+          <ChevronLeft size={20} aria-hidden="true" />
+        </Link>
         <div className="min-w-0 flex-1">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55">
             {isEditing ? t("subEditing") : t("subAutoSave")}
@@ -235,8 +246,9 @@ export function OutfitBuilder({
         </div>
         <Link
           href="/closet/styles"
-          className="rounded-full border border-ink/15 bg-paper px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink hover:border-ink/40"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-ink/15 bg-paper px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink hover:border-ink/40"
         >
+          <Bookmark size={12} aria-hidden="true" />
           {t("myStyles")}
         </Link>
       </header>
@@ -391,19 +403,20 @@ export function OutfitBuilder({
       {/* Floating dock — fixed at the bottom of the viewport, stays put
          regardless of scroll position. Mirrors frame 06's pairing: small
          bookmark icon save (left) + magenta gradient "Get AI feedback"
-         (right) with the piece count suffix. */}
+         (right) with the piece count suffix. The dock has a solid paper
+         background per the design — no mist gradient — so it reads as a
+         distinct footer rail rather than fading into the page. */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 px-4 py-3"
+        className="fixed inset-x-0 bottom-0 z-30 bg-paper px-4 pt-3 shadow-[0_-1px_0_rgba(33,39,57,0.05)]"
         style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
       >
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full bg-gradient-to-t from-mist via-mist/85 to-mist/0" />
         <div className="mx-auto flex w-full max-w-[640px] items-center gap-2">
           <button
             type="button"
             onClick={handleSave}
-            disabled={pending}
+            disabled={pending || placedCount === 0}
             aria-label={t("save")}
-            className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08),0_4px_16px_rgba(33,39,57,0.06)] transition-colors hover:bg-mist disabled:opacity-60"
+            className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08),0_4px_16px_rgba(33,39,57,0.06)] transition-colors hover:bg-mist disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-paper"
           >
             {pending ? (
               <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -414,8 +427,8 @@ export function OutfitBuilder({
           <button
             type="button"
             onClick={handleSaveAndScore}
-            disabled={pending}
-            className="relative inline-flex h-[52px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-2xl text-[13.5px] font-bold tracking-[-0.01em] text-paper shadow-[0_8px_28px_rgba(205,2,104,0.35)] transition-transform active:scale-[0.99] disabled:opacity-70"
+            disabled={pending || placedCount === 0}
+            className="relative inline-flex h-[52px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-2xl text-[13.5px] font-bold tracking-[-0.01em] text-paper shadow-[0_8px_28px_rgba(205,2,104,0.35)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
             style={{
               background: "linear-gradient(180deg, #CD0268 0%, #A50253 100%)",
             }}
