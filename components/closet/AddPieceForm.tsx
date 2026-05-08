@@ -3,8 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Camera, Loader2, RefreshCcw, Sparkles } from "lucide-react";
+import { ArrowRight, Camera, Loader2, RefreshCcw, Sparkles } from "lucide-react";
 import { createPieceAction } from "@/app/[locale]/(shop)/closet/actions";
+import { AutoTagAnalyzer } from "@/components/closet/AutoTagAnalyzer";
 import type { ClosetPieceInput } from "@/lib/domain/schemas";
 
 const CATEGORIES = [
@@ -63,6 +64,9 @@ export function AddPieceForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [photo, setPhoto] = useState<{ url: string; publicId: string } | null>(null);
+  // Phase 3D: when the photo is present the AI callout becomes a CTA
+  // that opens the AutoTagAnalyzer overlay (frame 08).
+  const [analyzerOpen, setAnalyzerOpen] = useState(false);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<string>("");
   const [color, setColor] = useState("");
@@ -197,6 +201,16 @@ export function AddPieceForm() {
 
   // ── Step 2/3: tagging form ─────────────────────────────────────────────
   return (
+    <>
+    <AutoTagAnalyzer
+      open={analyzerOpen}
+      photo={photo}
+      onRetake={() => {
+        setAnalyzerOpen(false);
+        reset();
+      }}
+      onFallback={() => setAnalyzerOpen(false)}
+    />
     <form onSubmit={submit} className="flex flex-1 flex-col px-5 pb-32 pt-2">
       <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55">
         {t("step2")}
@@ -224,20 +238,27 @@ export function AddPieceForm() {
         </button>
       </div>
 
-      {/* AI coming-soon banner */}
-      <div className="mt-4 flex items-start gap-3 rounded-2xl bg-primary/10 p-3.5">
+      {/* AI auto-tag CTA — replaces the Phase 2 "coming soon" callout
+         now that vision tagging actually ships. Tap opens the
+         AutoTagAnalyzer overlay (frame 08). */}
+      <button
+        type="button"
+        onClick={() => setAnalyzerOpen(true)}
+        className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-primary/10 p-3.5 text-start transition-colors hover:bg-primary/15"
+      >
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-paper">
           <Sparkles size={14} aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold tracking-[-0.01em] text-primary">
-            {t("aiSoonTitle")}
+            {t("aiAutoTagTitle")}
           </p>
           <p className="mt-0.5 text-[11.5px] leading-[1.4] text-ink/65">
-            {t("aiSoonBody")}
+            {t("aiAutoTagBody")}
           </p>
         </div>
-      </div>
+        <ArrowRight size={14} className="shrink-0 text-primary" aria-hidden="true" />
+      </button>
 
       {/* Form fields */}
       <div className="mt-5 flex flex-col gap-4">
@@ -386,6 +407,7 @@ export function AddPieceForm() {
         </button>
       </div>
     </form>
+    </>
   );
 }
 

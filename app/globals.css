@@ -43,6 +43,18 @@ body {
   display: none;
 }
 
+/* Vesture AI auto-tagging scan line. Travels top→bottom over the
+   photo preview while the analyzer runs. Reads off when the
+   .ai-scan-line element is hidden by the parent. */
+@keyframes ai-scan {
+  0% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(260px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.85; }
+}
+.ai-scan-line {
+  animation: ai-scan 2.4s ease-in-out infinite;
+}
+
 /* Reserve space for the fixed mobile bottom nav. Pages opt in by adding
    `pb-safe-mobile-nav` so content doesn't hide behind the tab bar. */
 .pb-safe-mobile-nav {

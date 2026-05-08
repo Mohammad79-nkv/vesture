@@ -30,6 +30,14 @@ export function stylistModel(): string {
   return process.env.OPENROUTER_STYLIST_MODEL ?? "anthropic/claude-sonnet-4.5";
 }
 
+// Vision model for closet auto-tagging. Defaulted to gpt-4o-mini —
+// cheap, fast, and image-capable. Sized for one-shot tag extraction
+// from a single photo, not the multi-turn stylist flow, so the
+// budget knob is separate from the stylist model.
+export function visionModel(): string {
+  return process.env.OPENROUTER_VISION_MODEL ?? "openai/gpt-4o-mini";
+}
+
 export function dailyTokenBudgetPerUser(): number {
   const raw = process.env.STYLIST_DAILY_TOKEN_BUDGET_PER_USER ?? "50000";
   const n = Number.parseInt(raw, 10);

@@ -341,6 +341,41 @@
     "retake": "دوباره",
     "aiSoonTitle": "تگ‌گذاری خودکار با AI به‌زودی",
     "aiSoonBody": "فعلاً خودت دستی پر می‌کنی. وقتی تگ‌گذاری vision بیاد، فرم پیش‌فرض پر می‌شه و هرچی خواستی هنوز قابل ویرایشه.",
+    "aiAutoTagTitle": "تگ‌گذاری خودکار با AI",
+    "aiAutoTagBody": "ما عکس رو می‌خونیم و همه فیلدها رو پر می‌کنیم. بزن تا شروع بشه.",
+    "analyze": {
+      "dialogLabel": "تگ‌گذاری خودکار با AI",
+      "statusAnalysing": "در حال تحلیل · Vesture AI",
+      "statusReady": "آماده‌ست",
+      "statusError": "تحلیل ناموفق بود",
+      "headlineRich": "داریم <accent>{field}</accent> رو می‌خونیم…",
+      "fields": {
+        "fabric": "جنس پارچه",
+        "color": "رنگ",
+        "cut": "برش",
+        "formality": "رسمیت"
+      },
+      "scanning": "در حال اسکن…",
+      "detected": "شناسایی‌شده",
+      "fieldLabels": {
+        "category": "دسته",
+        "color": "رنگ",
+        "fabric": "پارچه",
+        "formality": "رسمیت",
+        "season": "فصل"
+      },
+      "pendingValue": "—",
+      "retake": "دوباره",
+      "continue": "ادامه",
+      "analyzing": "در حال تحلیل…",
+      "saving": "در حال ذخیره…",
+      "fillManually": "دستی پر کن",
+      "errors": {
+        "budget": "بودجه روزانه AI تموم شده. روی «دستی پر کن» بزن یا فردا دوباره امتحان کن.",
+        "failed": "تحلیل عکس ناموفق بود. دوباره عکس بگیر یا فرم رو دستی پر کن.",
+        "offline": "اینترنت نیست. وصل شو و دوباره امتحان کن."
+      }
+    },
     "name": "اسم",
     "namePlaceholder": "مثلاً: کت پشمی شتری",
     "category": "دسته",

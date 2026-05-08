@@ -341,6 +341,41 @@
     "retake": "Retake",
     "aiSoonTitle": "AI auto-tagging coming soon",
     "aiSoonBody": "For now you'll fill these in manually. Once vision tagging ships, this form will be pre-filled — you can still tweak anything.",
+    "aiAutoTagTitle": "Auto-tag with AI",
+    "aiAutoTagBody": "We'll read the photo and pre-fill every field. Tap to start.",
+    "analyze": {
+      "dialogLabel": "AI auto-tagging",
+      "statusAnalysing": "Analysing · Vesture AI",
+      "statusReady": "Ready to add",
+      "statusError": "Couldn't analyse",
+      "headlineRich": "Reading the <accent>{field}</accent>…",
+      "fields": {
+        "fabric": "fabric",
+        "color": "color",
+        "cut": "cut",
+        "formality": "formality"
+      },
+      "scanning": "Scanning…",
+      "detected": "Detected",
+      "fieldLabels": {
+        "category": "Category",
+        "color": "Color",
+        "fabric": "Fabric",
+        "formality": "Formality",
+        "season": "Season"
+      },
+      "pendingValue": "—",
+      "retake": "Retake",
+      "continue": "Continue",
+      "analyzing": "Analyzing…",
+      "saving": "Saving…",
+      "fillManually": "Fill manually",
+      "errors": {
+        "budget": "Daily AI budget reached. Tap Fill manually to add this piece by hand, or come back tomorrow.",
+        "failed": "Couldn't analyse the photo. Try retaking, or fill the form manually.",
+        "offline": "No network connection. Reconnect and try again."
+      }
+    },
     "name": "Name",
     "namePlaceholder": "e.g. Camel wool overcoat",
     "category": "Category",
