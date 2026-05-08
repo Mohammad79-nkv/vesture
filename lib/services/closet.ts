@@ -6,6 +6,19 @@ import type { ClosetPieceInput } from "@/lib/domain/schemas";
 // userId and Prisma's onDelete: Cascade on the User → ClosetPiece relation
 // keeps things tidy when an account goes away.
 
+// Phase 3E foundation — bumping User.closetVersion on every meaningful
+// closet mutation lets the TodayRecommendation cache invalidate cheaply
+// (key comparison vs. recomputing a hash of all pieces). We bump after
+// the underlying mutation succeeds; a failed bump leaves the closet
+// edit in place but may serve a stale recommendation for ~one cycle —
+// preferable to rolling back the user's actual edit on a cache hiccup.
+async function bumpClosetVersion(userId: string): Promise<void> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { closetVersion: { increment: 1 } },
+  });
+}
+
 export function listMyPieces(args: {
   userId: string;
   category?: Category;
@@ -33,7 +46,7 @@ export async function createPiece(args: {
   input: ClosetPieceInput;
 }) {
   const { input } = args;
-  return prisma.closetPiece.create({
+  const piece = await prisma.closetPiece.create({
     data: {
       userId: args.userId,
       imageUrl: input.imageUrl,
@@ -49,6 +62,8 @@ export async function createPiece(args: {
       notes: input.notes,
     },
   });
+  await bumpClosetVersion(args.userId);
+  return piece;
 }
 
 export async function updatePiece(args: {
@@ -65,7 +80,7 @@ export async function updatePiece(args: {
   if (!piece) throw new Error("Piece not found");
 
   const { input } = args;
-  return prisma.closetPiece.update({
+  const updated = await prisma.closetPiece.update({
     where: { id: piece.id },
     data: {
       name: input.name,
@@ -79,6 +94,8 @@ export async function updatePiece(args: {
       notes: input.notes,
     },
   });
+  await bumpClosetVersion(args.userId);
+  return updated;
 }
 
 export async function setPieceStatus(args: {
@@ -92,10 +109,12 @@ export async function setPieceStatus(args: {
   });
   if (!piece) throw new Error("Piece not found");
 
-  return prisma.closetPiece.update({
+  const updated = await prisma.closetPiece.update({
     where: { id: piece.id },
     data: { status: args.status },
   });
+  await bumpClosetVersion(args.userId);
+  return updated;
 }
 
 // "I wore this today" → bumps wearCount + updates lastWornAt. We don't need a
@@ -107,13 +126,15 @@ export async function logWear(args: { userId: string; pieceId: string }) {
   });
   if (!piece) throw new Error("Piece not found");
 
-  return prisma.closetPiece.update({
+  const updated = await prisma.closetPiece.update({
     where: { id: piece.id },
     data: {
       wearCount: { increment: 1 },
       lastWornAt: new Date(),
     },
   });
+  await bumpClosetVersion(args.userId);
+  return updated;
 }
 
 export async function deletePiece(args: { userId: string; pieceId: string }) {
@@ -124,6 +145,7 @@ export async function deletePiece(args: { userId: string; pieceId: string }) {
   if (!piece) throw new Error("Piece not found");
 
   await prisma.closetPiece.delete({ where: { id: piece.id } });
+  await bumpClosetVersion(args.userId);
 }
 
 // Stats strip on the gallery: total pieces, unworn count, most worn,

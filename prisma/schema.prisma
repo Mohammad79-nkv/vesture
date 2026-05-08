@@ -32,12 +32,22 @@ model User {
   styleTags   String[]  @default([])
   onboardedAt DateTime?
 
-  sellerProfile SellerProfile?
-  favorites     Favorite[]
-  chatSessions  ChatSession[]
-  adminActions  AdminAction[]  @relation("AdminActor")
-  closetPieces  ClosetPiece[]
-  savedOutfits  SavedOutfit[]
+  // Phase 3E foundation — Today page personalization. `location` stores
+  // the user's lat/lon (and optional human label) for the weather chip
+  // and the recommendation engine. `closetVersion` increments every time
+  // the closet meaningfully changes (add / edit / delete / wear log) so
+  // TodayRecommendation rows can be invalidated cheaply with a key
+  // comparison instead of recomputing piece hashes.
+  location      Json?
+  closetVersion Int   @default(0)
+
+  sellerProfile        SellerProfile?
+  favorites            Favorite[]
+  chatSessions         ChatSession[]
+  adminActions         AdminAction[]         @relation("AdminActor")
+  closetPieces         ClosetPiece[]
+  savedOutfits         SavedOutfit[]
+  todayRecommendations TodayRecommendation[]
 }
 
 enum Role {
@@ -384,4 +394,28 @@ model AdminAction {
   createdAt  DateTime @default(now())
 
   @@index([targetType, targetId])
+}
+
+// ─── Today recommendations cache ────────────────────────────────────────
+
+// One row per (user, UTC date). Cache is considered fresh when the row's
+// closetVersion + tempBucket match the current request — otherwise we
+// regenerate. Storing the full payload as JSON keeps the schema flat and
+// avoids a join-explosion every time the Today page renders.
+//
+// `tempBucket` is the current outdoor temperature rounded to a 5° step
+// so a 17 → 18° drift doesn't bust the cache, but a 17 → 23° shift
+// does. `closetVersion` mirrors User.closetVersion at generation time.
+model TodayRecommendation {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateUtc         String // YYYY-MM-DD UTC bucket
+  closetVersion   Int
+  tempBucket      Int // floor(tempC / 5) * 5
+  recommendations Json // [{ name, mood, pieceIds[], badge, why }, …]
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, dateUtc])
+  @@index([userId, dateUtc])
 }
