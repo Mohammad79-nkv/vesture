@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Maskable variant: full-bleed background + smaller V so the
+       OS can crop the safe area (10% on each side per the
+       maskable.app spec) without clipping the logo. -->
+  <rect width="512" height="512" fill="#212739"/>
+  <path d="M 192 208 L 256 320 L 320 208" fill="none" stroke="#CD0268" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

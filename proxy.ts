@@ -29,6 +29,9 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  // Match everything except static files, _next, and image optimization.
-  matcher: ["/((?!_next|.*\\..*).*)"],
+  // Match everything except static files, _next, image optimization,
+  // and the Next.js icon convention routes (apple-icon, icon, opengraph-
+  // image) that live at fixed top-level paths and shouldn't be
+  // locale-prefixed.
+  matcher: ["/((?!_next|apple-icon|icon|opengraph-image|twitter-image|.*\\..*).*)"],
 };

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#212739" />
+    <title>Vesture — offline</title>
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg" />
+    <style>
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0; min-height: 100dvh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: #F2F4F7; color: #212739;
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; padding: 24px;
+      }
+      .glyph {
+        width: 64px; height: 64px; border-radius: 16px;
+        background: #212739; color: #CD0268;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 36px; letter-spacing: -0.04em;
+        margin-bottom: 24px;
+      }
+      h1 {
+        font-size: 26px; font-weight: 700; letter-spacing: -0.02em;
+        margin: 0 0 8px; line-height: 1.1;
+      }
+      .accent { color: #CD0268; font-style: italic; font-weight: 300; }
+      p {
+        margin: 0; max-width: 320px; color: #5a607a;
+        font-size: 14px; line-height: 1.5;
+      }
+      button {
+        margin-top: 24px; padding: 12px 20px; border: 0;
+        border-radius: 14px; background: #212739; color: #F2F4F7;
+        font: inherit; font-size: 12px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        cursor: pointer;
+      }
+      button:hover { opacity: 0.9; }
+    </style>
+  </head>
+  <body>
+    <div class="glyph">V</div>
+    <h1>You're <span class="accent">offline.</span></h1>
+    <p>Reconnect to keep building looks. Your closet is saved — nothing is lost.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </body>
+</html>
