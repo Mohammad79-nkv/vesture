@@ -131,20 +131,33 @@ export function SwapSheet({
     [target, pieces],
   );
 
-  if (!open) return null;
-
+  // Render even when closed so the slide-up transition has both
+  // states to animate between. Same pattern WhySheet uses — early
+  // return null skipped the from-frame and the sheet snapped into
+  // place instead of sliding.
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={t("dialogLabel")}
-      className="fixed inset-0 z-40"
+      aria-hidden={!open}
+      // z-50 puts the sheet above the FloatingNav (z-40); without
+      // this the nav rendered later in the DOM and covered the
+      // bottom of the alternatives list.
+      className={[
+        "fixed inset-0 z-50",
+        open ? "pointer-events-auto" : "pointer-events-none",
+      ].join(" ")}
     >
       <button
         type="button"
         aria-label={t("close")}
         onClick={onClose}
-        className="absolute inset-0 bg-ink/45"
+        tabIndex={open ? 0 : -1}
+        className={[
+          "absolute inset-0 bg-ink/45 transition-opacity duration-200",
+          open ? "opacity-100" : "opacity-0",
+        ].join(" ")}
       />
 
       <div

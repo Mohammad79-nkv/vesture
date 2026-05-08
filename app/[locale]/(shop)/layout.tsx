@@ -9,10 +9,15 @@ import { HideOnRoutes } from "@/components/ui/HideOnRoutes";
 // (`(marketing)`) and dashboard / admin live outside this group and render
 // their own chrome.
 //
-// Fullscreen routes (builder) hide Nav + Footer because they own their own
-// header/dock. FloatingNav already self-hides via its own pathname check
-// at components/ui/floating-nav.tsx.
-const FULLSCREEN_ROUTES = ["/closet/builder"] as const;
+// Fullscreen routes (builder, today, calendar) hide Nav + Footer because
+// they own their own header / time-stamp eyebrow / dock. FloatingNav
+// stays visible on /today and /calendar but self-hides on builder via
+// its own pathname check at components/ui/floating-nav.tsx.
+const FULLSCREEN_ROUTES = [
+  "/closet/builder",
+  "/today",
+  "/calendar",
+] as const;
 
 export default function ShopLayout({ children }: { children: ReactNode }) {
   return (

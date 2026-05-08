@@ -14,10 +14,12 @@ import {
 import { EmptyToday } from "@/components/today/EmptyToday";
 import { SparseToday } from "@/components/today/SparseToday";
 import { TodayContent } from "@/components/today/TodayContent";
+import { LocationResolver } from "@/components/today/LocationResolver";
 import {
   listScheduledForToday,
   listScheduledRange,
 } from "@/lib/services/scheduled-outfit";
+import type { UserLocation } from "@/lib/hooks/use-user-location";
 
 // Threshold below which we render the sparse variant (frame 01)
 // instead of the healthy 3-card layout. Matches the design's
@@ -84,11 +86,31 @@ export default async function TodayPage({
   // and the cards' piece-thumbnail lookup.
   const { pieces, closetVersion } = await fetchTodayPieces(user.id);
 
+  // Resolve the stored location early — same value seeds the
+  // LocationResolver as `initial` (so subsequent visits don't
+  // re-prompt) and drives the page's weather + tz fallback.
+  const location = readStoredLocation(user.location);
+  const userLocationInitial: UserLocation | null = location
+    ? {
+        lat: location.lat,
+        lon: location.lon,
+        label: location.label ?? null,
+        source:
+          location.source === "ip" || location.source === "manual"
+            ? location.source
+            : "geolocation",
+      }
+    : null;
+
   if (pieces.length === 0) {
-    return <EmptyToday kicker={t("kickerEmpty")} />;
+    return (
+      <>
+        <LocationResolver initial={userLocationInitial} />
+        <EmptyToday kicker={t("kickerEmpty")} />
+      </>
+    );
   }
 
-  const location = readStoredLocation(user.location);
   let weather: CurrentWeather | null = null;
   if (location) {
     try {
@@ -101,6 +123,8 @@ export default async function TodayPage({
       // without a weather chip, recs still work.
     }
   }
+  // Once weather is known the location was already declared above.
+
 
   const localNow = localHourFromLon(location?.lon ?? null);
   const timeOfDay = timeOfDayFor(localNow);
@@ -140,16 +164,19 @@ export default async function TodayPage({
   // still cached; the UI just trims to the first card.
   if (pieces.length < SPARSE_THRESHOLD) {
     return (
-      <SparseToday
-        recommendations={recommendations}
-        pieces={pieces}
-        weather={
-          weather
-            ? { tempC: weather.tempC, condition: weather.condition }
-            : null
-        }
-        piecesCount={pieces.length}
-      />
+      <>
+        <LocationResolver initial={userLocationInitial} />
+        <SparseToday
+          recommendations={recommendations}
+          pieces={pieces}
+          weather={
+            weather
+              ? { tempC: weather.tempC, condition: weather.condition }
+              : null
+          }
+          piecesCount={pieces.length}
+        />
+      </>
     );
   }
 
@@ -171,18 +198,21 @@ export default async function TodayPage({
   }));
 
   return (
-    <TodayContent
-      recommendations={recommendations}
-      pieces={pieces}
-      weather={
-        weather
-          ? { tempC: weather.tempC, condition: weather.condition }
-          : null
-      }
-      piecesCount={pieces.length}
-      serverIsEvening={serverIsEvening}
-      scheduledForToday={scheduledForToday}
-      scheduledDates={scheduledDates}
-    />
+    <>
+      <LocationResolver initial={userLocationInitial} />
+      <TodayContent
+        recommendations={recommendations}
+        pieces={pieces}
+        weather={
+          weather
+            ? { tempC: weather.tempC, condition: weather.condition }
+            : null
+        }
+        piecesCount={pieces.length}
+        serverIsEvening={serverIsEvening}
+        scheduledForToday={scheduledForToday}
+        scheduledDates={scheduledDates}
+      />
+    </>
   );
 }

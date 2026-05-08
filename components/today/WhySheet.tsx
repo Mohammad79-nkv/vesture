@@ -227,7 +227,7 @@ export function WhySheet({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={t("title")}
+        aria-label={t("eyebrow")}
         className={[
           "absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-3xl bg-ink text-paper shadow-[0_-12px_40px_rgba(0,0,0,0.4)] transition-transform duration-200 ease-out",
           open ? "translate-y-0" : "translate-y-full",

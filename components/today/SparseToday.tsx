@@ -12,12 +12,14 @@ import { WhySheet } from "./WhySheet";
 import { SavedToast } from "./SavedToast";
 import { WoreConfirmation } from "./WoreConfirmation";
 import { ScheduleSheet } from "./ScheduleSheet";
+import { SwapSheet, type SwapTarget } from "./SwapSheet";
 import type {
   TodayOutfit,
   TodayRecommendationsPayload,
 } from "@/lib/services/today-cache";
 import type { TodayPiece } from "@/lib/services/today-recommender";
 import type { WeatherCondition } from "@/lib/adapters/weather";
+import type { OutfitSlot } from "@/lib/domain/outfit-slots";
 
 // Phase 3E.3 · frame 01 (Sparse closet, 1-9 pieces).
 // Shows 1 primary outfit + an unlock progress bar pushing the user
@@ -52,10 +54,14 @@ export function SparseToday({
 
   // Phase 3E.4+6+7 — same lifecycle the healthy view exposes.
   // Sparse users still want to expand the why, save / wear / schedule
-  // their one outfit, etc. Only difference vs TodayContent: there's
-  // no swap / lock / refresh + no PullToRefresh wrapper here.
+  // their one outfit, etc. We also enable swap (Phase 3E.5) so a
+  // sparse user with multiple shoes can still try alternatives —
+  // the swap service falls through to a friendly "no candidates"
+  // empty state when the closet truly has only one piece in the
+  // tapped slot's category.
   const [whyOpen, setWhyOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [swapTarget, setSwapTarget] = useState<SwapTarget | null>(null);
   const [savedToast, setSavedToast] = useState<{
     outfitId: string;
     name: string;
@@ -64,6 +70,22 @@ export function SparseToday({
   const [woreOverlay, setWoreOverlay] = useState<{
     piecesLogged: number;
   } | null>(null);
+
+  // Sparse only ever has one outfit; index = 0 is implicit.
+  function handleTapPiece(slot: OutfitSlot, pieceId: string) {
+    if (!hero) return;
+    setSwapTarget({
+      outfitIndex: 0,
+      outfitName: hero.name,
+      outfitMood: hero.mood,
+      outfitPieces: hero.pieces.map((p) => ({
+        slot: p.slot as OutfitSlot,
+        pieceId: p.pieceId,
+      })),
+      slot,
+      currentPieceId: pieceId,
+    });
+  }
 
   // The sparse view only renders the first outfit even if the
   // recommender returned more — the design pushes for "one outfit,
@@ -100,7 +122,9 @@ export function SparseToday({
         sub={recommendations.headline.sub ?? null}
       />
 
-      {/* Single outfit — tap the card to open the why sheet. */}
+      {/* Single outfit — tap a piece thumb to swap, tap the card
+         body to open the why sheet. Same dual-affordance the
+         healthy view uses. */}
       <div className="px-4 pt-5">
         {hero && (
           <TodayCard
@@ -109,6 +133,7 @@ export function SparseToday({
             primary
             badgeAllOwn={t("badge.allOwn")}
             onTapCard={() => setWhyOpen(true)}
+            onTapPiece={handleTapPiece}
           />
         )}
       </div>
@@ -223,6 +248,25 @@ export function SparseToday({
         pieces={pieceMap}
         existingDates={new Set()}
         onScheduled={() => setScheduleOpen(false)}
+      />
+
+      {/* Swap sheet (frame 04). Tap a piece thumb in the card to
+         open. Service falls through to a "no candidates" empty
+         state when the closet has fewer than 2 pieces in the
+         tapped slot's category. */}
+      <SwapSheet
+        open={swapTarget !== null}
+        target={swapTarget}
+        pieces={pieceMap}
+        onClose={() => setSwapTarget(null)}
+        onApplied={() => {
+          // Sparse view is read-only against the cache for v1 — the
+          // swap server action already updates the row on the
+          // server, so the next nav pulls the fresh payload. We
+          // close the sheet here without rewiring SparseToday's
+          // recommendations to a state container.
+          setSwapTarget(null);
+        }}
       />
     </div>
   );
