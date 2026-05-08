@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, Bookmark, ChevronLeft, Loader2, Sparkles } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
@@ -84,6 +84,31 @@ export function OutfitBuilder({
   // and onPick places into that slot directly (no defaultSlot lookup
   // needed because the user explicitly chose the slot).
   const [pickerSlot, setPickerSlot] = useState<OutfitSlot | null>(null);
+
+  // Tag-chip popover. Frame 06 puts a single occasion chip next to the
+  // name input — clicking it opens a small dropdown of the seven
+  // canonical occasions plus a "no tag" option. We don't reuse the
+  // SlotPickerSheet because for 7 short labels a popover is lighter
+  // than a bottom sheet.
+  const [tagOpen, setTagOpen] = useState(false);
+  const tagRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!tagOpen) return;
+    function onDoc(e: MouseEvent) {
+      if (tagRef.current && !tagRef.current.contains(e.target as Node)) {
+        setTagOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setTagOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [tagOpen]);
 
   // The rail re-filters by category. "all" shows everything.
   const railPieces = useMemo(() => {
@@ -281,7 +306,8 @@ export function OutfitBuilder({
           </div>
         </div>
 
-        {/* Look meta */}
+        {/* Look meta — name input on the start edge, single occasion
+           chip with popover on the end. Frame 06 layout. */}
         <div className="mt-3 flex items-center gap-2 px-4">
           <input
             type="text"
@@ -295,23 +321,82 @@ export function OutfitBuilder({
             // · Nov 14)" placeholder forces the whole row past viewport.
             className="h-10 min-w-0 flex-1 rounded-xl bg-paper px-3 text-[13.5px] text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08)] outline-none focus:shadow-[inset_0_0_0_1.5px_rgba(205,2,104,0.6)]"
           />
-        </div>
-        <div className="mt-2 flex flex-wrap gap-1.5 px-4">
-          {OCCASIONS.map((o) => (
+          <div ref={tagRef} className="relative shrink-0">
             <button
-              key={o}
               type="button"
-              onClick={() => setOccasion(occasion === o ? "" : o)}
+              onClick={() => setTagOpen((v) => !v)}
+              aria-haspopup="listbox"
+              aria-expanded={tagOpen}
               className={[
-                "rounded-full border px-3 py-1.5 text-[11.5px] font-medium tracking-[-0.01em] transition-colors",
-                occasion === o
-                  ? "border-ink bg-ink text-paper"
-                  : "border-ink/15 bg-paper text-ink/65 hover:border-ink/40",
+                "inline-flex h-10 items-center gap-1 whitespace-nowrap rounded-xl px-3 font-mono text-[11px] uppercase tracking-[0.08em] transition-colors",
+                occasion
+                  ? "bg-primary/10 text-primary"
+                  : "bg-paper text-ink/55 shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08)] hover:text-ink/80",
               ].join(" ")}
             >
-              {tOcc(o)}
+              <span className={occasion ? "text-primary" : "text-ink/40"}>
+                #
+              </span>
+              <span>
+                {occasion
+                  ? tOcc(occasion as (typeof OCCASIONS)[number])
+                  : t("tagPlaceholder")}
+              </span>
             </button>
-          ))}
+            {tagOpen && (
+              <div
+                role="listbox"
+                className="absolute end-0 top-[calc(100%+6px)] z-20 min-w-[180px] overflow-hidden rounded-xl bg-paper p-1 shadow-[0_8px_24px_rgba(33,39,57,0.14)] ring-1 ring-ink/[0.06]"
+              >
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={!occasion}
+                  onClick={() => {
+                    setOccasion("");
+                    setTagOpen(false);
+                  }}
+                  className={[
+                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-start text-[12px] font-medium",
+                    !occasion
+                      ? "bg-ink/[0.04] text-ink"
+                      : "text-ink/65 hover:bg-ink/[0.04] hover:text-ink",
+                  ].join(" ")}
+                >
+                  <span className="text-ink/40">—</span>
+                  {t("tagNone")}
+                </button>
+                {OCCASIONS.map((o) => {
+                  const selected = occasion === o;
+                  return (
+                    <button
+                      key={o}
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      onClick={() => {
+                        setOccasion(o);
+                        setTagOpen(false);
+                      }}
+                      className={[
+                        "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-start font-mono text-[11px] uppercase tracking-[0.08em]",
+                        selected
+                          ? "bg-primary/10 text-primary"
+                          : "text-ink/65 hover:bg-ink/[0.04] hover:text-ink",
+                      ].join(" ")}
+                    >
+                      <span
+                        className={selected ? "text-primary" : "text-ink/40"}
+                      >
+                        #
+                      </span>
+                      {tOcc(o)}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Rail filters + scrolling rail. Wrapping each row in

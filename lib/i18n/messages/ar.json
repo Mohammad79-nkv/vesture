@@ -432,6 +432,8 @@
     "namePlaceholder": "سمِّ هذه الإطلالة (مثلاً: حانة النبيذ · ١٤ نوفمبر)",
     "occasionLabel": "المناسبة",
     "occasionPlaceholder": "اختر مناسبة",
+    "tagPlaceholder": "وسم",
+    "tagNone": "بدون وسم",
     "rail": {
       "all": "الكل",
       "empty": "أضف بعض القطع إلى خزانتك أولاً.",

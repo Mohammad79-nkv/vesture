@@ -432,6 +432,8 @@
     "namePlaceholder": "Name this look (e.g. Wine bar · Nov 14)",
     "occasionLabel": "Occasion",
     "occasionPlaceholder": "Pick an occasion",
+    "tagPlaceholder": "Tag",
+    "tagNone": "No tag",
     "rail": {
       "all": "All",
       "empty": "Add some pieces to your closet first.",

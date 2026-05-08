@@ -432,6 +432,8 @@
     "namePlaceholder": "اسم این ست (مثلاً: کافه شب · ۱۴ آبان)",
     "occasionLabel": "مناسبت",
     "occasionPlaceholder": "یه مناسبت انتخاب کن",
+    "tagPlaceholder": "تگ",
+    "tagNone": "بدون تگ",
     "rail": {
       "all": "همه",
       "empty": "اول چندتا قطعه به کلوزِت اضافه کن.",
