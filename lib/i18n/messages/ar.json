@@ -319,6 +319,32 @@
         "failed": "تعذّر جلب البدائل الآن. حاول بعد لحظة."
       }
     },
+    "schedule": {
+      "dialogLabel": "جدولة الإطلالة",
+      "close": "إغلاق",
+      "kicker": "جدولة الإطلالة",
+      "preview": "{count, plural, one {# قطعة} other {# قطع}} · كلها من خزانتك",
+      "pickDay": "اختر يوماً",
+      "occasionPlaceholder": "ما المناسبة؟ (اختياري)",
+      "scheduling": "جارٍ الجدولة…",
+      "time": {
+        "MORNING": "صباحاً",
+        "AFTERNOON": "ظهراً",
+        "EVENING": "مساءً"
+      },
+      "cta": {
+        "placeholder": "اختر يوماً للجدولة",
+        "scheduleFor": "جدولة لـ {day} {date}"
+      },
+      "errors": {
+        "pickDay": "اختر يوماً أولاً.",
+        "failed": "تعذّر الجدولة — حاول بعد لحظة."
+      }
+    },
+    "scheduledPill": {
+      "kicker": "في تقويمك · {time}",
+      "untitled": "إطلالة بدون اسم"
+    },
     "badge": {
       "allOwn": "كلها من خزانتك"
     },
@@ -364,8 +390,7 @@
       "wear": "ارتدِها",
       "logging": "جارٍ التسجيل…",
       "save": "احفظ",
-      "share": "شارك",
-      "shareSoon": "المشاركة قريباً",
+      "schedule": "جَدوِل",
       "close": "إغلاق",
       "rows": {
         "moodLabel": "المزاج",
@@ -401,6 +426,18 @@
       "today": "اليوم",
       "dismissHint": "اضغط في أي مكان للإغلاق"
     }
+  },
+  "calendar": {
+    "back": "رجوع",
+    "kicker": "التقويم",
+    "title": "إطلالات <accent>على الجدول.</accent>",
+    "groups": {
+      "today": "اليوم",
+      "upcoming": "قادمة",
+      "past": "حديثة"
+    },
+    "empty": "لا شيء مجدول بعد. ثبّت إطلالة من /اليوم لتخطّط مسبقاً.",
+    "unschedule": "إلغاء الجدولة"
   },
   "closet": {
     "header": "<accent>خزانتك</accent>",

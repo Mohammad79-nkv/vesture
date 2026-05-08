@@ -14,6 +14,10 @@ import {
 import { EmptyToday } from "@/components/today/EmptyToday";
 import { SparseToday } from "@/components/today/SparseToday";
 import { TodayContent } from "@/components/today/TodayContent";
+import {
+  listScheduledForToday,
+  listScheduledRange,
+} from "@/lib/services/scheduled-outfit";
 
 // Threshold below which we render the sparse variant (frame 01)
 // instead of the healthy 3-card layout. Matches the design's
@@ -149,6 +153,23 @@ export default async function TodayPage({
     );
   }
 
+  // Phase 3E.7 — pull the user's schedules for today + the next
+  // 14 days (the same window the schedule sheet displays). Cheap
+  // queries; user typically has only a handful of rows.
+  const [scheduledToday, upcomingScheduled] = await Promise.all([
+    listScheduledForToday(user.id),
+    listScheduledRange({ userId: user.id, rangeDays: 14 }),
+  ]);
+  const scheduledDates = upcomingScheduled.map((s) =>
+    s.scheduledFor.toISOString().slice(0, 10),
+  );
+  const scheduledForToday = scheduledToday.map((s) => ({
+    id: s.id,
+    timeOfDay: s.timeOfDay,
+    name: s.name,
+    occasion: s.occasion,
+  }));
+
   return (
     <TodayContent
       recommendations={recommendations}
@@ -160,6 +181,8 @@ export default async function TodayPage({
       }
       piecesCount={pieces.length}
       serverIsEvening={serverIsEvening}
+      scheduledForToday={scheduledForToday}
+      scheduledDates={scheduledDates}
     />
   );
 }

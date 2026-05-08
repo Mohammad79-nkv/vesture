@@ -48,6 +48,7 @@ model User {
   closetPieces         ClosetPiece[]
   savedOutfits         SavedOutfit[]
   todayRecommendations TodayRecommendation[]
+  scheduledOutfits     ScheduledOutfit[]
 }
 
 enum Role {
@@ -418,4 +419,46 @@ model TodayRecommendation {
 
   @@unique([userId, dateUtc])
   @@index([userId, dateUtc])
+}
+
+// ─── Scheduled outfits (Phase 3E.7) ─────────────────────────────────────
+
+// "Wear this look on Saturday evening" — pinned outfits to the
+// calendar. Pieces are stored as a JSON snapshot rather than via
+// ScheduledOutfitPiece relation table because we never query
+// "find all schedules using piece X" — the schedule's piece list
+// is read-only display data, hydrated against the closet on
+// render. If a piece is deleted, the missing thumb degrades
+// gracefully.
+//
+// `scheduledFor` is anchored at noon UTC of the target day. We
+// only care about the date; the noon offset prevents day-boundary
+// drift across timezones.
+
+model ScheduledOutfit {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Optional link back to a SavedOutfit when the user scheduled
+  // a look they had previously saved. Null when scheduling a
+  // Today recommendation directly.
+  savedOutfitId String?
+  // Display name carried over from the source outfit ("Soft",
+  // "Sharp", or a user-edited string). Optional.
+  name          String?
+  scheduledFor  DateTime
+  timeOfDay     TimeOfDay
+  occasion      String?
+  // Snapshot of slot + pieceId pairs at schedule time.
+  // Shape: [{ slot: "TOP", pieceId: "..." }, ...]
+  pieces        Json
+  createdAt     DateTime  @default(now())
+
+  @@index([userId, scheduledFor])
+}
+
+enum TimeOfDay {
+  MORNING
+  AFTERNOON
+  EVENING
 }

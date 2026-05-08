@@ -319,6 +319,32 @@
         "failed": "Couldn't pull alternatives right now. Try again in a moment."
       }
     },
+    "schedule": {
+      "dialogLabel": "Schedule outfit",
+      "close": "Close",
+      "kicker": "SCHEDULE OUTFIT",
+      "preview": "{count, plural, one {# piece} other {# pieces}} · ALL OWN",
+      "pickDay": "Pick a day",
+      "occasionPlaceholder": "What's the occasion? (optional)",
+      "scheduling": "Scheduling…",
+      "time": {
+        "MORNING": "Morning",
+        "AFTERNOON": "Afternoon",
+        "EVENING": "Evening"
+      },
+      "cta": {
+        "placeholder": "Pick a day to schedule",
+        "scheduleFor": "Schedule for {day} {date}"
+      },
+      "errors": {
+        "pickDay": "Pick a day first.",
+        "failed": "Couldn't schedule — try again in a moment."
+      }
+    },
+    "scheduledPill": {
+      "kicker": "ON YOUR CALENDAR · {time}",
+      "untitled": "Untitled outfit"
+    },
     "badge": {
       "allOwn": "ALL OWN"
     },
@@ -364,8 +390,7 @@
       "wear": "Wear this",
       "logging": "Logging…",
       "save": "Save",
-      "share": "Share",
-      "shareSoon": "Share is coming soon",
+      "schedule": "Schedule",
       "close": "Close",
       "rows": {
         "moodLabel": "Mood",
@@ -401,6 +426,18 @@
       "today": "TODAY",
       "dismissHint": "TAP ANYWHERE TO DISMISS"
     }
+  },
+  "calendar": {
+    "back": "Back",
+    "kicker": "CALENDAR",
+    "title": "Looks <accent>on the books.</accent>",
+    "groups": {
+      "today": "TODAY",
+      "upcoming": "UPCOMING",
+      "past": "RECENT"
+    },
+    "empty": "Nothing scheduled yet. Pin a look from /today to plan ahead.",
+    "unschedule": "Unschedule"
   },
   "closet": {
     "header": "Your <accent>closet</accent>",

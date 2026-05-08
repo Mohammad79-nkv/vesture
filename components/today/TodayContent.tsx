@@ -13,10 +13,13 @@ import { SavedToast } from "./SavedToast";
 import { WoreConfirmation } from "./WoreConfirmation";
 import { SwapSheet, type SwapTarget } from "./SwapSheet";
 import { PullToRefresh } from "./PullToRefresh";
+import { ScheduleSheet } from "./ScheduleSheet";
+import { ScheduledPill } from "./ScheduledPill";
 import {
   refreshTodayAction,
   setOutfitLockAction,
 } from "@/app/[locale]/(shop)/today/actions";
+import type { TimeOfDay } from "@prisma/client";
 import type {
   TodayOutfit,
   TodayRecommendationsPayload,
@@ -35,12 +38,21 @@ import type { OutfitSlot } from "@/lib/domain/outfit-slots";
 // and re-render if the SSR guess was wrong. The brief flicker is
 // preferable to building a tz-database lookup just for this.
 
+export type ScheduledForToday = {
+  id: string;
+  timeOfDay: TimeOfDay;
+  name: string | null;
+  occasion: string | null;
+};
+
 export function TodayContent({
   recommendations,
   pieces,
   weather,
   piecesCount,
   serverIsEvening,
+  scheduledForToday,
+  scheduledDates,
 }: {
   recommendations: TodayRecommendationsPayload;
   pieces: TodayPiece[];
@@ -50,6 +62,11 @@ export function TodayContent({
   } | null;
   piecesCount: number;
   serverIsEvening: boolean;
+  // Phase 3E.7 — schedules anchored on today (UTC) drive the
+  // "On your calendar" pill; scheduledDates feeds the dot
+  // indicators in the ScheduleSheet's calendar grid.
+  scheduledForToday: ScheduledForToday[];
+  scheduledDates: string[];
 }) {
   const t = useTranslations("today");
   const tRain = useTranslations("today.rain");
@@ -87,6 +104,14 @@ export function TodayContent({
 
   // Phase 3E.5 — swap sheet target.
   const [swapTarget, setSwapTarget] = useState<SwapTarget | null>(null);
+
+  // Phase 3E.7 — schedule sheet open state. We always schedule
+  // the hero outfit (matches the why-sheet that triggered it).
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const scheduledDateSet = useMemo(
+    () => new Set(scheduledDates),
+    [scheduledDates],
+  );
 
   function makeTapPiece(outfitIndex: number, outfit: TodayOutfit) {
     return (slot: OutfitSlot, pieceId: string) => {
@@ -160,6 +185,11 @@ export function TodayContent({
         title={liveRecs.headline.title}
         sub={liveRecs.headline.sub ?? null}
       />
+
+      {/* "On your calendar" pill (3E.7) — visible only when the
+         user has at least one ScheduledOutfit anchored on today's
+         UTC bucket. */}
+      <ScheduledPill scheduled={scheduledForToday} />
 
       {/* Weather variants — banner explains rain swaps, meter
          visualises layering on cold days. Both stay above the
@@ -260,7 +290,7 @@ export function TodayContent({
         outfit={hero}
         pieces={pieceMap}
         weather={weather}
-        contextKicker={recommendations.headline.kicker}
+        contextKicker={liveRecs.headline.kicker}
         onSaved={(outfitId) => {
           if (!hero) return;
           setSavedToast({
@@ -272,6 +302,7 @@ export function TodayContent({
         onWore={(count) => {
           setWoreOverlay({ piecesLogged: count });
         }}
+        onSchedule={() => setScheduleOpen(true)}
       />
 
       {/* Saved toast (frame 08). Auto-dismisses ~3.5s after save. */}
@@ -302,6 +333,22 @@ export function TodayContent({
         pieces={pieceMap}
         onClose={() => setSwapTarget(null)}
         onApplied={(payload) => setLiveRecs(payload)}
+      />
+
+      {/* Schedule sheet (frame 10). Acts on the hero outfit;
+         opening replaces the why sheet because both can't share
+         the screen meaningfully. */}
+      <ScheduleSheet
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        outfit={hero}
+        pieces={pieceMap}
+        existingDates={scheduledDateSet}
+        onScheduled={() => {
+          // No client-side toast yet — server action revalidates
+          // /today + /calendar so the pill repaints on next nav.
+          setScheduleOpen(false);
+        }}
       />
     </div>
    </PullToRefresh>

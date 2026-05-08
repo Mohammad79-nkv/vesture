@@ -24,7 +24,12 @@ import {
   TodaySwapError,
   type SwapAlternative,
 } from "@/lib/services/today-swap";
+import {
+  createScheduledOutfit,
+  deleteScheduledOutfit,
+} from "@/lib/services/scheduled-outfit";
 import type { OutfitSlot } from "@/lib/domain/outfit-slots";
+import type { TimeOfDay } from "@prisma/client";
 
 // Phase 3E.4+6 · Today actions.
 //
@@ -430,4 +435,60 @@ export async function refreshTodayAction(args: {
 
   revalidatePath("/today");
   return { ok: true, payload: finalPayload };
+}
+
+// ──────────────────────────────────────────────────────────────
+// Phase 3E.7 · Schedule outfit to calendar
+// ──────────────────────────────────────────────────────────────
+
+export type ScheduleResult =
+  | { ok: true; scheduledOutfitId: string }
+  | { ok: false; error: "needPieces" | "scheduleFailed" };
+
+export async function scheduleOutfitAction(args: {
+  scheduledFor: string; // ISO date — pulled from the calendar grid cell
+  timeOfDay: TimeOfDay;
+  pieces: Array<{ slot: OutfitSlot; pieceId: string }>;
+  name?: string;
+  occasion?: string;
+  savedOutfitId?: string;
+}): Promise<ScheduleResult> {
+  const user = await requireOnboarded();
+  if (args.pieces.length === 0) {
+    return { ok: false, error: "needPieces" };
+  }
+
+  try {
+    const created = await createScheduledOutfit({
+      userId: user.id,
+      scheduledFor: args.scheduledFor,
+      timeOfDay: args.timeOfDay,
+      name: args.name ?? null,
+      occasion: args.occasion ?? null,
+      savedOutfitId: args.savedOutfitId ?? null,
+      pieces: args.pieces,
+    });
+    revalidatePath("/today");
+    revalidatePath("/calendar");
+    return { ok: true, scheduledOutfitId: created.id };
+  } catch {
+    return { ok: false, error: "scheduleFailed" };
+  }
+}
+
+export async function unscheduleOutfitAction(args: {
+  scheduledOutfitId: string;
+}): Promise<{ ok: true } | { ok: false; error: "deleteFailed" }> {
+  const user = await requireOnboarded();
+  try {
+    await deleteScheduledOutfit({
+      userId: user.id,
+      scheduledOutfitId: args.scheduledOutfitId,
+    });
+    revalidatePath("/today");
+    revalidatePath("/calendar");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "deleteFailed" };
+  }
 }

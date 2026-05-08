@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Bookmark, Check, Loader2, Share2, Sparkles, X } from "lucide-react";
+import { Bookmark, CalendarPlus, Check, Cloud, Loader2, Sparkles, X } from "lucide-react";
 import {
   saveTodayOutfitAction,
   wearTodayOutfitAction,
@@ -45,6 +45,7 @@ export function WhySheet({
   contextKicker,
   onSaved,
   onWore,
+  onSchedule,
 }: {
   open: boolean;
   onClose: () => void;
@@ -56,6 +57,9 @@ export function WhySheet({
   // bubble the result up through these callbacks.
   onSaved: (outfitId: string) => void;
   onWore: (count: number) => void;
+  // Phase 3E.7 — opens the Schedule sheet for the same outfit.
+  // Closes the why sheet so the schedule sheet has the screen.
+  onSchedule?: () => void;
 }) {
   const t = useTranslations("today.why");
   const [pendingSave, startSave] = useTransition();
@@ -324,12 +328,16 @@ export function WhySheet({
           </button>
           <button
             type="button"
-            disabled
-            aria-label={t("share")}
-            title={t("shareSoon")}
-            className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-[14px] bg-paper/10 text-paper opacity-60"
+            onClick={() => {
+              if (!onSchedule) return;
+              onClose();
+              onSchedule();
+            }}
+            disabled={!onSchedule || pendingWear || pendingSave}
+            aria-label={t("schedule")}
+            className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-[14px] bg-paper/10 text-paper hover:bg-paper/15 disabled:opacity-60"
           >
-            <Share2 size={16} aria-hidden="true" />
+            <CalendarPlus size={16} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -345,7 +353,7 @@ function ReasonGlyph({ kind }: { kind: ReasonKey }) {
     case "mood":
       return <Sparkles size={14} aria-hidden="true" />;
     case "weather":
-      return <Share2 size={14} aria-hidden="true" />;
+      return <Cloud size={14} aria-hidden="true" />;
     case "occasion":
       return <Check size={14} aria-hidden="true" />;
     case "variety":

@@ -319,6 +319,32 @@
         "failed": "نتونستم الان جایگزین‌ها رو بیارم. یه لحظه بعد دوباره امتحان کن."
       }
     },
+    "schedule": {
+      "dialogLabel": "زمان‌بندی ست",
+      "close": "بستن",
+      "kicker": "زمان‌بندی ست",
+      "preview": "{count, plural, one {# قطعه} other {# قطعه}} · همه از کلوزِت",
+      "pickDay": "یه روز انتخاب کن",
+      "occasionPlaceholder": "مناسبت چیه؟ (اختیاری)",
+      "scheduling": "در حال زمان‌بندی…",
+      "time": {
+        "MORNING": "صبح",
+        "AFTERNOON": "بعدازظهر",
+        "EVENING": "شب"
+      },
+      "cta": {
+        "placeholder": "یه روز انتخاب کن",
+        "scheduleFor": "زمان‌بندی برای {day} {date}"
+      },
+      "errors": {
+        "pickDay": "اول یه روز انتخاب کن.",
+        "failed": "نتونستم زمان‌بندی کنم — یه لحظه بعد دوباره."
+      }
+    },
+    "scheduledPill": {
+      "kicker": "تو تقویمت · {time}",
+      "untitled": "ست بی‌نام"
+    },
     "badge": {
       "allOwn": "همه از کلوزِت"
     },
@@ -364,8 +390,7 @@
       "wear": "همینو می‌پوشم",
       "logging": "در حال ثبت…",
       "save": "ذخیره",
-      "share": "اشتراک",
-      "shareSoon": "اشتراک به‌زودی",
+      "schedule": "زمان‌بندی",
       "close": "بستن",
       "rows": {
         "moodLabel": "حس",
@@ -401,6 +426,18 @@
       "today": "امروز",
       "dismissHint": "هر جا بزن تا بسته شه"
     }
+  },
+  "calendar": {
+    "back": "برگشت",
+    "kicker": "تقویم",
+    "title": "ست‌ها <accent>تو برنامه.</accent>",
+    "groups": {
+      "today": "امروز",
+      "upcoming": "پیش‌رو",
+      "past": "اخیر"
+    },
+    "empty": "هنوز چیزی زمان‌بندی نشده. از /امروز یه ست رو پین کن تا برنامه بریزی.",
+    "unschedule": "حذف از تقویم"
   },
   "closet": {
     "header": "<accent>کلوزِت</accent> تو",
