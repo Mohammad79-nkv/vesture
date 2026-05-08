@@ -9,7 +9,7 @@ import { WelcomePillars } from "@/components/marketing/WelcomePillars";
 // First-touch landing for signed-out visitors. Mirrors the design's DWWelcome
 // (desktop) + OBWelcome (mobile) — dark editorial hero, live AI stylist demo,
 // four-pillar grid, seller band. Signed-in users skip the hero and land on
-// the Discover catalog instead.
+// /today (the AI outfit-of-the-day surface that replaced Discover in 3E).
 export default async function HomePage({
   params,
 }: {
@@ -20,7 +20,7 @@ export default async function HomePage({
   setRequestLocale(locale);
 
   const { userId } = await auth();
-  if (userId) redirect({ href: "/products", locale });
+  if (userId) redirect({ href: "/today", locale });
 
   return (
     <main className="flex flex-1 flex-col">
