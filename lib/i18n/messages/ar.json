@@ -320,6 +320,24 @@
       "instagramTime": "اختياري",
       "cta": "أضف ٣ لتبدأ",
       "ctaSub": "افتح إطلالة واحدة"
+    },
+    "sparse": {
+      "unlockTitle": "أضف {n} لتفتح <accent>ثلاث</accent> إطلالات",
+      "progress": "{count} / {target} قطع",
+      "addAria": "أضف قطعة أخرى",
+      "tipFallback": "قطع أكثر = تنوّع أكبر. اوصل لـ ١٠ لتفتح الاختيارات اليومية كاملة."
+    },
+    "rain": {
+      "fallbackBody": "أمطار اليوم — الاختيارات تميل إلى أحذية مغلقة ومعطف عملي."
+    },
+    "cold": {
+      "layersCaption": "الطبقات الليلة",
+      "layers": {
+        "base": "أساس",
+        "mid": "وسط",
+        "outer": "خارج",
+        "acc": "إكس"
+      }
     }
   },
   "closet": {

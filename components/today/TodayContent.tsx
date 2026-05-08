@@ -6,6 +6,8 @@ import { TodayTopBar } from "./TodayTopBar";
 import { TodayHeader } from "./TodayHeader";
 import { TodayCard } from "./TodayCard";
 import { WeatherChip } from "./WeatherChip";
+import { WeatherBanner } from "./WeatherBanner";
+import { LayerMeter } from "./LayerMeter";
 import type {
   TodayOutfit,
   TodayRecommendationsPayload,
@@ -40,6 +42,13 @@ export function TodayContent({
   serverIsEvening: boolean;
 }) {
   const t = useTranslations("today");
+  const tRain = useTranslations("today.rain");
+  const tCold = useTranslations("today.cold");
+
+  // Weather variants — both surface UI only, the recommender already
+  // baked the condition into its outfit picks.
+  const isRain = weather?.condition === "rain";
+  const isCold = weather !== null && weather.tempC <= 5;
 
   // Hydrate piece-id → piece map once. Cards look up thumbnails by id
   // so the model can return slot+id pairs without each card carrying
@@ -86,6 +95,28 @@ export function TodayContent({
         title={recommendations.headline.title}
         sub={recommendations.headline.sub ?? null}
       />
+
+      {/* Weather variants — banner explains rain swaps, meter
+         visualises layering on cold days. Both stay above the
+         outfit cards so the user reads context before browsing
+         the recommendations. */}
+      {isRain && (
+        <WeatherBanner
+          body={recommendations.headline.sub ?? tRain("fallbackBody")}
+        />
+      )}
+      {isCold && !isRain && (
+        <LayerMeter
+          outfit={recommendations.outfits[0]}
+          caption={tCold("layersCaption")}
+          labels={{
+            base: tCold("layers.base"),
+            mid: tCold("layers.mid"),
+            outer: tCold("layers.outer"),
+            acc: tCold("layers.acc"),
+          }}
+        />
+      )}
 
       {/* Outfit cards — layout flips on time-of-day */}
       <div className="px-4 pt-5">

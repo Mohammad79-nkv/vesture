@@ -12,7 +12,13 @@ import {
   type CurrentWeather,
 } from "@/lib/adapters/weather";
 import { EmptyToday } from "@/components/today/EmptyToday";
+import { SparseToday } from "@/components/today/SparseToday";
 import { TodayContent } from "@/components/today/TodayContent";
+
+// Threshold below which we render the sparse variant (frame 01)
+// instead of the healthy 3-card layout. Matches the design's
+// "5 / 10 PIECES" progress bar.
+const SPARSE_THRESHOLD = 10;
 
 // Phase 3E.2 · /today page.
 //
@@ -121,6 +127,25 @@ export default async function TodayPage({
           {t("errors.body")}
         </p>
       </main>
+    );
+  }
+
+  // Sparse variant (frame 01) — closet has 1-9 pieces. Renders a
+  // single hero outfit + an unlock progress bar pushing toward the
+  // healthy 10-piece threshold. The recommender's full output is
+  // still cached; the UI just trims to the first card.
+  if (pieces.length < SPARSE_THRESHOLD) {
+    return (
+      <SparseToday
+        recommendations={recommendations}
+        pieces={pieces}
+        weather={
+          weather
+            ? { tempC: weather.tempC, condition: weather.condition }
+            : null
+        }
+        piecesCount={pieces.length}
+      />
     );
   }
 

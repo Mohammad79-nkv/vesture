@@ -320,6 +320,24 @@
       "instagramTime": "OPTIONAL",
       "cta": "Add 3 to start",
       "ctaSub": "UNLOCK ONE OUTFIT"
+    },
+    "sparse": {
+      "unlockTitle": "Add {n} more · unlock <accent>three</accent> outfits",
+      "progress": "{count} / {target} PIECES",
+      "addAria": "Add another piece",
+      "tipFallback": "More pieces means more variety. Aim for at least 10 to unlock the full daily picks."
+    },
+    "rain": {
+      "fallbackBody": "Rain today — picks lean to closed shoes and a coat that travels."
+    },
+    "cold": {
+      "layersCaption": "Layers tonight",
+      "layers": {
+        "base": "BASE",
+        "mid": "MID",
+        "outer": "OUTER",
+        "acc": "ACC"
+      }
     }
   },
   "closet": {
