@@ -338,6 +338,49 @@
         "outer": "خارج",
         "acc": "إكس"
       }
+    },
+    "why": {
+      "eyebrow": "لماذا هذه الإطلالة",
+      "title": "{name} هي الأنسب<br/><accent>لهذا الـ{context}.</accent>",
+      "wear": "ارتدِها",
+      "logging": "جارٍ التسجيل…",
+      "save": "احفظ",
+      "share": "شارك",
+      "shareSoon": "المشاركة قريباً",
+      "close": "إغلاق",
+      "rows": {
+        "moodLabel": "المزاج",
+        "moodBody": "تقرأ {mood} — هذا هو المطلوب الليلة.",
+        "weatherLabel": "الطقس",
+        "weatherBody": "{temp}°، {condition}. الاختيارات تميل لذلك.",
+        "occasionLabel": "المناسبة",
+        "varietyLabel": "تنوع الخزانة",
+        "varietyDays": "تُبرز {name} — آخر مرة لُبس قبل {days, plural, one {# يوم} other {# يوماً}}.",
+        "varietyUnworn": "تُبرز {name} — لم يُلبس بعد.",
+        "surfacingLabel": "إبراز",
+        "surfacingBody": "{n, plural, one {# قطعة} other {# قطع}} لم تلبسها سابقاً ضمن الاختيار."
+      },
+      "conditions": {
+        "clear": "صافٍ",
+        "cloudy": "غائم",
+        "rain": "ممطر",
+        "snow": "ثلج",
+        "fog": "ضباب",
+        "storm": "عاصف"
+      }
+    },
+    "saved": {
+      "title": "تم الحفظ في إطلالاتي",
+      "pieces": "قطع",
+      "view": "عرض"
+    },
+    "wore": {
+      "dialogLabel": "ارتديتها",
+      "kicker": "سُجِّل · {count, plural, one {# قطعة} other {# قطع}}",
+      "title": "سُجِّل.<br/><accent>بدت جميلة.</accent>",
+      "wearCount": "{n}× إجمالاً",
+      "today": "اليوم",
+      "dismissHint": "اضغط في أي مكان للإغلاق"
     }
   },
   "closet": {

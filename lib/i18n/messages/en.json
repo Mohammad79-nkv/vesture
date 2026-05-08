@@ -338,6 +338,49 @@
         "outer": "OUTER",
         "acc": "ACC"
       }
+    },
+    "why": {
+      "eyebrow": "Why this look",
+      "title": "{name} is right<br/><accent>for {context}.</accent>",
+      "wear": "Wear this",
+      "logging": "Logging…",
+      "save": "Save",
+      "share": "Share",
+      "shareSoon": "Share is coming soon",
+      "close": "Close",
+      "rows": {
+        "moodLabel": "Mood",
+        "moodBody": "Reads {mood} — that's the brief tonight.",
+        "weatherLabel": "Weather",
+        "weatherBody": "{temp}°, {condition}. Picks lean to that.",
+        "occasionLabel": "Occasion",
+        "varietyLabel": "Closet variety",
+        "varietyDays": "Surfaces your {name} — last worn {days, plural, one {# day} other {# days}} ago.",
+        "varietyUnworn": "Surfaces your {name} — never worn yet.",
+        "surfacingLabel": "Surfacing",
+        "surfacingBody": "{n, plural, one {# piece} other {# pieces}} you've never worn make the cut."
+      },
+      "conditions": {
+        "clear": "clear",
+        "cloudy": "cloudy",
+        "rain": "rain",
+        "snow": "snow",
+        "fog": "fog",
+        "storm": "storm"
+      }
+    },
+    "saved": {
+      "title": "Saved to My styles",
+      "pieces": "PIECES",
+      "view": "VIEW"
+    },
+    "wore": {
+      "dialogLabel": "I wore this",
+      "kicker": "LOGGED · {count, plural, one {# PIECE} other {# PIECES}}",
+      "title": "Logged.<br/><accent>Looked good.</accent>",
+      "wearCount": "{n}× total",
+      "today": "TODAY",
+      "dismissHint": "TAP ANYWHERE TO DISMISS"
     }
   },
   "closet": {

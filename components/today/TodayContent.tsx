@@ -8,6 +8,9 @@ import { TodayCard } from "./TodayCard";
 import { WeatherChip } from "./WeatherChip";
 import { WeatherBanner } from "./WeatherBanner";
 import { LayerMeter } from "./LayerMeter";
+import { WhySheet } from "./WhySheet";
+import { SavedToast } from "./SavedToast";
+import { WoreConfirmation } from "./WoreConfirmation";
 import type {
   TodayOutfit,
   TodayRecommendationsPayload,
@@ -49,6 +52,19 @@ export function TodayContent({
   // baked the condition into its outfit picks.
   const isRain = weather?.condition === "rain";
   const isCold = weather !== null && weather.tempC <= 5;
+
+  // Why-sheet + save/wore lifecycle (Phase 3E.4+6). The hero
+  // outfit (first card) is the one the why-line preview describes,
+  // and Save/Wear act on it.
+  const [whyOpen, setWhyOpen] = useState(false);
+  const [savedToast, setSavedToast] = useState<{
+    outfitId: string;
+    name: string;
+    pieceCount: number;
+  } | null>(null);
+  const [woreOverlay, setWoreOverlay] = useState<{
+    piecesLogged: number;
+  } | null>(null);
 
   // Hydrate piece-id → piece map once. Cards look up thumbnails by id
   // so the model can return slot+id pairs without each card carrying
@@ -164,20 +180,64 @@ export function TodayContent({
         )}
       </div>
 
-      {/* Why-line preview — pinned just above the floating nav with
-         the same offset as EmptyToday's CTA so both surfaces share
-         a consistent "above-the-tab-bar" rest position. fixed (not
-         absolute) keeps it anchored when the user scrolls the
-         outfit cards. Phase 3E.4 makes it tappable + expands the
-         dark sheet; today it's a quiet read-only callout. */}
+      {/* Why-line preview — tap to expand the dark reasoning sheet
+         where Wear / Save / Share live. Pinned just above the
+         floating nav (same offset as EmptyToday's CTA) so the
+         whole site shares a consistent "above-the-tab-bar"
+         rest position. */}
       {hero?.why ? (
-        <div
-          className="fixed inset-x-4 z-10"
+        <button
+          type="button"
+          onClick={() => setWhyOpen(true)}
+          className="fixed inset-x-4 z-10 text-start"
           style={{ bottom: "calc(100px + env(safe-area-inset-bottom, 0px))" }}
         >
           <WhyLine why={hero.why} />
-        </div>
+        </button>
       ) : null}
+
+      {/* Why sheet (frame 07). Owns the actual Wear / Save /
+         Share buttons. Successful Wear opens the WoreConfirmation
+         overlay; successful Save fires the SavedToast. */}
+      <WhySheet
+        open={whyOpen}
+        onClose={() => setWhyOpen(false)}
+        outfit={hero}
+        pieces={pieceMap}
+        weather={weather}
+        contextKicker={recommendations.headline.kicker}
+        onSaved={(outfitId) => {
+          if (!hero) return;
+          setSavedToast({
+            outfitId,
+            name: hero.name,
+            pieceCount: hero.pieces.length,
+          });
+        }}
+        onWore={(count) => {
+          setWoreOverlay({ piecesLogged: count });
+        }}
+      />
+
+      {/* Saved toast (frame 08). Auto-dismisses ~3.5s after save. */}
+      {savedToast ? (
+        <SavedToast
+          outfitId={savedToast.outfitId}
+          outfitName={savedToast.name}
+          pieceCount={savedToast.pieceCount}
+          onDismiss={() => setSavedToast(null)}
+        />
+      ) : null}
+
+      {/* Wore confirmation (frame 09). Full-screen takeover; tap
+         anywhere or wait ~6s to dismiss back to /today. */}
+      <WoreConfirmation
+        open={woreOverlay !== null}
+        onClose={() => setWoreOverlay(null)}
+        outfit={hero}
+        pieces={pieceMap}
+        piecesLogged={woreOverlay?.piecesLogged ?? 0}
+      />
     </div>
   );
 }

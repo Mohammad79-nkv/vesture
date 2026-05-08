@@ -338,6 +338,49 @@
         "outer": "رو",
         "acc": "اَکس"
       }
+    },
+    "why": {
+      "eyebrow": "چرا این ست",
+      "title": "{name} درسته<br/><accent>برای {context}.</accent>",
+      "wear": "همینو می‌پوشم",
+      "logging": "در حال ثبت…",
+      "save": "ذخیره",
+      "share": "اشتراک",
+      "shareSoon": "اشتراک به‌زودی",
+      "close": "بستن",
+      "rows": {
+        "moodLabel": "حس",
+        "moodBody": "حس {mood} می‌ده — همینه که امشب می‌خوای.",
+        "weatherLabel": "هوا",
+        "weatherBody": "{temp}°، {condition}. انتخاب‌ها روی همینه.",
+        "occasionLabel": "مناسبت",
+        "varietyLabel": "تنوع کلوزِت",
+        "varietyDays": "{name} رو می‌آره وسط — آخرین بار {days, plural, one {# روز} other {# روز}} پیش پوشیدی‌ش.",
+        "varietyUnworn": "{name} رو می‌آره وسط — هنوز نپوشیدی‌ش.",
+        "surfacingLabel": "بیرون آوردن",
+        "surfacingBody": "{n, plural, one {# قطعه} other {# قطعه}} که هنوز نپوشیدی توی این ست هست."
+      },
+      "conditions": {
+        "clear": "صاف",
+        "cloudy": "ابری",
+        "rain": "بارونی",
+        "snow": "برفی",
+        "fog": "مه",
+        "storm": "طوفان"
+      }
+    },
+    "saved": {
+      "title": "تو استایل‌هام ذخیره شد",
+      "pieces": "قطعه",
+      "view": "ببین"
+    },
+    "wore": {
+      "dialogLabel": "این رو پوشیدم",
+      "kicker": "ثبت شد · {count, plural, one {# قطعه} other {# قطعه}}",
+      "title": "ثبت شد.<br/><accent>خوب به‌نظر رسید.</accent>",
+      "wearCount": "{n}× در کل",
+      "today": "امروز",
+      "dismissHint": "هر جا بزن تا بسته شه"
     }
   },
   "closet": {
