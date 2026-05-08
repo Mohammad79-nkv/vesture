@@ -18,6 +18,19 @@ import { tokensUsedTodayForUser } from "@/lib/services/stylist";
 // callers clean — same pattern used by app/[locale]/(shop)/closet/actions.ts.
 const redirect = redirectRaw as unknown as (path: string) => never;
 
+// Result shape used by both save actions. Errors are *returned*, not
+// thrown — Next 16's dev overlay surfaces every uncaught throw from a
+// server action even when the client catches it, which made the
+// "budgetExceeded" inline-error path look like a runtime crash. The
+// success path still ends with a redirect (which throws the special
+// NEXT_REDIRECT digest the framework knows how to handle).
+type SaveError = { ok: false; error: "needPieces" | "budgetExceeded" };
+
+// Note: success path ends with redirect() which throws NEXT_REDIRECT,
+// so the inferred return type is `Promise<SaveError>` — clients see
+// either the discriminated error union (and reach normal control flow)
+// or get redirected by the framework.
+
 export async function createOutfitAction(input: {
   name?: string;
   occasion?: string;
@@ -25,7 +38,7 @@ export async function createOutfitAction(input: {
 }) {
   const user = await requireOnboarded();
   if (input.pieces.length === 0) {
-    throw new Error("needPieces");
+    return { ok: false, error: "needPieces" };
   }
   const outfit = await createOutfit({
     userId: user.id,
@@ -34,7 +47,7 @@ export async function createOutfitAction(input: {
     pieces: input.pieces,
   });
   revalidatePath("/closet/styles");
-  redirect(`/closet/styles/${outfit.id}`);
+  return redirect(`/closet/styles/${outfit.id}`);
 }
 
 // Save + score in a single round-trip. Used by the builder's primary
@@ -42,8 +55,8 @@ export async function createOutfitAction(input: {
 // synchronously, then redirects to the detail page where the score is
 // already persisted (no client-side score trigger needed).
 //
-// Budget gate runs first so a busted budget surfaces as a thrown error
-// instead of saving the outfit then failing to score it.
+// Budget gate runs first so a busted budget surfaces as a returned
+// error instead of a half-saved outfit.
 export async function saveAndScoreAction(input: {
   name?: string;
   occasion?: string;
@@ -52,13 +65,13 @@ export async function saveAndScoreAction(input: {
 }) {
   const user = await requireOnboarded();
   if (input.pieces.length === 0) {
-    throw new Error("needPieces");
+    return { ok: false, error: "needPieces" } as SaveError;
   }
 
   const used = await tokensUsedTodayForUser(user.id);
   const limit = dailyTokenBudgetPerUser();
   if (used >= limit) {
-    throw new Error("budgetExceeded");
+    return { ok: false, error: "budgetExceeded" } as SaveError;
   }
 
   const outfit = await createOutfit({
@@ -95,7 +108,7 @@ export async function saveAndScoreAction(input: {
   }
 
   revalidatePath("/closet/styles");
-  redirect(`/closet/styles/${outfit.id}`);
+  return redirect(`/closet/styles/${outfit.id}`);
 }
 
 export async function updateOutfitAction(

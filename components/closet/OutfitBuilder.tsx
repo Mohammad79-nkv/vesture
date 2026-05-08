@@ -204,6 +204,12 @@ export function OutfitBuilder({
     return true;
   }
 
+  // Server actions return discriminated errors (saved looks redirect
+  // on success, throwing only the NEXT_REDIRECT digest). The catch
+  // block exists for genuine network/runtime failures; the inline
+  // ok-false branch covers expected business errors (needPieces /
+  // budgetExceeded) without lighting up Next 16's dev error overlay.
+
   // Bookmark icon → save without scoring.
   function handleSave() {
     if (!validate()) return;
@@ -213,7 +219,10 @@ export function OutfitBuilder({
         if (isEditing && initialOutfitId) {
           await updateOutfitAction(initialOutfitId, payload);
         } else {
-          await createOutfitAction(payload);
+          const res = await createOutfitAction(payload);
+          if (res && !res.ok && res.error === "needPieces") {
+            setError(t("errors.needPieces"));
+          }
         }
       } catch (err) {
         // Server actions throw NEXT_REDIRECT on success — let it propagate.
@@ -231,17 +240,17 @@ export function OutfitBuilder({
     const payload = buildPayload();
     startTransition(async () => {
       try {
-        await saveAndScoreAction({ ...payload, locale });
+        const res = await saveAndScoreAction({ ...payload, locale });
+        if (res && !res.ok) {
+          if (res.error === "budgetExceeded") {
+            setError(tScore("errors.budgetExceeded"));
+          } else if (res.error === "needPieces") {
+            setError(t("errors.needPieces"));
+          }
+        }
       } catch (err) {
         if (err && typeof err === "object" && "digest" in err) throw err;
-        const msg = err instanceof Error ? err.message : "";
-        if (msg === "budgetExceeded") {
-          setError(tScore("errors.budgetExceeded"));
-        } else if (msg === "needPieces") {
-          setError(t("errors.needPieces"));
-        } else {
-          setError(t("errors.saveFailed"));
-        }
+        setError(t("errors.saveFailed"));
       }
     });
   }
