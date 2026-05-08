@@ -175,6 +175,7 @@
   },
   "mobileNav": {
     "discover": "Discover",
+    "today": "Today",
     "stylist": "Stylist",
     "closet": "Closet",
     "saved": "Saved",
@@ -293,6 +294,32 @@
       "saveFailed": "Couldn't save — try again",
       "imageTooLarge": "Photo must be under 5 MB",
       "invalidImage": "That file isn't an image"
+    }
+  },
+  "today": {
+    "kickerEmpty": "TODAY · 0 PIECES",
+    "pieces": "PIECES",
+    "orLighter": "Or, lighter",
+    "badge": {
+      "allOwn": "ALL OWN"
+    },
+    "errors": {
+      "kicker": "TODAY",
+      "body": "Couldn't pull together your outfits right now. Pull to refresh in a minute."
+    },
+    "empty": {
+      "kicker": "TODAY",
+      "title": "I need a closet\nto start.",
+      "sub": "Add a few pieces and I'll start building outfits from what you own. No shopping, ever — just your clothes, smarter.",
+      "firstOutfit": "YOUR FIRST OUTFIT LIVES HERE",
+      "snap": "Snap",
+      "snapTime": "~10 SEC",
+      "photos": "Photos",
+      "photosTime": "~30 SEC",
+      "instagram": "Instagram",
+      "instagramTime": "OPTIONAL",
+      "cta": "Add 3 to start",
+      "ctaSub": "UNLOCK ONE OUTFIT"
     }
   },
   "closet": {

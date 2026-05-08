@@ -8,7 +8,7 @@ import { Link, usePathname } from "@/lib/i18n/navigation";
 
 // Vesture mobile bottom-nav. Dark navy glass pill with a sliding white active
 // pill (matches the BuyerTabBar from the design's buyer-screens.jsx). 5 tabs:
-// Discover, Stylist, Closet (new — with a magenta dot indicating new activity),
+// Today, Stylist, Closet (new — with a magenta dot indicating new activity),
 // Saved, Me. Hides on product detail pages where a sticky message footer takes
 // over.
 export function FloatingNav() {
@@ -20,11 +20,14 @@ export function FloatingNav() {
 
   const tabs = [
     {
-      href: "/products" as const,
+      href: "/today" as const,
       Icon: Compass,
-      label: t("discover"),
+      label: t("today"),
       matches: (p: string) =>
-        p === "/" || p.startsWith("/products") || p.startsWith("/sellers"),
+        p === "/" ||
+        p.startsWith("/today") ||
+        p.startsWith("/products") ||
+        p.startsWith("/sellers"),
       badge: false,
     },
     {

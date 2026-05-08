@@ -38,6 +38,16 @@ export function visionModel(): string {
   return process.env.OPENROUTER_VISION_MODEL ?? "openai/gpt-4o-mini";
 }
 
+// Today-page recommender model. Generates 1–3 outfit combos per
+// (user, day, closetVersion, tempBucket) — cache-amortized so the
+// per-user-per-day cost is bounded. Default haiku because the task
+// is structured combo generation from a closet snapshot, not
+// open-ended reasoning, and the daily cache means quality drift
+// shows up at most once a day.
+export function todayModel(): string {
+  return process.env.OPENROUTER_TODAY_MODEL ?? "anthropic/claude-haiku-4.5";
+}
+
 export function dailyTokenBudgetPerUser(): number {
   const raw = process.env.STYLIST_DAILY_TOKEN_BUDGET_PER_USER ?? "50000";
   const n = Number.parseInt(raw, 10);
