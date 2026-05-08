@@ -54,10 +54,17 @@ export function AutoTagAnalyzer({
 
   const [phase, setPhase] = useState<Phase>("analyzing");
   const [piece, setPiece] = useState<AnalyzedPiece | null>(null);
-  // The clean-product image gen runs alongside tag analysis and
-  // can fail independently. When present we save it as the piece's
-  // primary image; when null we fall back to the user's original
-  // upload (graceful degradation).
+  // The clean-product image gen runs alongside tag analysis on a
+  // separate endpoint — it's slower (~10-15s vs ~3-5s for tags),
+  // so we track its state independently. `imagePhase` drives the
+  // "polishing image…" pill + the Continue gate (Continue stays
+  // disabled while imagePhase === "loading" so the user can't
+  // accidentally save before the generated image is ready).
+  // "failed" still allows Continue with the original photo as a
+  // graceful fallback.
+  const [imagePhase, setImagePhase] = useState<
+    "loading" | "ready" | "failed"
+  >("loading");
   const [generatedImage, setGeneratedImage] = useState<{
     publicId: string;
     url: string;
@@ -93,10 +100,15 @@ export function AutoTagAnalyzer({
     };
   }, [open]);
 
-  // Kick off the API call on first open. State resets live inside
-  // the async IIFE (not in the effect body) so the lint rule about
-  // synchronous setState in effects is satisfied; React still
-  // batches the resets before the first paint.
+  // Kick off both API calls in parallel on first open. Tags use
+  // /api/closet/analyze, image gen uses /api/closet/generate-image
+  // — they progress independently so the UI can surface tags as
+  // soon as they're ready while the slower image keeps a separate
+  // "polishing image…" pill + gates Continue.
+  //
+  // State resets live inside the async IIFE (not in the effect
+  // body) so the lint rule about synchronous setState in effects
+  // is satisfied; React still batches the resets before paint.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -104,44 +116,86 @@ export function AutoTagAnalyzer({
       setPhase("analyzing");
       setPiece(null);
       setGeneratedImage(null);
+      setImagePhase("loading");
       setErrorCode(null);
       setRevealedAt(null);
       const startedAt = Date.now();
-      try {
-        const res = await fetch("/api/closet/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ publicId: photo.publicId }),
-        });
-        if (cancelled) return;
-        if (!res.ok) {
-          const j = (await res.json().catch(() => ({}))) as { error?: string };
-          setErrorCode(
-            j.error === "BUDGET_EXCEEDED" ? "BUDGET_EXCEEDED" : "MODEL_FAILED",
-          );
-          setPhase("error");
-          return;
+
+      // Tag analysis — must succeed for the user to continue.
+      // We await this on the "happy" path of the IIFE so the
+      // overall phase transitions on its result. The image gen
+      // request fires in parallel below and updates its own
+      // independent state when it completes.
+      const tagsPromise = (async () => {
+        try {
+          const res = await fetch("/api/closet/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ publicId: photo.publicId }),
+          });
+          if (!res.ok) {
+            const j = (await res.json().catch(() => ({}))) as {
+              error?: string;
+            };
+            return {
+              ok: false as const,
+              error:
+                j.error === "BUDGET_EXCEEDED"
+                  ? ("BUDGET_EXCEEDED" as const)
+                  : ("MODEL_FAILED" as const),
+            };
+          }
+          const data = (await res.json()) as { piece: AnalyzedPiece };
+          return { ok: true as const, piece: data.piece };
+        } catch {
+          return { ok: false as const, error: "OFFLINE" as const };
         }
-        const data = (await res.json()) as {
-          piece: AnalyzedPiece;
-          generatedImage: { publicId: string; url: string } | null;
-        };
-        // Pad the visible analyze time so the scan feels intentional
-        // even when the model returns in a few hundred ms.
-        const waited = Date.now() - startedAt;
-        const wait = Math.max(0, MIN_ANALYZE_MS - waited);
-        setTimeout(() => {
+      })();
+
+      // Image gen — fire-and-update, never blocks the page from
+      // becoming usable. On any failure imagePhase flips to
+      // "failed" and Continue uses the original photo.
+      void (async () => {
+        try {
+          const res = await fetch("/api/closet/generate-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ publicId: photo.publicId }),
+          });
           if (cancelled) return;
-          setPiece(data.piece);
+          if (!res.ok) {
+            setImagePhase("failed");
+            return;
+          }
+          const data = (await res.json()) as {
+            generatedImage: { publicId: string; url: string };
+          };
+          if (cancelled) return;
           setGeneratedImage(data.generatedImage);
-          setPhase("ready");
-          setRevealedAt(Date.now());
-        }, wait);
-      } catch {
-        if (cancelled) return;
-        setErrorCode("OFFLINE");
+          setImagePhase("ready");
+        } catch {
+          if (cancelled) return;
+          setImagePhase("failed");
+        }
+      })();
+
+      const tagResult = await tagsPromise;
+      if (cancelled) return;
+      if (!tagResult.ok) {
+        setErrorCode(tagResult.error);
         setPhase("error");
+        return;
       }
+      // Pad the visible analyze time so the scan feels intentional
+      // even when the model returns in a few hundred ms.
+      const waited = Date.now() - startedAt;
+      const wait = Math.max(0, MIN_ANALYZE_MS - waited);
+      setTimeout(() => {
+        if (cancelled) return;
+        setPiece(tagResult.piece);
+        setPhase("ready");
+        setRevealedAt(Date.now());
+      }, wait);
     })();
 
     return () => {
@@ -308,18 +362,43 @@ export function AutoTagAnalyzer({
         </h1>
       </div>
 
-      {/* Photo preview */}
+      {/* Photo preview — swaps from the user's noisy original to
+         the AI-generated clean-product version once that's
+         available, so the user sees what they're about to save.
+         The original stays visible during the scan animation
+         (analyzing phase) since the generated one isn't ready
+         yet, and it's also the fallback if image gen failed. */}
       <div className="px-3.5">
         <div className="relative h-[320px] overflow-hidden rounded-3xl bg-paper shadow-[inset_0_0_0_1px_rgba(33,39,57,0.06)]">
+          {/* Original photo — fades out when the generated image
+             is ready so the cross-fade reads as a transformation. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={photo.url}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover"
+            className={[
+              "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
+              generatedImage ? "opacity-0" : "opacity-100",
+            ].join(" ")}
             loading="eager"
           />
-          {/* Detection box overlay — only while analyzing/ready */}
-          {phase !== "error" && (
+          {/* Generated clean-product image — overlays the original
+             on top, fades in when the API call returns it. Uses
+             contain to preserve the white-background aesthetic
+             without cropping the piece. */}
+          {generatedImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={generatedImage.url}
+              alt=""
+              className="absolute inset-0 h-full w-full bg-paper object-contain transition-opacity duration-300"
+              loading="eager"
+            />
+          ) : null}
+          {/* Detection box overlay — only while analyzing/ready,
+             AND only on the original photo (the generated clean-
+             product image is the result, no need to re-frame). */}
+          {phase !== "error" && !generatedImage && (
             <div className="pointer-events-none absolute inset-x-12 inset-y-8 rounded-xl border-[1.5px] border-dashed border-primary/70 bg-gradient-to-b from-primary/5 to-primary/0">
               {(piece || phase === "analyzing") && (
                 <span className="absolute -top-2.5 start-2 rounded-md bg-primary px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em] text-paper">
@@ -412,7 +491,9 @@ export function AutoTagAnalyzer({
             <button
               type="button"
               onClick={handleContinue}
-              disabled={phase !== "ready" || saving}
+              disabled={
+                phase !== "ready" || saving || imagePhase === "loading"
+              }
               className="inline-flex h-[50px] flex-[2] items-center justify-center gap-2 rounded-2xl bg-ink text-[12px] font-medium uppercase tracking-[0.06em] text-paper disabled:opacity-60"
             >
               {saving || phase === "saving" ? (
@@ -423,6 +504,15 @@ export function AutoTagAnalyzer({
                     aria-hidden="true"
                   />
                   {t("analyze.saving")}
+                </>
+              ) : phase === "ready" && imagePhase === "loading" ? (
+                <>
+                  <Loader2
+                    size={14}
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
+                  {t("analyze.polishing")}
                 </>
               ) : phase === "ready" ? (
                 <>

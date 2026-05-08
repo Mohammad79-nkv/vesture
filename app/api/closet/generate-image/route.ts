@@ -5,27 +5,26 @@ import { prisma } from "@/lib/adapters/prisma";
 import { dailyTokenBudgetPerUser } from "@/lib/adapters/openrouter";
 import { tokensUsedTodayForUser } from "@/lib/services/stylist";
 import {
-  analyzePiece,
-  PieceAnalyzerError,
-} from "@/lib/services/piece-analyzer";
+  generateCleanProductImage,
+  PieceImageGenError,
+} from "@/lib/services/piece-image-gen";
 
-// POST /api/closet/analyze
+// POST /api/closet/generate-image
 //
-// One-shot vision tagging for a piece the user just uploaded. Takes a
-// Cloudinary publicId, runs the photo through a vision model, returns
-// structured tags (category / color / fabric / formality / season /
-// name / brand) the client uses to populate the add-piece form.
+// Sibling endpoint to /api/closet/analyze. Splitting them lets the
+// AutoTagAnalyzer fire both in parallel and surface tag analysis
+// (~3-5s) the moment it returns while the slower image gen
+// (~10-15s) keeps a separate "polishing image…" loading state
+// over the photo. Continue stays disabled until both finish so
+// the user can't accidentally save with the original photo
+// while the clean-product version is still rendering.
 //
-// Same auth + budget contract as /api/closet/outfit/score: blocks if
-// onboarding incomplete or daily token budget exhausted, then folds
-// usage into the same UTC-day bucket the stylist + scoring share so
-// the user sees one comprehensible cost ceiling.
+// Same auth + onboarded gate + daily token budget as the analyze
+// route. On any model / upload failure we return a non-200 + the
+// client falls back to the original photo (graceful degradation).
 
 export const runtime = "nodejs";
 
-// Cloudinary public IDs are slash-separated paths (folder/filename).
-// We allow the standard URL-safe character set and cap length to
-// prevent absurd payloads.
 const requestSchema = z.object({
   publicId: z
     .string()
@@ -72,18 +71,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Tag analysis only. The slower image gen lives behind its own
-    // POST /api/closet/generate-image endpoint so the AutoTag
-    // analyzer can fire both in parallel and surface tags as soon
-    // as they're ready while the image keeps a separate loading
-    // state.
-    const { piece, tokensUsed } = await analyzePiece({
-      publicId: parsed.data.publicId,
+    const result = await generateCleanProductImage({
+      userId: dbUser.id,
+      sourcePublicId: parsed.data.publicId,
     });
 
-    // Token bookkeeping — same placeholder ChatMessage trick used
-    // by the sibling routes so tokensUsedTodayForUser sums one
-    // ceiling across stylist + scoring + analyzer + image gen.
+    // Token bookkeeping — same placeholder ChatMessage trick the
+    // sibling routes use so tokensUsedTodayForUser sums one ceiling
+    // across stylist + scoring + analyzer + image gen.
     await prisma.chatSession
       .create({
         data: {
@@ -92,8 +87,8 @@ export async function POST(req: NextRequest) {
             create: [
               {
                 role: "ASSISTANT",
-                content: "[piece analysis]",
-                tokensUsed,
+                content: "[image gen]",
+                tokensUsed: result.tokensUsed,
               },
             ],
           },
@@ -101,18 +96,15 @@ export async function POST(req: NextRequest) {
       })
       .catch(() => {});
 
-    return Response.json({ piece, tokensUsed });
+    return Response.json({
+      generatedImage: { publicId: result.publicId, url: result.url },
+      tokensUsed: result.tokensUsed,
+    });
   } catch (err) {
-    if (err instanceof PieceAnalyzerError) {
-      const status =
-        err.code === "MODEL_NO_TOOL_CALL" ||
-        err.code === "MODEL_BAD_JSON" ||
-        err.code === "MODEL_BAD_SHAPE"
-          ? 502
-          : 502;
+    if (err instanceof PieceImageGenError) {
       return Response.json(
         { error: err.code, message: err.message },
-        { status },
+        { status: 502 },
       );
     }
     const message = err instanceof Error ? err.message : "Unknown error";

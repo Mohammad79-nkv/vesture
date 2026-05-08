@@ -514,6 +514,7 @@
       "retake": "Retake",
       "continue": "Continue",
       "analyzing": "Analyzing…",
+      "polishing": "Polishing image…",
       "saving": "Saving…",
       "fillManually": "Fill manually",
       "errors": {
