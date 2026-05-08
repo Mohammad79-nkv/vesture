@@ -7,7 +7,11 @@
       "Bash(lsof -i :3000 -sTCP:LISTEN)",
       "Bash(curl -s 'http://localhost:3000/fa/products?nc=__TRACKED_VAR__')",
       "Bash(curl -s 'http://localhost:3000/ar/products?nc=__TRACKED_VAR__')",
-      "Bash(curl -s 'http://localhost:3000/en/closet?nc=__TRACKED_VAR__')"
+      "Bash(curl -s 'http://localhost:3000/en/closet?nc=__TRACKED_VAR__')",
+      "Bash(git reset *)",
+      "Bash(./scripts/smoke.sh)",
+      "Bash(curl -s -c /tmp/cookies.txt -X POST http://localhost:3000/api/stylist -H 'content-type: application/json' -d '{\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}]}' -w \"\\\\n%{http_code}\\\\n\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' -X POST http://localhost:3000/api/stylist -H 'content-type: application/json' -d '{\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"locale\":\"en\"}')"
     ],
     "additionalDirectories": [
       "/Users/mohamad/Desktop/Project/untitled folder/app/[locale]/(shop)"

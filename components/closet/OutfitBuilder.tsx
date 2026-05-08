@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
-import { ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { ArrowRight, Bookmark, Loader2, Sparkles } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { cloudinaryUrl } from "@/lib/domain/cloudinary-url";
 import {
@@ -13,6 +13,7 @@ import {
 import { MannequinCanvas } from "./MannequinCanvas";
 import {
   createOutfitAction,
+  saveAndScoreAction,
   updateOutfitAction,
 } from "@/app/[locale]/(shop)/closet/builder/actions";
 import type { ClosetPiece } from "@prisma/client";
@@ -65,9 +66,11 @@ export function OutfitBuilder({
   initialPieces?: SlotMap;
 }) {
   const t = useTranslations("closetBuilder");
+  const tScore = useTranslations("closetScore");
   const tSlot = useTranslations("outfit.slots");
   const tOcc = useTranslations("outfit.occasions");
   const tFilters = useTranslations("closet.filters");
+  const locale = useLocale();
 
   const [pieces, setPieces] = useState<SlotMap>(initialPieces ?? {});
   const [name, setName] = useState(initialName ?? "");
@@ -131,13 +134,9 @@ export function OutfitBuilder({
     setActiveFilter(cat);
   }
 
-  function handleSave() {
-    setError(null);
-    if (placedCount === 0) {
-      setError(t("errors.needPieces"));
-      return;
-    }
-    const payload = {
+  // Build the payload once — both save flows want the same shape.
+  function buildPayload() {
+    return {
       name: name.trim() || undefined,
       occasion: occasion || undefined,
       pieces: Object.entries(pieces).map(([slot, piece]) => ({
@@ -145,6 +144,21 @@ export function OutfitBuilder({
         pieceId: piece!.id,
       })),
     };
+  }
+
+  function validate(): boolean {
+    setError(null);
+    if (placedCount === 0) {
+      setError(t("errors.needPieces"));
+      return false;
+    }
+    return true;
+  }
+
+  // Bookmark icon → save without scoring.
+  function handleSave() {
+    if (!validate()) return;
+    const payload = buildPayload();
     startTransition(async () => {
       try {
         if (isEditing && initialOutfitId) {
@@ -160,10 +174,33 @@ export function OutfitBuilder({
     });
   }
 
+  // Magenta gradient CTA → save AND score in one round-trip; budget gate
+  // and the LLM call run server-side, then we redirect to the detail
+  // page where the score is already persisted.
+  function handleSaveAndScore() {
+    if (!validate()) return;
+    const payload = buildPayload();
+    startTransition(async () => {
+      try {
+        await saveAndScoreAction({ ...payload, locale });
+      } catch (err) {
+        if (err && typeof err === "object" && "digest" in err) throw err;
+        const msg = err instanceof Error ? err.message : "";
+        if (msg === "budgetExceeded") {
+          setError(tScore("errors.budgetExceeded"));
+        } else if (msg === "needPieces") {
+          setError(t("errors.needPieces"));
+        } else {
+          setError(t("errors.saveFailed"));
+        }
+      }
+    });
+  }
+
   return (
-    <div className="flex h-[100dvh] flex-col bg-mist text-ink">
+    <div className="relative min-h-[100dvh] overflow-x-clip bg-mist text-ink">
       {/* Header */}
-      <header className="flex shrink-0 items-center gap-3 px-5 pt-4 pb-3">
+      <header className="flex items-center gap-3 px-5 pt-4 pb-3">
         <div className="min-w-0 flex-1">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55">
             {isEditing ? t("subEditing") : t("subAutoSave")}
@@ -180,10 +217,10 @@ export function OutfitBuilder({
         </Link>
       </header>
 
-      {/* Scrolling body */}
-      <div className="flex-1 overflow-y-auto pb-32">
+      {/* Body — pb leaves room for the fixed-bottom dock + iOS home indicator */}
+      <div className="pb-[140px] px-4 ">
         {/* Canvas */}
-        <div className="px-4 pt-1">
+        <div className="pt-1">
           <div className="relative">
             <MannequinCanvas
               pieces={pieces}
@@ -216,7 +253,11 @@ export function OutfitBuilder({
             onChange={(e) => setName(e.target.value)}
             placeholder={t("namePlaceholder")}
             maxLength={80}
-            className="h-10 flex-1 rounded-xl bg-paper px-3 text-[13.5px] text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08)] outline-none focus:shadow-[inset_0_0_0_1.5px_rgba(205,2,104,0.6)]"
+            // min-w-0 lets the input shrink below the placeholder text's
+            // intrinsic width — without it, flex items default to
+            // min-width: auto and the long "Name this look (e.g. Wine bar
+            // · Nov 14)" placeholder forces the whole row past viewport.
+            className="h-10 min-w-0 flex-1 rounded-xl bg-paper px-3 text-[13.5px] text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08)] outline-none focus:shadow-[inset_0_0_0_1.5px_rgba(205,2,104,0.6)]"
           />
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5 px-4">
@@ -237,27 +278,33 @@ export function OutfitBuilder({
           ))}
         </div>
 
-        {/* Rail filters + scrolling rail */}
-        <div className="scrollbar-hide -mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4">
-          {railFilters.map((f) => {
-            const label = f === "all" ? t("rail.all") : tFilters(f);
-            const isActive = activeFilter === f;
-            return (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setActiveFilter(f)}
-                className={[
-                  "whitespace-nowrap rounded-full border px-3 py-1.5 text-[12px] font-medium tracking-[-0.01em] transition-colors",
-                  isActive
-                    ? "border-ink bg-ink text-paper"
-                    : "border-ink/15 bg-paper text-ink/70 hover:border-ink/40",
-                ].join(" ")}
-              >
-                {label}
-              </button>
-            );
-          })}
+        {/* Rail filters + scrolling rail. Wrapping each row in
+           `overflow-x-clip` neutralises the `-mx-4 px-4` bleed locally —
+           without this, the bleed contributes to the page's scrollWidth
+           and Safari versions that don't fully respect body-level
+           overflow-x-clip end up with a horizontal page scroll. */}
+        <div className="overflow-x-clip">
+          <div className="scrollbar-hide -mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4">
+            {railFilters.map((f) => {
+              const label = f === "all" ? t("rail.all") : tFilters(f);
+              const isActive = activeFilter === f;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setActiveFilter(f)}
+                  className={[
+                    "whitespace-nowrap rounded-full border px-3 py-1.5 text-[12px] font-medium tracking-[-0.01em] transition-colors",
+                    isActive
+                      ? "border-ink bg-ink text-paper"
+                      : "border-ink/15 bg-paper text-ink/70 hover:border-ink/40",
+                  ].join(" ")}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
         {railPieces.length === 0 ? (
           <div className="mt-4 px-4 text-center">
@@ -271,8 +318,9 @@ export function OutfitBuilder({
             </Link>
           </div>
         ) : (
-          <div className="scrollbar-hide -mx-4 mt-2 flex gap-1.5 overflow-x-auto px-4 pb-1">
-            {railPieces.map((p) => {
+          <div className="overflow-x-clip">
+            <div className="scrollbar-hide -mx-4 mt-2 flex gap-1.5 overflow-x-auto px-4 pb-1">
+              {railPieces.map((p) => {
               const isPlaced = Object.values(pieces).some(
                 (placed) => placed?.id === p.id,
               );
@@ -307,6 +355,7 @@ export function OutfitBuilder({
                 </button>
               );
             })}
+            </div>
           </div>
         )}
 
@@ -315,31 +364,51 @@ export function OutfitBuilder({
         )}
       </div>
 
-      {/* Sticky save dock */}
-      <div className="shrink-0 border-t border-ink/[0.06] bg-mist/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[640px] gap-2">
-          <button
-            type="button"
-            disabled
-            title={t("feedbackSoon")}
-            className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-ink/10 text-[12px] font-medium uppercase tracking-[0.06em] text-ink/40"
-          >
-            <Sparkles size={14} aria-hidden="true" />
-            {t("feedbackTitle")}
-          </button>
+      {/* Floating dock — fixed at the bottom of the viewport, stays put
+         regardless of scroll position. Mirrors frame 06's pairing: small
+         bookmark icon save (left) + magenta gradient "Get AI feedback"
+         (right) with the piece count suffix. */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 px-4 py-3"
+        style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
+      >
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full bg-gradient-to-t from-mist via-mist/85 to-mist/0" />
+        <div className="mx-auto flex w-full max-w-[640px] items-center gap-2">
           <button
             type="button"
             onClick={handleSave}
             disabled={pending}
-            className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-ink text-[12px] font-medium uppercase tracking-[0.06em] text-paper disabled:opacity-60"
+            aria-label={t("save")}
+            className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-[inset_0_0_0_1px_rgba(33,39,57,0.08),0_4px_16px_rgba(33,39,57,0.06)] transition-colors hover:bg-mist disabled:opacity-60"
+          >
+            {pending ? (
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Bookmark size={18} strokeWidth={2} aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveAndScore}
+            disabled={pending}
+            className="relative inline-flex h-[52px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-2xl text-[13.5px] font-bold tracking-[-0.01em] text-paper shadow-[0_8px_28px_rgba(205,2,104,0.35)] transition-transform active:scale-[0.99] disabled:opacity-70"
+            style={{
+              background: "linear-gradient(180deg, #CD0268 0%, #A50253 100%)",
+            }}
           >
             {pending ? (
               <>
-                <Loader2 size={14} className="animate-spin" aria-hidden="true" />
-                {t("saving")}
+                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                {tScore("scoring")}
               </>
             ) : (
-              t("save")
+              <>
+                <Sparkles size={16} aria-hidden="true" />
+                <span>{tScore("getCta")}</span>
+                <span aria-hidden="true" className="font-mono text-[11px] tracking-[0.06em] text-paper/55">
+                  · {placedCount} {placedCount === 1 ? "piece" : "pieces"}
+                </span>
+              </>
             )}
           </button>
         </div>
