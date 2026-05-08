@@ -68,9 +68,7 @@ export default async function StyleDetailPage({
           <MannequinCanvas
             pieces={pieces}
             slotLabels={slotLabels}
-            selectedSlot={null}
-            onTapEmpty={() => {}}
-            onTapFilled={() => {}}
+            readOnly
           />
         </div>
 

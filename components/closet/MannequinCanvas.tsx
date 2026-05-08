@@ -42,19 +42,29 @@ const ZONES: Zone[] = [
   { slot: "ACCESSORY", leftPct: 6.3, topPct: 22.2, widthPct: 18.8, heightPct: 16.7, z: 3 },
 ];
 
+// onTapEmpty / onTapFilled are optional. When both are omitted (or
+// `readOnly` is true) the canvas renders in display mode: empty slots
+// are hidden, filled slots become non-interactive divs, and no X
+// overlay shows. This is the mode the saved-look detail page uses —
+// passing inline noop arrows from a server component would trigger
+// "Event handlers cannot be passed to Client Component props" in
+// Next 16, so we model interactivity as a real opt-in instead.
 export function MannequinCanvas({
   pieces,
   slotLabels,
-  selectedSlot,
+  selectedSlot = null,
   onTapEmpty,
   onTapFilled,
+  readOnly,
 }: {
   pieces: Pieces;
   slotLabels: Record<OutfitSlot, string>;
-  selectedSlot: OutfitSlot | null;
-  onTapEmpty: (slot: OutfitSlot) => void;
-  onTapFilled: (slot: OutfitSlot) => void;
+  selectedSlot?: OutfitSlot | null;
+  onTapEmpty?: (slot: OutfitSlot) => void;
+  onTapFilled?: (slot: OutfitSlot) => void;
+  readOnly?: boolean;
 }) {
+  const interactive = !readOnly && Boolean(onTapEmpty || onTapFilled);
   // When DRESS is filled we hide the empty TOP and BOTTOM zones (and vice
   // versa) so the canvas reads cleanly without overlapping placeholders.
   const dressFilled = Boolean(pieces.DRESS);
@@ -111,12 +121,14 @@ export function MannequinCanvas({
         };
 
         if (!piece) {
+          // Read-only mode: skip empty placeholders entirely.
+          if (!interactive) return null;
           const isSelected = selectedSlot === zone.slot;
           return (
             <button
               key={zone.slot}
               type="button"
-              onClick={() => onTapEmpty(zone.slot)}
+              onClick={() => onTapEmpty?.(zone.slot)}
               style={baseStyle}
               className={[
                 "absolute flex flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-medium uppercase tracking-[0.08em] transition-colors",
@@ -132,25 +144,39 @@ export function MannequinCanvas({
         }
 
         // Filled tile — piece swatch background + image overlay (if Cloudinary
-        // is set up; falls back to swatch for early users).
+        // is set up; falls back to swatch for early users). In read-only mode
+        // we render a plain div (no onClick, no hover X) so the canvas is a
+        // pure display surface.
         const tileBg = piece.swatchHex ?? "#C9CDD6";
+        const tileClass =
+          "group absolute overflow-hidden rounded-xl shadow-[0_6px_20px_rgba(33,39,57,0.12),0_0_0_2px_rgba(255,255,255,0.95)]";
+        const tileStyle = { ...baseStyle, background: tileBg };
+        const tileImg =
+          piece.publicId && piece.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={piece.imageUrl}
+              alt={piece.name ?? piece.category}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : null;
+        if (!interactive) {
+          return (
+            <div key={zone.slot} style={tileStyle} className={tileClass}>
+              {tileImg}
+            </div>
+          );
+        }
         return (
           <button
             key={zone.slot}
             type="button"
-            onClick={() => onTapFilled(zone.slot)}
-            style={{ ...baseStyle, background: tileBg }}
-            className="group absolute overflow-hidden rounded-xl shadow-[0_6px_20px_rgba(33,39,57,0.12),0_0_0_2px_rgba(255,255,255,0.95)]"
+            onClick={() => onTapFilled?.(zone.slot)}
+            style={tileStyle}
+            className={tileClass}
           >
-            {piece.publicId && piece.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={piece.imageUrl}
-                alt={piece.name ?? piece.category}
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            ) : null}
+            {tileImg}
             {/* Hover/active X — placement matches the design's "X" affordance */}
             <span
               aria-hidden="true"
