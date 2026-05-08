@@ -300,6 +300,25 @@
     "kickerEmpty": "اليوم · ٠ قطع",
     "pieces": "قطع",
     "orLighter": "أو أخف",
+    "locked": "مثبتة",
+    "refresh": {
+      "pullToRefresh": "اسحب للخلط",
+      "reshuffling": "إعادة خلط {n} قطعة"
+    },
+    "swap": {
+      "dialogLabel": "تبديل قطعة",
+      "close": "إغلاق",
+      "swapping": "تبديل",
+      "unnamedPiece": "قطعة بدون اسم",
+      "wornCount": "لُبست {n}×",
+      "loading": "جارٍ قراءة الخزانة…",
+      "ranked": "مُرتّبة من خزانتك",
+      "best": "الأفضل",
+      "errors": {
+        "noCandidates": "لا توجد بدائل في هذه الفئة بعد — أضف قطعاً أخرى لفتح خيارات التبديل.",
+        "failed": "تعذّر جلب البدائل الآن. حاول بعد لحظة."
+      }
+    },
     "badge": {
       "allOwn": "كلها من خزانتك"
     },

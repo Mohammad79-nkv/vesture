@@ -300,6 +300,25 @@
     "kickerEmpty": "TODAY · 0 PIECES",
     "pieces": "PIECES",
     "orLighter": "Or, lighter",
+    "locked": "LOCKED",
+    "refresh": {
+      "pullToRefresh": "PULL TO RESHUFFLE",
+      "reshuffling": "RESHUFFLING {n} PIECES"
+    },
+    "swap": {
+      "dialogLabel": "Swap a piece",
+      "close": "Close",
+      "swapping": "SWAPPING",
+      "unnamedPiece": "Untitled piece",
+      "wornCount": "worn {n}×",
+      "loading": "Reading the closet…",
+      "ranked": "Ranked from your closet",
+      "best": "BEST",
+      "errors": {
+        "noCandidates": "No alternatives in this category yet — add a few more pieces to unlock swap suggestions.",
+        "failed": "Couldn't pull alternatives right now. Try again in a moment."
+      }
+    },
     "badge": {
       "allOwn": "ALL OWN"
     },

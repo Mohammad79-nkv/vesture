@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { TodayTopBar } from "./TodayTopBar";
 import { TodayHeader } from "./TodayHeader";
 import { TodayCard } from "./TodayCard";
@@ -11,12 +11,19 @@ import { LayerMeter } from "./LayerMeter";
 import { WhySheet } from "./WhySheet";
 import { SavedToast } from "./SavedToast";
 import { WoreConfirmation } from "./WoreConfirmation";
+import { SwapSheet, type SwapTarget } from "./SwapSheet";
+import { PullToRefresh } from "./PullToRefresh";
+import {
+  refreshTodayAction,
+  setOutfitLockAction,
+} from "@/app/[locale]/(shop)/today/actions";
 import type {
   TodayOutfit,
   TodayRecommendationsPayload,
 } from "@/lib/services/today-cache";
 import type { TodayPiece } from "@/lib/services/today-recommender";
 import type { WeatherCondition } from "@/lib/adapters/weather";
+import type { OutfitSlot } from "@/lib/domain/outfit-slots";
 
 // Frame 02 (Tonight, evening) and frame 03 (Today, daytime) share
 // header + chip + card vocabulary; the only difference is layout:
@@ -47,11 +54,23 @@ export function TodayContent({
   const t = useTranslations("today");
   const tRain = useTranslations("today.rain");
   const tCold = useTranslations("today.cold");
+  const locale = useLocale();
 
   // Weather variants — both surface UI only, the recommender already
   // baked the condition into its outfit picks.
   const isRain = weather?.condition === "rain";
   const isCold = weather !== null && weather.tempC <= 5;
+
+  // Phase 3E.5 — local copy of the recommendations so swaps /
+  // locks / refreshes can update without a full page reload. The
+  // server actions return the new payload; we just setState.
+  // setTimeout(0) defers the prop sync so React's set-state-in-
+  // effect lint stays clean.
+  const [liveRecs, setLiveRecs] = useState(recommendations);
+  useEffect(() => {
+    const id = setTimeout(() => setLiveRecs(recommendations), 0);
+    return () => clearTimeout(id);
+  }, [recommendations]);
 
   // Why-sheet + save/wore lifecycle (Phase 3E.4+6). The hero
   // outfit (first card) is the one the why-line preview describes,
@@ -65,6 +84,35 @@ export function TodayContent({
   const [woreOverlay, setWoreOverlay] = useState<{
     piecesLogged: number;
   } | null>(null);
+
+  // Phase 3E.5 — swap sheet target.
+  const [swapTarget, setSwapTarget] = useState<SwapTarget | null>(null);
+
+  function makeTapPiece(outfitIndex: number, outfit: TodayOutfit) {
+    return (slot: OutfitSlot, pieceId: string) => {
+      setSwapTarget({
+        outfitIndex,
+        outfitName: outfit.name,
+        outfitMood: outfit.mood,
+        outfitPieces: outfit.pieces.map((p) => ({
+          slot: p.slot as OutfitSlot,
+          pieceId: p.pieceId,
+        })),
+        slot,
+        currentPieceId: pieceId,
+      });
+    };
+  }
+
+  async function handleToggleLock(outfitIndex: number, next: boolean) {
+    const res = await setOutfitLockAction({ outfitIndex, locked: next });
+    if (res.ok) setLiveRecs(res.payload);
+  }
+
+  async function handleRefresh() {
+    const res = await refreshTodayAction({ locale });
+    if (res.ok) setLiveRecs(res.payload);
+  }
 
   // Hydrate piece-id → piece map once. Cards look up thumbnails by id
   // so the model can return slot+id pairs without each card carrying
@@ -86,11 +134,12 @@ export function TodayContent({
     return () => clearTimeout(id);
   }, []);
 
-  const outfits = recommendations.outfits;
+  const outfits = liveRecs.outfits;
   const hero = outfits[0];
   const others = outfits.slice(1, 3);
 
   return (
+   <PullToRefresh onRefresh={handleRefresh} pieceCount={piecesCount}>
     <div className="relative flex min-h-[100dvh] flex-col bg-mist pb-44 text-ink">
       <TodayTopBar
         kicker={
@@ -107,9 +156,9 @@ export function TodayContent({
       />
 
       <TodayHeader
-        kicker={recommendations.headline.kicker}
-        title={recommendations.headline.title}
-        sub={recommendations.headline.sub ?? null}
+        kicker={liveRecs.headline.kicker}
+        title={liveRecs.headline.title}
+        sub={liveRecs.headline.sub ?? null}
       />
 
       {/* Weather variants — banner explains rain swaps, meter
@@ -118,12 +167,12 @@ export function TodayContent({
          the recommendations. */}
       {isRain && (
         <WeatherBanner
-          body={recommendations.headline.sub ?? tRain("fallbackBody")}
+          body={liveRecs.headline.sub ?? tRain("fallbackBody")}
         />
       )}
       {isCold && !isRain && (
         <LayerMeter
-          outfit={recommendations.outfits[0]}
+          outfit={liveRecs.outfits[0]}
           caption={tCold("layersCaption")}
           labels={{
             base: tCold("layers.base"),
@@ -145,6 +194,9 @@ export function TodayContent({
                 pieces={pieceMap}
                 primary={idx === 0}
                 badgeAllOwn={t("badge.allOwn")}
+                lockedLabel={t("locked")}
+                onTapPiece={makeTapPiece(idx, o)}
+                onToggleLock={(next) => handleToggleLock(idx, next)}
               />
             ))}
           </div>
@@ -156,6 +208,9 @@ export function TodayContent({
                 pieces={pieceMap}
                 primary
                 badgeAllOwn={t("badge.allOwn")}
+                lockedLabel={t("locked")}
+                onTapPiece={makeTapPiece(0, hero)}
+                onToggleLock={(next) => handleToggleLock(0, next)}
               />
             )}
             {others.length > 0 && (
@@ -238,7 +293,18 @@ export function TodayContent({
         pieces={pieceMap}
         piecesLogged={woreOverlay?.piecesLogged ?? 0}
       />
+
+      {/* Swap sheet (frame 04). Mounted at the page level so it
+         lives outside any single card's stacking context. */}
+      <SwapSheet
+        open={swapTarget !== null}
+        target={swapTarget}
+        pieces={pieceMap}
+        onClose={() => setSwapTarget(null)}
+        onApplied={(payload) => setLiveRecs(payload)}
+      />
     </div>
+   </PullToRefresh>
   );
 }
 

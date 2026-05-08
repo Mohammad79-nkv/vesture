@@ -34,6 +34,11 @@ export type TodayOutfit = {
   // we keep the field so a future "+ buy this missing piece"
   // suggestion can ride the same shape.
   badge?: "ALL_OWN" | "BUY";
+  // Phase 3E.5 — when true, pull-to-refresh keeps this outfit
+  // verbatim and only regenerates the rest. Persists in the cache
+  // row so a lock survives navigation away and back. Default
+  // false / undefined.
+  locked?: boolean;
 };
 
 export type TodayRecommendationsPayload = {
