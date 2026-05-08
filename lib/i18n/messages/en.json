@@ -386,7 +386,8 @@
     },
     "why": {
       "eyebrow": "Why this look",
-      "title": "{name} is right<br/><accent>for {context}.</accent>",
+      "titleLead": "{name} is right",
+      "titleAccent": "for {context}.",
       "wear": "Wear this",
       "logging": "Logging…",
       "save": "Save",
@@ -421,7 +422,8 @@
     "wore": {
       "dialogLabel": "I wore this",
       "kicker": "LOGGED · {count, plural, one {# PIECE} other {# PIECES}}",
-      "title": "Logged.<br/><accent>Looked good.</accent>",
+      "titleLead": "Logged.",
+      "titleAccent": "Looked good.",
       "wearCount": "{n}× total",
       "today": "TODAY",
       "dismissHint": "TAP ANYWHERE TO DISMISS"

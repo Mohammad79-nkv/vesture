@@ -8,6 +8,10 @@ import { TodayTopBar } from "./TodayTopBar";
 import { TodayHeader } from "./TodayHeader";
 import { TodayCard } from "./TodayCard";
 import { WeatherChip } from "./WeatherChip";
+import { WhySheet } from "./WhySheet";
+import { SavedToast } from "./SavedToast";
+import { WoreConfirmation } from "./WoreConfirmation";
+import { ScheduleSheet } from "./ScheduleSheet";
 import type {
   TodayOutfit,
   TodayRecommendationsPayload,
@@ -46,6 +50,21 @@ export function SparseToday({
     [pieces],
   );
 
+  // Phase 3E.4+6+7 — same lifecycle the healthy view exposes.
+  // Sparse users still want to expand the why, save / wear / schedule
+  // their one outfit, etc. Only difference vs TodayContent: there's
+  // no swap / lock / refresh + no PullToRefresh wrapper here.
+  const [whyOpen, setWhyOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [savedToast, setSavedToast] = useState<{
+    outfitId: string;
+    name: string;
+    pieceCount: number;
+  } | null>(null);
+  const [woreOverlay, setWoreOverlay] = useState<{
+    piecesLogged: number;
+  } | null>(null);
+
   // The sparse view only renders the first outfit even if the
   // recommender returned more — the design pushes for "one outfit,
   // from your N" focus. Extras are dropped (cache still keeps them).
@@ -81,7 +100,7 @@ export function SparseToday({
         sub={recommendations.headline.sub ?? null}
       />
 
-      {/* Single outfit */}
+      {/* Single outfit — tap the card to open the why sheet. */}
       <div className="px-4 pt-5">
         {hero && (
           <TodayCard
@@ -89,6 +108,7 @@ export function SparseToday({
             pieces={pieceMap}
             primary
             badgeAllOwn={t("badge.allOwn")}
+            onTapCard={() => setWhyOpen(true)}
           />
         )}
       </div>
@@ -131,15 +151,79 @@ export function SparseToday({
       </div>
 
       {/* Tip line — uses the model's why if it provided one,
-         otherwise a static prompt about closet variety. */}
+         otherwise a static prompt about closet variety. Tap to
+         expand the why-sheet just like the healthy view. */}
       <div className="px-5 pt-3.5">
-        <p className="flex items-center gap-2 text-[11.5px] leading-[1.5] text-ink/55">
+        <button
+          type="button"
+          onClick={() => hero && setWhyOpen(true)}
+          disabled={!hero}
+          className="flex w-full items-center gap-2 text-start text-[11.5px] leading-[1.5] text-ink/55 disabled:cursor-default"
+        >
           <span aria-hidden="true" className="text-primary">
             ✦
           </span>
-          {hero?.why ?? tSparse("tipFallback")}
-        </p>
+          <span className="flex-1">
+            {hero?.why ?? tSparse("tipFallback")}
+          </span>
+          {hero && (
+            <span aria-hidden="true" className="text-ink/40">
+              →
+            </span>
+          )}
+        </button>
       </div>
+
+      {/* Why sheet (frame 07). Same component the healthy view
+         mounts; sparse just has a single hero outfit to act on. */}
+      <WhySheet
+        open={whyOpen}
+        onClose={() => setWhyOpen(false)}
+        outfit={hero}
+        pieces={pieceMap}
+        weather={weather}
+        contextKicker={recommendations.headline.kicker}
+        onSaved={(outfitId) => {
+          if (!hero) return;
+          setSavedToast({
+            outfitId,
+            name: hero.name,
+            pieceCount: hero.pieces.length,
+          });
+        }}
+        onWore={(count) => setWoreOverlay({ piecesLogged: count })}
+        onSchedule={() => setScheduleOpen(true)}
+      />
+
+      {/* Saved toast / Wore confirmation / Schedule sheet — copies
+         of the healthy-view wiring so all three lifecycle paths
+         (Save / Wear / Schedule) work the moment a user has even
+         one piece in the closet. */}
+      {savedToast ? (
+        <SavedToast
+          outfitId={savedToast.outfitId}
+          outfitName={savedToast.name}
+          pieceCount={savedToast.pieceCount}
+          onDismiss={() => setSavedToast(null)}
+        />
+      ) : null}
+
+      <WoreConfirmation
+        open={woreOverlay !== null}
+        onClose={() => setWoreOverlay(null)}
+        outfit={hero}
+        pieces={pieceMap}
+        piecesLogged={woreOverlay?.piecesLogged ?? 0}
+      />
+
+      <ScheduleSheet
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        outfit={hero}
+        pieces={pieceMap}
+        existingDates={new Set()}
+        onScheduled={() => setScheduleOpen(false)}
+      />
     </div>
   );
 }

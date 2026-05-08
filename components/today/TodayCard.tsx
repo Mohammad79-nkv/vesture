@@ -37,6 +37,7 @@ export function TodayCard({
   variant = "full",
   badgeAllOwn,
   lockedLabel,
+  onTapCard,
   onTapPiece,
   onToggleLock,
 }: {
@@ -49,10 +50,15 @@ export function TodayCard({
   // Translated "LOCKED" copy used by the lock badge. Optional —
   // no badge renders when not provided.
   lockedLabel?: string;
+  // Tap on the card body (not the piece thumbs / lock button)
+  // opens the WhySheet for THIS outfit. Piece + lock buttons
+  // stopPropagation so they don't double-fire.
+  onTapCard?: () => void;
   onTapPiece?: (slot: OutfitSlot, pieceId: string) => void;
   onToggleLock?: (next: boolean) => void;
 }) {
   const locked = outfit.locked === true;
+  const cardTappable = Boolean(onTapCard);
   // Stable rendering order regardless of how the model returned slots.
   const orderedPieces = [...outfit.pieces].sort(
     (a, b) =>
@@ -68,6 +74,7 @@ export function TodayCard({
       : "bg-paper text-ink shadow-[0_1px_0_rgba(33,39,57,0.03)]",
     variant === "mini" ? "p-2.5" : "p-3.5",
     locked ? "shadow-[inset_0_0_0_1.5px_#CD0268,0_8px_24px_rgba(205,2,104,0.15)]" : "",
+    cardTappable ? "cursor-pointer transition-transform active:scale-[0.99]" : "",
   ].join(" ");
 
   const titleSize = variant === "mini" ? "text-[14px]" : "text-[22px]";
@@ -75,7 +82,22 @@ export function TodayCard({
   const thumbHeight = variant === "mini" ? "h-[64px]" : "h-[110px]";
 
   return (
-    <div className={cardClass}>
+    <div
+      className={cardClass}
+      onClick={cardTappable ? () => onTapCard?.() : undefined}
+      role={cardTappable ? "button" : undefined}
+      tabIndex={cardTappable ? 0 : undefined}
+      onKeyDown={
+        cardTappable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onTapCard?.();
+              }
+            }
+          : undefined
+      }
+    >
       {/* LOCKED badge above the card header — only shows when
          locked. Frame 05 puts it at top-left with a tiny bookmark
          glyph so the card visually announces "kept on refresh". */}
@@ -115,11 +137,16 @@ export function TodayCard({
             </span>
           )}
           {/* Lock toggle — small icon button, accessible on
-             desktop + obvious on mobile (no long-press required). */}
+             desktop + obvious on mobile (no long-press required).
+             stopPropagation so card-tap (open WhySheet) doesn't
+             also fire when the user is just pinning the look. */}
           {onToggleLock && variant === "full" && (
             <button
               type="button"
-              onClick={() => onToggleLock(!locked)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleLock(!locked);
+              }}
               aria-pressed={locked}
               aria-label={lockedLabel ?? "Lock outfit"}
               className={[
@@ -148,7 +175,13 @@ export function TodayCard({
               type={tappable ? ("button" as const) : undefined}
               onClick={
                 tappable
-                  ? () => onTapPiece?.(p.slot as OutfitSlot, p.pieceId)
+                  ? (e) => {
+                      // Stop the card's own click from firing —
+                      // tapping a piece thumb is the swap gesture,
+                      // not the why gesture.
+                      e.stopPropagation();
+                      onTapPiece?.(p.slot as OutfitSlot, p.pieceId);
+                    }
                   : undefined
               }
               className={[

@@ -386,7 +386,8 @@
     },
     "why": {
       "eyebrow": "لماذا هذه الإطلالة",
-      "title": "{name} هي الأنسب<br/><accent>لهذا الـ{context}.</accent>",
+      "titleLead": "{name} هي الأنسب",
+      "titleAccent": "لهذا الـ{context}.",
       "wear": "ارتدِها",
       "logging": "جارٍ التسجيل…",
       "save": "احفظ",
@@ -421,7 +422,8 @@
     "wore": {
       "dialogLabel": "ارتديتها",
       "kicker": "سُجِّل · {count, plural, one {# قطعة} other {# قطع}}",
-      "title": "سُجِّل.<br/><accent>بدت جميلة.</accent>",
+      "titleLead": "سُجِّل.",
+      "titleAccent": "بدت جميلة.",
       "wearCount": "{n}× إجمالاً",
       "today": "اليوم",
       "dismissHint": "اضغط في أي مكان للإغلاق"

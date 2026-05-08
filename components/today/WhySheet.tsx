@@ -246,17 +246,17 @@ export function WhySheet({
                 {t("eyebrow")}
               </p>
               <h2 className="mt-2 text-[26px] font-bold leading-[1.05] tracking-[-0.02em]">
-                {outfit
-                  ? t.rich("title", {
-                      name: outfit.name,
-                      context: contextKicker.toLowerCase(),
-                      accent: (chunks) => (
-                        <span className="font-light italic text-primary">
-                          {chunks}
-                        </span>
-                      ),
-                    })
-                  : null}
+                {outfit ? (
+                  <>
+                    {t("titleLead", { name: outfit.name })}
+                    <br />
+                    <span className="font-light italic text-primary">
+                      {t("titleAccent", {
+                        context: contextKicker.toLowerCase(),
+                      })}
+                    </span>
+                  </>
+                ) : null}
               </h2>
             </div>
             <button

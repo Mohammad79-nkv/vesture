@@ -79,11 +79,11 @@ export function WoreConfirmation({
           {t("kicker", { count: piecesLogged })}
         </p>
         <h1 className="mt-2.5 text-[44px] font-bold leading-[0.95] tracking-[-0.03em]">
-          {t.rich("title", {
-            accent: (chunks) => (
-              <span className="font-light italic text-primary">{chunks}</span>
-            ),
-          })}
+          {t("titleLead")}
+          <br />
+          <span className="font-light italic text-primary">
+            {t("titleAccent")}
+          </span>
         </h1>
       </div>
 

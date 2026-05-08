@@ -89,10 +89,11 @@ export function TodayContent({
     return () => clearTimeout(id);
   }, [recommendations]);
 
-  // Why-sheet + save/wore lifecycle (Phase 3E.4+6). The hero
-  // outfit (first card) is the one the why-line preview describes,
-  // and Save/Wear act on it.
-  const [whyOpen, setWhyOpen] = useState(false);
+  // Why-sheet + save/wore lifecycle (Phase 3E.4+6). Each card
+  // opens its own WhySheet — we track which outfit index is
+  // active so Save/Wear/Schedule act on whatever the user
+  // tapped, not just the hero.
+  const [whyOutfitIdx, setWhyOutfitIdx] = useState<number | null>(null);
   const [savedToast, setSavedToast] = useState<{
     outfitId: string;
     name: string;
@@ -100,14 +101,18 @@ export function TodayContent({
   } | null>(null);
   const [woreOverlay, setWoreOverlay] = useState<{
     piecesLogged: number;
+    outfitIdx: number;
   } | null>(null);
 
   // Phase 3E.5 — swap sheet target.
   const [swapTarget, setSwapTarget] = useState<SwapTarget | null>(null);
 
-  // Phase 3E.7 — schedule sheet open state. We always schedule
-  // the hero outfit (matches the why-sheet that triggered it).
-  const [scheduleOpen, setScheduleOpen] = useState(false);
+  // Phase 3E.7 — schedule sheet target. Tracks which outfit's
+  // schedule the user is editing (matches whatever was active
+  // in the WhySheet when they tapped Schedule).
+  const [scheduleOutfitIdx, setScheduleOutfitIdx] = useState<number | null>(
+    null,
+  );
   const scheduledDateSet = useMemo(
     () => new Set(scheduledDates),
     [scheduledDates],
@@ -213,7 +218,10 @@ export function TodayContent({
         />
       )}
 
-      {/* Outfit cards — layout flips on time-of-day */}
+      {/* Outfit cards — layout flips on time-of-day. Every card
+         is tappable: clicking the body opens that card's own
+         WhySheet. Inner buttons (piece thumbs, lock) stop
+         propagation so they keep their own meanings. */}
       <div className="px-4 pt-5">
         {isEvening || outfits.length === 1 ? (
           <div className="flex flex-col gap-2.5">
@@ -225,6 +233,7 @@ export function TodayContent({
                 primary={idx === 0}
                 badgeAllOwn={t("badge.allOwn")}
                 lockedLabel={t("locked")}
+                onTapCard={() => setWhyOutfitIdx(idx)}
                 onTapPiece={makeTapPiece(idx, o)}
                 onToggleLock={(next) => handleToggleLock(idx, next)}
               />
@@ -239,6 +248,7 @@ export function TodayContent({
                 primary
                 badgeAllOwn={t("badge.allOwn")}
                 lockedLabel={t("locked")}
+                onTapCard={() => setWhyOutfitIdx(0)}
                 onTapPiece={makeTapPiece(0, hero)}
                 onToggleLock={(next) => handleToggleLock(0, next)}
               />
@@ -249,15 +259,19 @@ export function TodayContent({
                   {t("orLighter")}
                 </p>
                 <div className="mt-2.5 grid grid-cols-2 gap-2">
-                  {others.map((o, idx) => (
-                    <TodayCard
-                      key={`${o.name}-mini-${idx}`}
-                      outfit={o}
-                      pieces={pieceMap}
-                      variant="mini"
-                      badgeAllOwn={t("badge.allOwn")}
-                    />
-                  ))}
+                  {others.map((o, idx) => {
+                    const realIdx = idx + 1; // others starts at index 1
+                    return (
+                      <TodayCard
+                        key={`${o.name}-mini-${idx}`}
+                        outfit={o}
+                        pieces={pieceMap}
+                        variant="mini"
+                        badgeAllOwn={t("badge.allOwn")}
+                        onTapCard={() => setWhyOutfitIdx(realIdx)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -265,15 +279,14 @@ export function TodayContent({
         )}
       </div>
 
-      {/* Why-line preview — tap to expand the dark reasoning sheet
-         where Wear / Save / Share live. Pinned just above the
-         floating nav (same offset as EmptyToday's CTA) so the
-         whole site shares a consistent "above-the-tab-bar"
-         rest position. */}
+      {/* Why-line preview — tap to open the WhySheet for the
+         hero outfit. Same affordance every card now exposes via
+         body-tap; this pill is the "primary" callout pinned
+         above the nav. */}
       {hero?.why ? (
         <button
           type="button"
-          onClick={() => setWhyOpen(true)}
+          onClick={() => setWhyOutfitIdx(0)}
           className="fixed inset-x-4 z-10 text-start"
           style={{ bottom: "calc(100px + env(safe-area-inset-bottom, 0px))" }}
         >
@@ -281,28 +294,37 @@ export function TodayContent({
         </button>
       ) : null}
 
-      {/* Why sheet (frame 07). Owns the actual Wear / Save /
-         Share buttons. Successful Wear opens the WoreConfirmation
-         overlay; successful Save fires the SavedToast. */}
+      {/* Why sheet (frame 07). Renders the outfit at whichever
+         index the user tapped. Save / Wear act on the same
+         outfit, so the toasts read correctly even when alt
+         cards are tapped. */}
       <WhySheet
-        open={whyOpen}
-        onClose={() => setWhyOpen(false)}
-        outfit={hero}
+        open={whyOutfitIdx !== null}
+        onClose={() => setWhyOutfitIdx(null)}
+        outfit={
+          whyOutfitIdx !== null ? outfits[whyOutfitIdx] : undefined
+        }
         pieces={pieceMap}
         weather={weather}
         contextKicker={liveRecs.headline.kicker}
         onSaved={(outfitId) => {
-          if (!hero) return;
+          const o =
+            whyOutfitIdx !== null ? outfits[whyOutfitIdx] : undefined;
+          if (!o) return;
           setSavedToast({
             outfitId,
-            name: hero.name,
-            pieceCount: hero.pieces.length,
+            name: o.name,
+            pieceCount: o.pieces.length,
           });
         }}
         onWore={(count) => {
-          setWoreOverlay({ piecesLogged: count });
+          if (whyOutfitIdx === null) return;
+          setWoreOverlay({ piecesLogged: count, outfitIdx: whyOutfitIdx });
         }}
-        onSchedule={() => setScheduleOpen(true)}
+        onSchedule={() => {
+          if (whyOutfitIdx === null) return;
+          setScheduleOutfitIdx(whyOutfitIdx);
+        }}
       />
 
       {/* Saved toast (frame 08). Auto-dismisses ~3.5s after save. */}
@@ -315,12 +337,15 @@ export function TodayContent({
         />
       ) : null}
 
-      {/* Wore confirmation (frame 09). Full-screen takeover; tap
-         anywhere or wait ~6s to dismiss back to /today. */}
+      {/* Wore confirmation (frame 09). Renders the outfit the
+         user actually wore (whichever card they tapped), not
+         always the hero. */}
       <WoreConfirmation
         open={woreOverlay !== null}
         onClose={() => setWoreOverlay(null)}
-        outfit={hero}
+        outfit={
+          woreOverlay !== null ? outfits[woreOverlay.outfitIdx] : undefined
+        }
         pieces={pieceMap}
         piecesLogged={woreOverlay?.piecesLogged ?? 0}
       />
@@ -335,19 +360,22 @@ export function TodayContent({
         onApplied={(payload) => setLiveRecs(payload)}
       />
 
-      {/* Schedule sheet (frame 10). Acts on the hero outfit;
-         opening replaces the why sheet because both can't share
-         the screen meaningfully. */}
+      {/* Schedule sheet (frame 10). Acts on the outfit that was
+         in the WhySheet when the user tapped Schedule. */}
       <ScheduleSheet
-        open={scheduleOpen}
-        onClose={() => setScheduleOpen(false)}
-        outfit={hero}
+        open={scheduleOutfitIdx !== null}
+        onClose={() => setScheduleOutfitIdx(null)}
+        outfit={
+          scheduleOutfitIdx !== null
+            ? outfits[scheduleOutfitIdx]
+            : undefined
+        }
         pieces={pieceMap}
         existingDates={scheduledDateSet}
         onScheduled={() => {
           // No client-side toast yet — server action revalidates
           // /today + /calendar so the pill repaints on next nav.
-          setScheduleOpen(false);
+          setScheduleOutfitIdx(null);
         }}
       />
     </div>

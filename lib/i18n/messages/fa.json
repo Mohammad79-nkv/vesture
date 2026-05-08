@@ -386,7 +386,8 @@
     },
     "why": {
       "eyebrow": "چرا این ست",
-      "title": "{name} درسته<br/><accent>برای {context}.</accent>",
+      "titleLead": "{name} درسته",
+      "titleAccent": "برای {context}.",
       "wear": "همینو می‌پوشم",
       "logging": "در حال ثبت…",
       "save": "ذخیره",
@@ -421,7 +422,8 @@
     "wore": {
       "dialogLabel": "این رو پوشیدم",
       "kicker": "ثبت شد · {count, plural, one {# قطعه} other {# قطعه}}",
-      "title": "ثبت شد.<br/><accent>خوب به‌نظر رسید.</accent>",
+      "titleLead": "ثبت شد.",
+      "titleAccent": "خوب به‌نظر رسید.",
       "wearCount": "{n}× در کل",
       "today": "امروز",
       "dismissHint": "هر جا بزن تا بسته شه"
