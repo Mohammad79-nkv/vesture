@@ -23,6 +23,7 @@ export default async function ClosetStylesPage({
   const outfits = await listMyOutfits({ userId: user.id });
 
   const t = await getTranslations("closetStyles");
+  const tScore = await getTranslations("closetScore");
   const dateFmt = new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
@@ -101,6 +102,8 @@ export default async function ClosetStylesPage({
                     name={outfit.name}
                     pieces={cards}
                     worn={worn}
+                    score={outfit.compositeScore}
+                    rescoreLabel={tScore("rescoreBadge")}
                     untitledLabel={t("untitled")}
                     neverWornLabel={t("wornNeverYet")}
                   />

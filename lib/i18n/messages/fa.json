@@ -463,6 +463,36 @@
     "back": "بازگشت به ست‌ها",
     "scoreSoon": "امتیاز AI · به‌زودی"
   },
+  "closetScore": {
+    "getCta": "نظر AI رو بگیر",
+    "scoring": "در حال امتیازدهی…",
+    "rescore": "امتیاز مجدد",
+    "rescoreBadge": "امتیاز مجدد؟",
+    "verdict": "نظر",
+    "composite": "/ ۱۰۰",
+    "labels": {
+      "STRONG": "عالی",
+      "GOOD": "خوب",
+      "OK": "متوسط",
+      "WEAK": "ضعیف"
+    },
+    "subScores": {
+      "harmony": "هارمونی",
+      "fit": "تناسب",
+      "occasion": "مناسبت"
+    },
+    "whatWorking": "چی کار می‌کنه",
+    "whatToTry": "چی امتحان کن",
+    "swapFromCloset": "از کلوزِت خودت",
+    "shopSuggestion": "خرید این کمبود",
+    "harmonyDelta": "هارمونی رو از {from} به {to} می‌بره",
+    "fromYourCloset": "از کلوزِت خودت",
+    "errors": {
+      "budgetExceeded": "بودجهٔ AI امروزت تموم شد. نیمه‌شب UTC ریست می‌شه.",
+      "needPieces": "حداقل یه قطعه قبل از امتیازدهی اضافه کن.",
+      "scoreFailed": "امتیازدهی نشد — دوباره تلاش کن."
+    }
+  },
   "closetEmpty": {
     "step": "گام ۰۱ از ۰۳",
     "headlineLead": "کلوزِتت رو",

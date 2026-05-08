@@ -463,6 +463,36 @@
     "back": "عودة للإطلالات",
     "scoreSoon": "تقييم الذكاء الاصطناعي · قريباً"
   },
+  "closetScore": {
+    "getCta": "احصل على تقييم الذكاء الاصطناعي",
+    "scoring": "جارٍ تقييم إطلالتك…",
+    "rescore": "أعد التقييم",
+    "rescoreBadge": "أعد التقييم؟",
+    "verdict": "الحكم",
+    "composite": "/ ١٠٠",
+    "labels": {
+      "STRONG": "ممتاز",
+      "GOOD": "جيد",
+      "OK": "مقبول",
+      "WEAK": "ضعيف"
+    },
+    "subScores": {
+      "harmony": "الانسجام",
+      "fit": "الملاءمة",
+      "occasion": "المناسبة"
+    },
+    "whatWorking": "ما يعمل جيداً",
+    "whatToTry": "ما يمكن تجربته",
+    "swapFromCloset": "من خزانتك",
+    "shopSuggestion": "اشترِ الفجوة",
+    "harmonyDelta": "يرفع الانسجام {from} → {to}",
+    "fromYourCloset": "من خزانتك",
+    "errors": {
+      "budgetExceeded": "استخدمت ميزانية المصمم لهذا اليوم. تُعاد عند منتصف الليل UTC.",
+      "needPieces": "أضف قطعة واحدة على الأقل قبل التقييم.",
+      "scoreFailed": "تعذّر تقييم الإطلالة — حاول مجدداً."
+    }
+  },
   "closetEmpty": {
     "step": "الخطوة ٠١ من ٠٣",
     "headlineLead": "أحضر",

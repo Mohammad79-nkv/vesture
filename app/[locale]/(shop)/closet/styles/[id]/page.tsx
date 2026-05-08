@@ -1,13 +1,15 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { ChevronLeft, Sparkles } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { requireOnboarded } from "@/lib/auth";
-import { getOutfit } from "@/lib/services/outfit";
+import { getOutfit, outfitScoreSchema, type OutfitScore } from "@/lib/services/outfit";
 import { transformedUrl } from "@/lib/adapters/cloudinary";
 import { StyleDetailActions } from "@/components/closet/StyleDetailActions";
 import { MannequinCanvas } from "@/components/closet/MannequinCanvas";
+import { OutfitScoreButton } from "@/components/closet/OutfitScoreButton";
+import { OutfitScorePanel } from "@/components/closet/OutfitScorePanel";
 import type { OutfitSlot } from "@/lib/services/outfit";
 import type { ClosetPiece } from "@prisma/client";
 
@@ -124,17 +126,32 @@ export default async function StyleDetailPage({
           ))}
         </ul>
 
-        {/* AI score · coming soon (Phase 3B will replace this) */}
-        <div className="mt-4 flex items-start gap-3 rounded-2xl bg-primary/10 p-3.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-paper">
-            <Sparkles size={14} aria-hidden="true" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold tracking-[-0.01em] text-primary">
-              {t("scoreSoon")}
-            </p>
-          </div>
-        </div>
+        {/* AI feedback panel — only renders when the outfit has been
+           scored. The persisted columns are independent JSON blobs; we
+           reassemble + re-validate them through outfitScoreSchema so
+           a stale row from an old prompt version doesn't crash this
+           page. If validation fails we treat the score as missing
+           (next "Get AI feedback" press will overwrite). */}
+        {(() => {
+          const persisted = {
+            composite: outfit.compositeScore,
+            label: deriveLabel(outfit.compositeScore),
+            verdict: outfit.verdict,
+            subScores: outfit.subScores,
+            whatWorking: outfit.whatWorking,
+            whatToTry: outfit.whatToTry,
+          };
+          const parsed = outfitScoreSchema.safeParse(persisted);
+          const score: OutfitScore | null = parsed.success ? parsed.data : null;
+          return (
+            <>
+              {score && <OutfitScorePanel score={score} />}
+              <div className="mt-5">
+                <OutfitScoreButton outfitId={outfit.id} hasScore={Boolean(score)} />
+              </div>
+            </>
+          );
+        })()}
 
         {/* Actions */}
         <div className="mt-5">
@@ -143,4 +160,16 @@ export default async function StyleDetailPage({
       </div>
     </main>
   );
+}
+
+// Derive the label from composite. Prisma stores composite + the four
+// JSON blobs separately; the original tool call returned `label`
+// alongside, but we don't persist it (it's a pure function of composite).
+// This rebuilds it before re-validation through outfitScoreSchema.
+function deriveLabel(composite: number | null): string | null {
+  if (composite === null) return null;
+  if (composite >= 85) return "STRONG";
+  if (composite >= 70) return "GOOD";
+  if (composite >= 55) return "OK";
+  return "WEAK";
 }

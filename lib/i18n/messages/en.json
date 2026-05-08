@@ -463,6 +463,36 @@
     "back": "Back to looks",
     "scoreSoon": "AI score · soon"
   },
+  "closetScore": {
+    "getCta": "Get AI feedback",
+    "scoring": "Scoring your look…",
+    "rescore": "Re-score",
+    "rescoreBadge": "Re-score?",
+    "verdict": "Verdict",
+    "composite": "/ 100",
+    "labels": {
+      "STRONG": "STRONG",
+      "GOOD": "GOOD",
+      "OK": "OK",
+      "WEAK": "WEAK"
+    },
+    "subScores": {
+      "harmony": "Harmony",
+      "fit": "Fit",
+      "occasion": "Occasion"
+    },
+    "whatWorking": "What's working",
+    "whatToTry": "What to try",
+    "swapFromCloset": "From your closet",
+    "shopSuggestion": "Shop the gap",
+    "harmonyDelta": "Pushes harmony {from} → {to}",
+    "fromYourCloset": "From your closet",
+    "errors": {
+      "budgetExceeded": "You've used today's stylist budget. It resets at midnight UTC.",
+      "needPieces": "Add at least one piece before scoring.",
+      "scoreFailed": "Couldn't score this look — try again."
+    }
+  },
   "closetEmpty": {
     "step": "Step 01 of 03",
     "headlineLead": "Bring your",

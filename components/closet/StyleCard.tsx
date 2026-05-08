@@ -19,11 +19,21 @@ export type StyleCardPiece = {
   name: string | null;
 };
 
+// Score-pill color tone, mirroring the live builder pill. Tuned by score
+// range, not by hue: ≥85 green, 70-84 amber, <70 magenta.
+function scoreTone(score: number): { bg: string; fg: string } {
+  if (score >= 85) return { bg: "#DCEDF1", fg: "#256776" };
+  if (score >= 70) return { bg: "#FFF1D6", fg: "#7A5410" };
+  return { bg: "#FCE3EE", fg: "#A50253" };
+}
+
 export function StyleCard({
   outfitId,
   name,
   pieces,
   worn,
+  score,
+  rescoreLabel,
   untitledLabel,
   neverWornLabel,
 }: {
@@ -33,11 +43,18 @@ export function StyleCard({
   worn:
     | { wearCount: 0 }
     | { wearCount: number; lastWornFormatted: string };
+  // Persisted composite score, or null if the look hasn't been scored
+  // yet (or was edited and the score was cleared by the service layer).
+  score: number | null;
+  // Surfaces "RE-SCORE?" when the look exists but has no score (edited
+  // since last score, or never scored). Localized.
+  rescoreLabel: string;
   untitledLabel: string;
   neverWornLabel: string;
 }) {
   const visible = pieces.slice(0, 4);
   const overflow = pieces.length - visible.length;
+  const tone = score !== null ? scoreTone(score) : null;
 
   return (
     <Link
@@ -46,7 +63,7 @@ export function StyleCard({
       className="group block rounded-2xl bg-paper p-2.5"
     >
       {/* Composition area — swatch grid */}
-      <div className="grid h-[140px] grid-cols-2 gap-1 overflow-hidden rounded-xl bg-mist p-1">
+      <div className="relative grid h-[140px] grid-cols-2 gap-1 overflow-hidden rounded-xl bg-mist p-1">
         {visible.map((piece, i) => (
           <div
             key={piece.id}
@@ -76,6 +93,23 @@ export function StyleCard({
         {Array.from({ length: Math.max(0, 4 - visible.length) }).map((_, i) => (
           <div key={`pad-${i}`} className="rounded-md bg-ink/[0.04]" />
         ))}
+
+        {/* Top-left status badge — the score pill (when scored) or the
+           RE-SCORE? hint (when not). Skipped entirely if neither applies. */}
+        {tone ? (
+          <span
+            className="absolute start-1.5 top-1.5 rounded-md px-1.5 py-0.5 font-mono text-[10px] font-bold tabular-nums leading-none"
+            style={{ background: tone.bg, color: tone.fg }}
+          >
+            {score}
+          </span>
+        ) : (
+          <span
+            className="absolute start-1.5 top-1.5 rounded-md bg-paper/85 px-1.5 py-0.5 font-mono text-[8.5px] font-semibold uppercase tracking-[0.06em] text-ink/60 backdrop-blur"
+          >
+            {rescoreLabel}
+          </span>
+        )}
       </div>
 
       {/* Meta */}
