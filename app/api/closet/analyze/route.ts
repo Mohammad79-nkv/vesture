@@ -8,6 +8,7 @@ import {
   analyzePiece,
   PieceAnalyzerError,
 } from "@/lib/services/piece-analyzer";
+import { generateCleanProductImage } from "@/lib/services/piece-image-gen";
 
 // POST /api/closet/analyze
 //
@@ -72,16 +73,46 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { piece, tokensUsed } = await analyzePiece({
-      publicId: parsed.data.publicId,
-    });
+    // Tag analysis + clean-product image generation run in parallel.
+    // The analyzer is the must-have (its tags drive the form); the
+    // image gen is best-effort and falls back to the original photo
+    // on any failure (Promise.allSettled lets one fail without
+    // tanking the other).
+    const [analyzerResult, imageGenResult] = await Promise.allSettled([
+      analyzePiece({ publicId: parsed.data.publicId }),
+      generateCleanProductImage({
+        userId: dbUser.id,
+        sourcePublicId: parsed.data.publicId,
+      }),
+    ]);
 
-    // Token bookkeeping — same trick the score endpoint uses: stamp
-    // the cost on a placeholder ChatMessage so tokensUsedTodayForUser
-    // sums consistently across stylist + scoring + analyzer without
-    // a parallel tally table. Best-effort; if the write fails the
-    // analysis still succeeds and we just lose this call's budget
-    // accuracy.
+    if (analyzerResult.status === "rejected") {
+      // Re-throw so the existing error mapping below catches it.
+      throw analyzerResult.reason;
+    }
+    const { piece, tokensUsed: analyzerTokens } = analyzerResult.value;
+
+    // Image-gen failed → keep going, just hand back null so the
+    // client uses the original photo as the piece's main image.
+    const generatedImage =
+      imageGenResult.status === "fulfilled"
+        ? {
+            publicId: imageGenResult.value.publicId,
+            url: imageGenResult.value.url,
+          }
+        : null;
+    const imageTokens =
+      imageGenResult.status === "fulfilled"
+        ? imageGenResult.value.tokensUsed
+        : 0;
+
+    // Token bookkeeping for both calls — same trick the score
+    // endpoint uses: stamp the cost on placeholder ChatMessage rows
+    // so tokensUsedTodayForUser sums consistently across stylist +
+    // scoring + analyzer + image gen without a parallel tally
+    // table. Best-effort; if the write fails the analysis still
+    // succeeds and we just lose this call's budget accuracy.
+    const totalTokens = analyzerTokens + imageTokens;
     await prisma.chatSession
       .create({
         data: {
@@ -91,7 +122,7 @@ export async function POST(req: NextRequest) {
               {
                 role: "ASSISTANT",
                 content: "[piece analysis]",
-                tokensUsed,
+                tokensUsed: totalTokens,
               },
             ],
           },
@@ -99,7 +130,11 @@ export async function POST(req: NextRequest) {
       })
       .catch(() => {});
 
-    return Response.json({ piece, tokensUsed });
+    return Response.json({
+      piece,
+      generatedImage,
+      tokensUsed: totalTokens,
+    });
   } catch (err) {
     if (err instanceof PieceAnalyzerError) {
       const status =

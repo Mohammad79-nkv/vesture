@@ -46,6 +46,23 @@ export async function deleteImage(publicId: string): Promise<void> {
   await cloudinary.uploader.destroy(publicId, { invalidate: true });
 }
 
+// Server-side upload from a base64 data URI (e.g. "data:image/png;
+// base64,..."). Used by the AI image-gen pipeline (Phase 3D follow-up)
+// where the model returns the generated image in-band rather than as
+// a URL we can stream from. Foldered under closet/{userId}/ so
+// cleanup-by-user mirrors the signed-upload path. Returns the standard
+// publicId/url pair the rest of the codebase already consumes.
+export async function uploadClosetImageFromDataUri(args: {
+  userId: string;
+  dataUri: string;
+}): Promise<{ publicId: string; url: string }> {
+  const result = await cloudinary.uploader.upload(args.dataUri, {
+    folder: `${CLOSET_FOLDER}/${args.userId}`,
+    resource_type: "image",
+  });
+  return { publicId: result.public_id, url: result.secure_url };
+}
+
 // Build a transformed URL for thumbnails / hero images. Cloudinary serves
 // AVIF/WebP automatically with f_auto.
 export function transformedUrl(publicId: string, width: number): string {

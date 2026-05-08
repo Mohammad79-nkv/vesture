@@ -48,6 +48,19 @@ export function todayModel(): string {
   return process.env.OPENROUTER_TODAY_MODEL ?? "anthropic/claude-haiku-4.5";
 }
 
+// Image-generation model used by the closet auto-tag flow to turn a
+// noisy user photo into a clean catalog-style product image. Default
+// is Gemini 2.5 Flash Image (a.k.a. "Nano Banana") via OpenRouter
+// — image-to-image with a text prompt. The closet stores the
+// generated image's Cloudinary publicId; the original upload is
+// preserved in Cloudinary for now but unreferenced.
+export function imageGenModel(): string {
+  return (
+    process.env.OPENROUTER_IMAGE_MODEL ??
+    "google/gemini-2.5-flash-image-preview"
+  );
+}
+
 export function dailyTokenBudgetPerUser(): number {
   const raw = process.env.STYLIST_DAILY_TOKEN_BUDGET_PER_USER ?? "50000";
   const n = Number.parseInt(raw, 10);

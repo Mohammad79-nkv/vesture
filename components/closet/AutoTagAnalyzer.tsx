@@ -54,6 +54,14 @@ export function AutoTagAnalyzer({
 
   const [phase, setPhase] = useState<Phase>("analyzing");
   const [piece, setPiece] = useState<AnalyzedPiece | null>(null);
+  // The clean-product image gen runs alongside tag analysis and
+  // can fail independently. When present we save it as the piece's
+  // primary image; when null we fall back to the user's original
+  // upload (graceful degradation).
+  const [generatedImage, setGeneratedImage] = useState<{
+    publicId: string;
+    url: string;
+  } | null>(null);
   const [errorCode, setErrorCode] = useState<
     "BUDGET_EXCEEDED" | "MODEL_FAILED" | "OFFLINE" | null
   >(null);
@@ -95,6 +103,7 @@ export function AutoTagAnalyzer({
     (async () => {
       setPhase("analyzing");
       setPiece(null);
+      setGeneratedImage(null);
       setErrorCode(null);
       setRevealedAt(null);
       const startedAt = Date.now();
@@ -113,7 +122,10 @@ export function AutoTagAnalyzer({
           setPhase("error");
           return;
         }
-        const data = (await res.json()) as { piece: AnalyzedPiece };
+        const data = (await res.json()) as {
+          piece: AnalyzedPiece;
+          generatedImage: { publicId: string; url: string } | null;
+        };
         // Pad the visible analyze time so the scan feels intentional
         // even when the model returns in a few hundred ms.
         const waited = Date.now() - startedAt;
@@ -121,6 +133,7 @@ export function AutoTagAnalyzer({
         setTimeout(() => {
           if (cancelled) return;
           setPiece(data.piece);
+          setGeneratedImage(data.generatedImage);
           setPhase("ready");
           setRevealedAt(Date.now());
         }, wait);
@@ -216,9 +229,17 @@ export function AutoTagAnalyzer({
   function handleContinue() {
     if (!piece) return;
     setPhase("saving");
-    const input: ClosetPieceInput = {
-      imageUrl: photo.url,
+    // Prefer the AI-generated clean-product image when one came
+    // back; otherwise fall back to the user's original photo. The
+    // ClosetPiece row only stores ONE image — we pick the cleaner
+    // one when the model gave us a usable result.
+    const finalImage = generatedImage ?? {
       publicId: photo.publicId,
+      url: photo.url,
+    };
+    const input: ClosetPieceInput = {
+      imageUrl: finalImage.url,
+      publicId: finalImage.publicId,
       name: piece.name,
       category: piece.category,
       color: piece.color,
