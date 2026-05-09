@@ -172,10 +172,15 @@ export function AddPieceForm() {
             uploading ? "opacity-70" : "hover:border-ink/50",
           ].join(" ")}
         >
+          {/* No `capture` attribute: with it set the OS opens the
+             camera directly and skips the gallery. Without it,
+             iOS Safari + Android Chrome both show a native picker
+             with Take Photo / Photo Library / Files options, which
+             is what users actually want when adding a piece they
+             already have a photo of. */}
           <input
             type="file"
             accept="image/*"
-            capture="environment"
             hidden
             disabled={uploading}
             onChange={(e) => handleFile(e.target.files)}
