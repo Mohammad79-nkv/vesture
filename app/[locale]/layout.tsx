@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { localeDirection, locales, type Locale } from "@/lib/i18n/config";
 import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration";
+import { SplashScreen } from "@/components/ui/SplashScreen";
 
 const latin = Manrope({
   variable: "--font-latin",
@@ -103,6 +104,7 @@ export default async function LocaleLayout({
         className={`${latin.variable} ${arabic.variable} ${persian.variable} ${display.variable} ${mono.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col overflow-x-clip bg-mist text-ink">
+          <SplashScreen />
           <ServiceWorkerRegistration />
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
         </body>

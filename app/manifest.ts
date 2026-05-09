@@ -21,7 +21,11 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#F2F4F7",
+    // background_color matches the SplashScreen overlay (ink) so
+    // the iOS native pre-hydration splash hands off seamlessly
+    // to the JS-rendered splash, which then fades to reveal the
+    // paper page surface.
+    background_color: "#212739",
     theme_color: "#212739",
     icons: [
       {
