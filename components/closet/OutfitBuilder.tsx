@@ -261,8 +261,13 @@ export function OutfitBuilder({
          eyebrow + title in the middle, "My styles" pill (with
          bookmark icon) on the end. The (shop) layout hides the
          global Nav on /closet/builder so this is the only header on
-         the page. */}
-      <header className="flex items-start gap-3 px-5 pt-4 pb-3">
+         the page. paddingTop adds env(safe-area-inset-top) so the
+         iOS status bar doesn't sit on top of the My Styles pill in
+         PWA standalone mode. */}
+      <header
+        className="flex items-start gap-3 px-5 pb-3"
+        style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))" }}
+      >
         <Link
           href="/closet"
           aria-label={t("back")}
