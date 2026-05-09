@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ArrowRight, Camera, Loader2, RefreshCcw, Sparkles } from "lucide-react";
 import { createPieceAction } from "@/app/[locale]/(shop)/closet/actions";
 import { AutoTagAnalyzer } from "@/components/closet/AutoTagAnalyzer";
+import { compressImage } from "@/lib/domain/compress-image";
 import type { ClosetPieceInput } from "@/lib/domain/schemas";
 
 const CATEGORIES = [
@@ -84,10 +85,16 @@ export function AddPieceForm() {
     setUploadError(null);
     setUploading(true);
     try {
+      // Compress before upload — phone photos are routinely 4-12 MB
+      // and we don't need that resolution for closet thumbnails or
+      // downstream AI calls. compressImage falls back to the
+      // original file on HEIC / decode failure so this never blocks
+      // the upload.
+      const compressed = await compressImage(file);
       const sigRes = await fetch("/api/upload?kind=closet", { method: "POST" });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
       const sig = (await sigRes.json()) as SignatureResponse;
-      const result = await uploadToCloudinary(file, sig);
+      const result = await uploadToCloudinary(compressed, sig);
       setPhoto({ url: result.url, publicId: result.publicId });
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Upload failed");
