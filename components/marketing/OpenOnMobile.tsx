@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/adapters/prisma";
 
 // Desktop-only overlay. Vesture is mobile-first by design — the
 // closet, today, builder, and stylist surfaces are all built for
@@ -12,11 +14,24 @@ import { getTranslations } from "next-intl/server";
 // on smaller screens it disappears entirely (the real app
 // renders underneath).
 //
+// Role gate: only BUYER users see this overlay. Sellers + admins
+// have legit desktop surfaces (/dashboard, /admin) and signed-
+// out visitors should see the marketing landing without it
+// covering the page.
+//
 // Server component — no interactivity needed. The faux QR grid
 // is pre-computed deterministically below; floating + spin
 // animations come from keyframes in globals.css.
 
 export async function OpenOnMobile() {
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return null;
+  const dbUser = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { role: true },
+  });
+  if (dbUser?.role !== "BUYER") return null;
+
   const t = await getTranslations("openOnMobile");
 
   return (
