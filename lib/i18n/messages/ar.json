@@ -1,4 +1,40 @@
 {
+  "openOnMobile": {
+    "kicker": "Vesture · للموبايل أولاً",
+    "headlineLine1": "افتح هذا",
+    "headlineLine2Lead": "على",
+    "headlineLine2Accent": "هاتفك.",
+    "lede": "Vesture تعيش حيث تعيش خزانتك — في جيبك. خذها معك إلى غرفة النوم، غرفة الملابس، باب البيت في ٧:٤٢ مساءً حين تكون متأخراً.",
+    "steps": {
+      "scan":  { "title": "امسح الرمز",       "sub": "QR · ٥ ثوانٍ" },
+      "text":  { "title": "أو أرسل لنفسك",   "sub": "vesture.app/m" },
+      "add":   { "title": "أضف للشاشة",      "sub": "يبدو أصلياً" },
+      "open":  { "title": "افتح الليلة",     "sub": "خزانتك · جاهزة" }
+    },
+    "footnote": {
+      "desktopSoon": "نسخة الديسكتوب قريباً.",
+      "notify": "أعلمني"
+    },
+    "annot": {
+      "tapToSwap": "اضغط للتبديل",
+      "weather": "١٧° · عشاء",
+      "allOwn": "كلها من خزانتك"
+    },
+    "phone": {
+      "eyebrow": "الثلاثاء · ١٨:٤٢ · الليلة",
+      "titleLine1": "ثلاث",
+      "titleLine2Lead": "إطلالات،",
+      "titleLine2Accent": "جاهزة.",
+      "allOwn": "كلها لك"
+    },
+    "sticker": { "text": "امسح · افتح على الهاتف · " },
+    "qr": { "url": "VESTURE.APP/M", "scan": "امسح للفتح" },
+    "footer": {
+      "copyright": "© Vesture · ٢٠٢٦",
+      "build": "Build 0.2",
+      "platform": "Mobile · iOS / Android"
+    }
+  },
   "brand": {
     "name": "Vesture",
     "tagline": "أزياء مختارة من بوتيكات مستقلة"

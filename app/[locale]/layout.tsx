@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { localeDirection, locales, type Locale } from "@/lib/i18n/config";
 import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration";
+import { OpenOnMobile } from "@/components/marketing/OpenOnMobile";
 import { SplashScreen } from "@/components/ui/SplashScreen";
 
 const latin = Manrope({
@@ -107,6 +108,13 @@ export default async function LocaleLayout({
           <SplashScreen />
           <ServiceWorkerRegistration />
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          {/* Desktop-only overlay. Vesture is built for ~390px;
+             anything ≥lg covers the app with an "Open on your
+             phone" funnel instead of pretending the mobile UI
+             reads at desktop widths. CSS-only gate (`hidden
+             lg:flex` inside) so the real app still hydrates
+             underneath. */}
+          <OpenOnMobile />
         </body>
       </html>
     </ClerkProvider>

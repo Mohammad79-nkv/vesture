@@ -1,4 +1,40 @@
 {
+  "openOnMobile": {
+    "kicker": "Vesture · اول موبایل",
+    "headlineLine1": "این رو",
+    "headlineLine2Lead": "روی",
+    "headlineLine2Accent": "گوشیت باز کن.",
+    "lede": "Vesture همون جایی زندگی می‌کنه که کلوزِتت — توی جیبت. ببرش با خودت توی اتاق خواب، اتاق پرو، در ورودی ساعت ۱۹:۴۲ که از قبل دیرت شده.",
+    "steps": {
+      "scan":  { "title": "کد رو اسکن کن",   "sub": "QR · ۵ ثانیه" },
+      "text":  { "title": "یا به خودت بفرست", "sub": "vesture.app/m" },
+      "add":   { "title": "اضافه به home",   "sub": "مثل اپ واقعی" },
+      "open":  { "title": "Today رو باز کن",  "sub": "کلوزِتت · آماده" }
+    },
+    "footnote": {
+      "desktopSoon": "نسخه دسکتاپ به‌زودی.",
+      "notify": "خبرم کن"
+    },
+    "annot": {
+      "tapToSwap": "بزن تا عوض کنی",
+      "weather": "۱۷° · شام",
+      "allOwn": "همه از کلوزِتت"
+    },
+    "phone": {
+      "eyebrow": "سه‌شنبه · ۱۸:۴۲ · امشب",
+      "titleLine1": "سه",
+      "titleLine2Lead": "ست،",
+      "titleLine2Accent": "آماده.",
+      "allOwn": "همه از کلوزِت"
+    },
+    "sticker": { "text": "اسکن کن · روی گوشی باز کن · " },
+    "qr": { "url": "VESTURE.APP/M", "scan": "اسکن کن" },
+    "footer": {
+      "copyright": "© Vesture · ۲۰۲۶",
+      "build": "Build 0.2",
+      "platform": "Mobile · iOS / Android"
+    }
+  },
   "brand": {
     "name": "Vesture",
     "tagline": "مدِ منتخب از بوتیک‌های مستقل"

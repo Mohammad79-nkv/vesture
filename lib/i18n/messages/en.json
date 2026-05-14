@@ -3,6 +3,42 @@
     "name": "Vesture",
     "tagline": "Curated fashion from independent boutiques"
   },
+  "openOnMobile": {
+    "kicker": "Vesture · mobile-first",
+    "headlineLine1": "Open this",
+    "headlineLine2Lead": "on your",
+    "headlineLine2Accent": "phone.",
+    "lede": "Vesture lives where your closet does — in your pocket. Take it with you to the bedroom, the dressing room, the front door at 7:42pm when you're already late.",
+    "steps": {
+      "scan":  { "title": "Scan the code",   "sub": "QR · 5 seconds" },
+      "text":  { "title": "Or text yourself", "sub": "vesture.app/m" },
+      "add":   { "title": "Add to home",     "sub": "Looks native" },
+      "open":  { "title": "Open Tonight",    "sub": "Your closet · ready" }
+    },
+    "footnote": {
+      "desktopSoon": "Desktop coming soon.",
+      "notify": "Notify me"
+    },
+    "annot": {
+      "tapToSwap": "Tap to swap",
+      "weather": "17° · Dinner",
+      "allOwn": "All from your closet"
+    },
+    "phone": {
+      "eyebrow": "TUE · 18:42 · TONIGHT",
+      "titleLine1": "Three",
+      "titleLine2Lead": "outfits,",
+      "titleLine2Accent": "ready.",
+      "allOwn": "ALL OWN"
+    },
+    "sticker": { "text": "SCAN ME · OPEN ON PHONE · " },
+    "qr": { "url": "VESTURE.APP/M", "scan": "scan to open" },
+    "footer": {
+      "copyright": "© Vesture · 2026",
+      "build": "Build 0.2",
+      "platform": "Mobile · iOS / Android"
+    }
+  },
   "nav": {
     "discover": "Discover",
     "sellers": "Sellers",
